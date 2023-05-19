@@ -6,7 +6,7 @@ import 'package:flutter/material.dart';
 // import 'package:gado_app/home/widgets/widgetsHome';
 
 class HomePage extends StatefulWidget {
-  const HomePage({super.key});
+  const HomePage({Key? key}) : super(key: key);
 
   @override
   State<HomePage> createState() => _HomePageState();
@@ -16,42 +16,60 @@ class _HomePageState extends State<HomePage> {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-      // theme: ThemeData(fontFamily: 'RobotoMono'),
+      debugShowCheckedModeBanner: false,
       home: Scaffold(
         body: Column(
           mainAxisAlignment: MainAxisAlignment.spaceEvenly,
           children: [
-            homePageLogo,
-            SearchBarWidget(),
-            categoriesSection,
-            regulationBox,
-            socialMediaBox("facebookLink", "instagramLink", "youtubeLink")
-          ]
-              .map((widget) => Padding(
-                    padding: const EdgeInsets.all(24),
-                    child: widget,
-                  ))
-              .toList(),
+            Expanded(
+              child: ListView(
+                children: [
+                  homePageLogo,
+                  SearchBarWidget(),
+                  categoriesSection,
+                  regulationBox,
+                  socialMediaBox(
+                      "facebookLink", "instagramLink", "youtubeLink"),
+                ]
+                    .map((widget) => Padding(
+                          padding: const EdgeInsets.all(24),
+                          child: widget,
+                        ))
+                    .toList(),
+              ),
+            ),
+          ],
         ),
-        bottomNavigationBar: BottomNavigationBar(items: const [
-          BottomNavigationBarItem(
-              icon: Icon(Icons.shopping_cart), label: "Comprar"),
-          BottomNavigationBarItem(
-              icon: Icon(Icons.storefront), label: "Vender"),
-          BottomNavigationBarItem(
-              icon: Icon(Icons.favorite), label: "Favoritos")
-        ]),
+        bottomNavigationBar: BottomNavigationBar(
+          backgroundColor: const Color.fromARGB(255, 0, 101, 32),
+          selectedItemColor: Colors.white,
+          unselectedItemColor: Color.fromARGB(100, 215, 208, 208),
+          items: const [
+            BottomNavigationBarItem(
+              icon: Icon(Icons.shopping_cart),
+              label: "Comprar",
+            ),
+            BottomNavigationBarItem(
+              icon: Icon(Icons.storefront),
+              label: "Vender",
+            ),
+            BottomNavigationBarItem(
+              icon: Icon(Icons.favorite),
+              label: "Favoritos",
+            ),
+          ],
+        ),
       ),
-      debugShowCheckedModeBanner: false,
     );
   }
 }
 
+// Rest of the code...
 
 Widget categoriesSection = Column(
   children: [
     const Padding(
-      padding: EdgeInsets.only(bottom: 20),
+      padding: EdgeInsets.only(bottom: 16),
       child: Text(
         "CATEGORIAS",
         style: TextStyle(fontWeight: FontWeight.bold, fontSize: 20),
@@ -84,7 +102,8 @@ Widget categorieBox(imageLink, categoryText) {
     decoration: BoxDecoration(
       color: const Color.fromARGB(255, 0, 101, 32),
       borderRadius: BorderRadius.circular(10),
-      border: Border.all(color: const Color.fromARGB(255, 0, 101, 32), width: 3),
+      border:
+          Border.all(color: const Color.fromARGB(255, 0, 101, 32), width: 3),
     ),
     child: ClipRRect(
       borderRadius: BorderRadius.circular(10),
@@ -120,20 +139,23 @@ Widget categorieBox(imageLink, categoryText) {
 
 Widget homePageLogo = SizedBox(
   height: 200,
-  child: Flexible(
-    child: FittedBox(
-      fit: BoxFit.cover,
-      child: ClipRect(
-          child: Image.network(
-              "https://i.pinimg.com/736x/a9/44/6a/a9446ab738df002bd4bb77eccfec11c9.jpg")),
+  child: FittedBox(
+    fit: BoxFit.cover,
+    child: ClipRect(
+      child: Image.network(
+        "https://i.pinimg.com/736x/a9/44/6a/a9446ab738df002bd4bb77eccfec11c9.jpg",
+      ),
     ),
   ),
 );
 
 Widget regulationBox = Column(children: [
-  const Text(
-    "REGULAMENTO",
-    style: TextStyle(fontWeight: FontWeight.bold, fontSize: 20),
+  const Padding(
+    padding: EdgeInsets.only(bottom: 16),
+    child: Text(
+      "REGULAMENTO",
+      style: TextStyle(fontWeight: FontWeight.bold, fontSize: 20),
+    ),
   ),
   regulationButton,
 ]);
@@ -189,20 +211,17 @@ Widget socialMediaBox(facebookLink, instagramLink, youtubeLink) {
 }
 
 Widget iconButtonSocialMedia(externalLink, icon, color) {
-  return Builder(
-    builder: (context) {
-      return Link(
-        uri: Uri.parse(externalLink),
-        builder: (context, followLink) => IconButton(
-            iconSize: 32,
-            icon: icon,
-            color: color,
-            onPressed: followLink,
-          ),
-        
-      );
-    }
-  );
+  return Builder(builder: (context) {
+    return Link(
+      uri: Uri.parse(externalLink),
+      builder: (context, followLink) => IconButton(
+        iconSize: 32,
+        icon: icon,
+        color: color,
+        onPressed: followLink,
+      ),
+    );
+  });
 }
 
 class SearchBarWidget extends StatelessWidget {
@@ -219,9 +238,7 @@ class SearchBarWidget extends StatelessWidget {
         suffixIcon: IconButton(
           icon: const Icon(Icons.search),
           onPressed: () {
-            
             if (kDebugMode) {
-
               print('Search button pressed');
             }
           },
