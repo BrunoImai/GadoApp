@@ -1,0 +1,84 @@
+Widget categoriesSection = Column(
+  children: [
+    const Padding(
+      padding: EdgeInsets.only(bottom: 20),
+      child: Text("CATEGORIAS", style: TextStyle(fontWeight: FontWeight.bold),),
+    ),
+    
+    Row(
+    
+      mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+      children: [
+        Flexible(child: categorieBox("https://s2.glbimg.com/V4XsshzNU57Brn3e127b80Rbk24=/e.glbimg.com/og/ed/f/original/2016/05/30/gado.jpg", "GADO")),
+        Flexible(child: categorieBox("https://humanidades.com/wp-content/uploads/2016/04/campo-1-e1558303226877.jpg", "TERRA")),
+        Flexible(child: categorieBox("https://rothobras.com.br/wp-content/uploads/2020/03/m%C3%A1quina-do-campo-1-1000x650.jpg", "MÁQUINA")),
+      ],
+    ),
+  ],
+);
+
+Widget categorieBox(imageLink, categoryText) { 
+    return Container(
+      height: 100,
+      width: 120,
+      color: Colors.greenAccent,
+
+      child: Stack(
+        fit: StackFit.expand,
+        children: [
+          Flexible(
+            child: FittedBox(
+              fit: BoxFit.fill,
+              child: ClipRect(child: Image.network(imageLink)),
+            ),
+          ),
+          Flexible(
+            child: FractionallySizedBox(
+              alignment: Alignment.bottomCenter,
+              heightFactor: 0.2,
+              child: Container(
+                color: Color.fromARGB(255, 0, 53, 212),
+                child: Text(categoryText, textAlign: TextAlign.center, style: TextStyle(fontWeight: FontWeight.bold, color: Colors.white ),),
+              ),
+            ),
+          )
+        ],
+      ),
+    );
+}
+
+Widget homePageLogo = Container(
+  height: 200,
+  child:   Flexible(
+    child: FittedBox(
+      fit: BoxFit.cover,
+      child: ClipRect(child: Image.network("https://i.pinimg.com/736x/a9/44/6a/a9446ab738df002bd4bb77eccfec11c9.jpg")),
+    ),
+  ),
+);
+
+
+class SearchBarWidget extends StatelessWidget {
+  final TextEditingController _searchController = TextEditingController();
+
+  SearchBarWidget({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return TextField(
+      controller: _searchController,
+      decoration: InputDecoration(
+        hintText: 'Search...',
+        suffixIcon: IconButton(
+          icon: Icon(Icons.search),
+          onPressed: () {
+            // Perform search or any action here
+            if (kDebugMode) {
+              print('Search button pressed');
+            }
+          },
+        ),
+      ),
+    );
+  }
+}

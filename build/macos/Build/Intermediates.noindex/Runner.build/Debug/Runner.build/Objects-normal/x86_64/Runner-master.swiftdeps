@@ -1,0 +1,8 @@
+version: "Apple Swift version 5.8 (swiftlang-5.8.0.124.2 clang-1403.0.22.11.100)"
+options: "6521927badf770c00d55a191f73a564451c75ded0d7d09981cea955812067977"
+build_start_time: [1684521176, 341696000]
+build_end_time: [1684521179, 415984000]
+inputs:
+  "/Users/brunoimai/gado_app/macos/Flutter/GeneratedPluginRegistrant.swift": [1684521167, 354084313]
+  "/Users/brunoimai/gado_app/macos/Runner/AppDelegate.swift": [1684193415, 123382680]
+  "/Users/brunoimai/gado_app/macos/Runner/MainFlutterWindow.swift": [1684193415, 124929937]
