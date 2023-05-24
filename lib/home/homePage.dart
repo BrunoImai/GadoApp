@@ -1,8 +1,11 @@
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
+
 import 'package:url_launcher/link.dart';
 
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
+
+import '../productList/productListPage.dart';
 // import 'package:gado_app/home/widgets/widgetsHome';
 
 class HomePage extends StatefulWidget {
@@ -13,12 +16,56 @@ class HomePage extends StatefulWidget {
 }
 
 class _HomePageState extends State<HomePage> {
+  int _selectedIndex = 0;
+  
+  final List<Widget> _screens = [
+    homePageScreen,
+    const ProductListPage(),
+  ];
+
+  void _onItemTapped(int index) {
+    setState(() {
+      _selectedIndex = index;
+    });
+  }
+
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
       debugShowCheckedModeBanner: false,
       home: Scaffold(
-        body: Column(
+        body: IndexedStack(
+          index: _selectedIndex,
+          children: _screens,
+        ),
+
+        bottomNavigationBar: BottomNavigationBar(
+          backgroundColor: const Color.fromARGB(255, 0, 101, 32),
+          selectedItemColor: Colors.white,
+          unselectedItemColor: const Color.fromARGB(100, 215, 208, 208),
+          items: const [
+            BottomNavigationBarItem(
+              icon: Icon(Icons.shopping_cart),
+              label: "Comprar",
+            ),
+            BottomNavigationBarItem(
+              icon: Icon(Icons.storefront),
+              label: "Vender",
+            ),
+            BottomNavigationBarItem(
+              icon: Icon(Icons.favorite),
+              label: "Favoritos",
+            ),
+          ],
+          currentIndex: _selectedIndex,
+          onTap: _onItemTapped,
+        ),
+      ),
+    );
+  }
+}
+
+Widget homePageScreen = Column(
           mainAxisAlignment: MainAxisAlignment.spaceEvenly,
           children: [
             Expanded(
@@ -39,31 +86,7 @@ class _HomePageState extends State<HomePage> {
               ),
             ),
           ],
-        ),
-        bottomNavigationBar: BottomNavigationBar(
-          backgroundColor: const Color.fromARGB(255, 0, 101, 32),
-          selectedItemColor: Colors.white,
-          unselectedItemColor: Color.fromARGB(100, 215, 208, 208),
-          items: const [
-            BottomNavigationBarItem(
-              icon: Icon(Icons.shopping_cart),
-              label: "Comprar",
-            ),
-            BottomNavigationBarItem(
-              icon: Icon(Icons.storefront),
-              label: "Vender",
-            ),
-            BottomNavigationBarItem(
-              icon: Icon(Icons.favorite),
-              label: "Favoritos",
-            ),
-          ],
-        ),
-      ),
-    );
-  }
-}
-
+        );
 // Rest of the code...
 
 Widget categoriesSection = Column(
@@ -76,7 +99,7 @@ Widget categoriesSection = Column(
       ),
     ),
     Row(
-      mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+      mainAxisAlignment: MainAxisAlignment.spaceBetween,
       children: [
         Flexible(
             child: categorieBox(
@@ -96,58 +119,71 @@ Widget categoriesSection = Column(
 );
 
 Widget categorieBox(imageLink, categoryText) {
-  return Container(
-    height: 110,
-    width: 110,
-    decoration: BoxDecoration(
-      color: const Color.fromARGB(255, 0, 101, 32),
-      borderRadius: BorderRadius.circular(10),
-      border:
-          Border.all(color: const Color.fromARGB(255, 0, 101, 32), width: 3),
-    ),
-    child: ClipRRect(
-      borderRadius: BorderRadius.circular(10),
-      child: Stack(
-        fit: StackFit.expand,
-        children: [
-          Image.network(
-            imageLink,
-            fit: BoxFit.cover,
-          ),
-          FractionallySizedBox(
-            alignment: Alignment.bottomCenter,
-            heightFactor: 0.2,
-            child: Container(
-              color: const Color.fromARGB(255, 0, 101, 32),
-              child: Center(
-                child: Text(
-                  categoryText,
-                  textAlign: TextAlign.center,
-                  style: const TextStyle(
-                    fontWeight: FontWeight.bold,
-                    color: Colors.white,
+  return Builder(
+    builder: (context) {
+      return Container(
+        height: 120,
+        width: 120,
+        decoration: BoxDecoration(
+          color: const Color.fromARGB(255, 0, 101, 32),
+          borderRadius: BorderRadius.circular(10),
+          border:
+              Border.all(color: const Color.fromARGB(255, 0, 101, 32), width: 3),
+        ),
+        child: ClipRRect(
+          borderRadius: BorderRadius.circular(10),
+          child: Stack(
+            fit: StackFit.expand,
+            children: [
+              TextButton(
+                child: ClipRRect(
+                  borderRadius: BorderRadius.circular(10),
+                  child: Image.network(
+                          imageLink,
+                          fit: BoxFit.cover,
+                        ),
+                ),
+                            onPressed: () => {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(builder: (context) => const ProductListPage()),
+                  )
+                },
+              ),
+              FractionallySizedBox(
+                alignment: Alignment.bottomCenter,
+                heightFactor: 0.2,
+                child: Container(
+                  color: const Color.fromARGB(255, 0, 101, 32),
+                  child: Center(
+                    child: Text(
+                      categoryText,
+                      textAlign: TextAlign.center,
+                      style: const TextStyle(
+                        fontWeight: FontWeight.bold,
+                        color: Colors.white,
+                      ),
+                    ),
                   ),
                 ),
               ),
-            ),
+            ],
           ),
-        ],
-      ),
-    ),
+        ),
+      );
+    }
   );
 }
 
 Widget homePageLogo = SizedBox(
   height: 200,
-  child: FittedBox(
-    fit: BoxFit.cover,
-    child: ClipRect(
+  child: ClipRect(
       child: Image.network(
         "https://i.pinimg.com/736x/a9/44/6a/a9446ab738df002bd4bb77eccfec11c9.jpg",
-      ),
     ),
   ),
 );
+
 
 Widget regulationBox = Column(children: [
   const Padding(
