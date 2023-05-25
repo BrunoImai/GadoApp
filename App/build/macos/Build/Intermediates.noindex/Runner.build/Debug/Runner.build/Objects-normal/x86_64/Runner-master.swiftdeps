@@ -1,0 +1,8 @@
+version: "Apple Swift version 5.7.2 (swiftlang-5.7.2.135.5 clang-1400.0.29.51)"
+options: "b1964387e68083a4dd36cb7b27284c561206992f8670f6c3bfe71b30d62a44fc"
+build_start_time: [1685023985, 413960933]
+build_end_time: [1685023995, 871579170]
+inputs:
+  "/Users/brunoimai/gado_app/GadoApp/App/macos/Flutter/GeneratedPluginRegistrant.swift": [1685023946, 88305950]
+  "/Users/brunoimai/gado_app/GadoApp/App/macos/Runner/AppDelegate.swift": [1684193415, 123382568]
+  "/Users/brunoimai/gado_app/GadoApp/App/macos/Runner/MainFlutterWindow.swift": [1684193415, 124929904]
