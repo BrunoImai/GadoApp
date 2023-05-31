@@ -1,11 +1,14 @@
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
+import 'package:gado_app/productList/landList.dart';
+import 'package:gado_app/productList/machineList.dart';
 
 import 'package:url_launcher/link.dart';
 
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 
-import '../productList/productListPage.dart';
+import '../newProductFile/newProductView.dart';
+import '../productList/AnimalList.dart';
 // import 'package:gado_app/home/widgets/widgetsHome';
 
 class HomePage extends StatefulWidget {
@@ -17,11 +20,8 @@ class HomePage extends StatefulWidget {
 
 class _HomePageState extends State<HomePage> {
   int _selectedIndex = 0;
-  
-  final List<Widget> _screens = [
-    homePageScreen,
-    const ProductListPage(),
-  ];
+
+  final List<Widget> _screens = [homePageScreen, const NewProductView()];
 
   void _onItemTapped(int index) {
     setState(() {
@@ -38,7 +38,6 @@ class _HomePageState extends State<HomePage> {
           index: _selectedIndex,
           children: _screens,
         ),
-
         bottomNavigationBar: BottomNavigationBar(
           backgroundColor: const Color.fromARGB(255, 0, 101, 32),
           selectedItemColor: Colors.white,
@@ -66,32 +65,31 @@ class _HomePageState extends State<HomePage> {
 }
 
 Widget homePageScreen = Column(
-          mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-          children: [
-            Expanded(
-              child: ListView(
-                children: [
-                  homePageLogo,
-                  SearchBarWidget(),
-                  categoriesSection,
-                  regulationBox,
-                  socialMediaBox(
-                      "facebookLink", "instagramLink", "youtubeLink"),
-                ]
-                    .map((widget) => Padding(
-                          padding: const EdgeInsets.all(24),
-                          child: widget,
-                        ))
-                    .toList(),
-              ),
-            ),
-          ],
-        );
+  mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+  children: [
+    Expanded(
+      child: ListView(
+        children: [
+          homePageLogo,
+          SearchBarWidget(),
+          categoriesSection,
+          regulationBox,
+          socialMediaBox("facebookLink", "instagramLink", "youtubeLink"),
+        ]
+            .map((widget) => Padding(
+                  padding: const EdgeInsets.all(24),
+                  child: widget,
+                ))
+            .toList(),
+      ),
+    ),
+  ],
+);
 // Rest of the code...
 
-Widget categoriesSection = Column(
+Widget categoriesSection = const Column(
   children: [
-    const Padding(
+    Padding(
       padding: EdgeInsets.only(bottom: 16),
       child: Text(
         "CATEGORIAS",
@@ -102,53 +100,82 @@ Widget categoriesSection = Column(
       mainAxisAlignment: MainAxisAlignment.spaceBetween,
       children: [
         Flexible(
-            child: categorieBox(
-                "https://s2.glbimg.com/V4XsshzNU57Brn3e127b80Rbk24=/e.glbimg.com/og/ed/f/original/2016/05/30/gado.jpg",
-                "GADO")),
+          child: CategoryBox(
+              imageLink:
+                  "https://s2.glbimg.com/V4XsshzNU57Brn3e127b80Rbk24=/e.glbimg.com/og/ed/f/original/2016/05/30/gado.jpg",
+              categoryText: "GADO",
+          destination: ProductListPage(),
+          ),
+        ),
         Flexible(
-            child: categorieBox(
+          child: CategoryBox(
+            imageLink:
                 "https://humanidades.com/wp-content/uploads/2016/04/campo-1-e1558303226877.jpg",
-                "TERRA")),
+            categoryText: "TERRA",
+            destination: LandListPage(),
+          ),
+        ),
         Flexible(
-            child: categorieBox(
-                "https://rothobras.com.br/wp-content/uploads/2020/03/m%C3%A1quina-do-campo-1-1000x650.jpg",
-                "MÁQUINA")),
+          child: CategoryBox(
+            imageLink:
+                "https://blog.buscarrural.com/wp-content/uploads/elementor/thumbs/maquinas-agricolas-p1pbgi0lbgjhgun9dzsoe1x3of68qs2xhp67wstl68.jpg",
+            categoryText: "MÁQUINA",
+              destination: MachineryListPage()
+          ),
+        ),
       ],
     ),
   ],
 );
 
-Widget categorieBox(imageLink, categoryText) {
-  return Builder(
-    builder: (context) {
-      return Container(
-        height: 120,
-        width: 120,
-        decoration: BoxDecoration(
-          color: const Color.fromARGB(255, 0, 101, 32),
-          borderRadius: BorderRadius.circular(10),
-          border:
-              Border.all(color: const Color.fromARGB(255, 0, 101, 32), width: 3),
-        ),
-        child: ClipRRect(
-          borderRadius: BorderRadius.circular(10),
+class CategoryBox extends StatelessWidget {
+  final String imageLink;
+  final String categoryText;
+  final Widget destination;
+
+  const CategoryBox({
+    super.key,
+    required this.imageLink,
+    required this.categoryText, required this.destination,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      height: 120,
+      width: 120,
+      decoration: BoxDecoration(
+        color: const Color.fromARGB(255, 0, 101, 32),
+        borderRadius: BorderRadius.circular(10),
+        // border:
+        //     Border.all(color: const Color.fromARGB(255, 0, 101, 32), width: 1),
+      ),
+      child: ClipRRect(
+        borderRadius: BorderRadius.circular(10),
+        child: TextButton(
+          onPressed: () {
+            Navigator.push(
+              context,
+              MaterialPageRoute(builder: (context) => destination),
+            );
+          },
           child: Stack(
+            alignment: Alignment.topCenter,
             fit: StackFit.expand,
             children: [
-              TextButton(
-                child: ClipRRect(
-                  borderRadius: BorderRadius.circular(10),
-                  child: Image.network(
-                          imageLink,
-                          fit: BoxFit.cover,
-                        ),
+              Align(
+                alignment: AlignmentDirectional.topCenter,
+                child: FractionallySizedBox(
+                  heightFactor: 0.8,
+                  widthFactor: 1,
+                  child: ClipRRect(
+                    borderRadius: BorderRadius.circular(10),
+                    child: Image.network(
+                      imageLink,
+                      fit: BoxFit.cover,
+                    ),
+                  ),
                 ),
-                            onPressed: () => {
-                  Navigator.push(
-                    context,
-                    MaterialPageRoute(builder: (context) => const ProductListPage()),
-                  )
-                },
               ),
               FractionallySizedBox(
                 alignment: Alignment.bottomCenter,
@@ -170,20 +197,19 @@ Widget categorieBox(imageLink, categoryText) {
             ],
           ),
         ),
-      );
-    }
-  );
+      ),
+    );
+  }
 }
 
 Widget homePageLogo = SizedBox(
-  height: 200,
+  height: 100,
   child: ClipRect(
-      child: Image.network(
-        "https://i.pinimg.com/736x/a9/44/6a/a9446ab738df002bd4bb77eccfec11c9.jpg",
+    child: Image.network(
+      "https://upload.wikimedia.org/wikipedia/commons/f/fd/Crowd_Cow_logo.png?20210119092057",
     ),
   ),
 );
-
 
 Widget regulationBox = Column(children: [
   const Padding(
@@ -193,30 +219,46 @@ Widget regulationBox = Column(children: [
       style: TextStyle(fontWeight: FontWeight.bold, fontSize: 20),
     ),
   ),
-  regulationButton,
+  FlatMenuButton(
+      icon: Icon(Icons.file_copy_rounded),
+      buttonName: "Regulamento",
+      onPress: () {
+
+      },
+  ),
 ]);
 
-Widget regulationButton = SizedBox(
-  width: double.infinity,
-  height: 40,
-  child: ElevatedButton.icon(
-    onPressed: () {
-      // Add your button click logic here
-    },
-    icon: const Icon(Icons.file_copy_rounded),
-    label: const Text(
-      'Abrir',
-      style: TextStyle(color: Colors.white),
-    ),
-    style: ElevatedButton.styleFrom(
-      backgroundColor: const Color.fromARGB(255, 0, 101, 32),
-      // padding: EdgeInsets.zero,
-      shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(8),
+class FlatMenuButton extends StatelessWidget {
+  final Icon icon;
+  final Function()? onPress;
+  final String buttonName;
+  const FlatMenuButton(
+      {Key? key, this.onPress, required this.icon, required this.buttonName})
+      : super(key: key);
+
+  @override
+  Widget build(BuildContext context) {
+    return SizedBox(
+      width: double.infinity,
+      height: 40,
+      child: ElevatedButton.icon(
+        onPressed: onPress,
+        icon: icon,
+        label: Text(
+          buttonName,
+          style: const TextStyle(color: Colors.white),
+        ),
+        style: ElevatedButton.styleFrom(
+          backgroundColor: const Color.fromARGB(255, 0, 101, 32),
+// padding: EdgeInsets.zero,
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(8),
+          ),
+        ),
       ),
-    ),
-  ),
-);
+    );
+  }
+}
 
 Widget socialMediaBox(facebookLink, instagramLink, youtubeLink) {
   return Column(
@@ -251,7 +293,7 @@ Widget iconButtonSocialMedia(externalLink, icon, color) {
     return Link(
       uri: Uri.parse(externalLink),
       builder: (context, followLink) => IconButton(
-        iconSize: 32,
+        iconSize: 42,
         icon: icon,
         color: color,
         onPressed: followLink,
@@ -263,21 +305,44 @@ Widget iconButtonSocialMedia(externalLink, icon, color) {
 class SearchBarWidget extends StatelessWidget {
   final TextEditingController _searchController = TextEditingController();
 
-  SearchBarWidget({super.key});
+  SearchBarWidget({Key? key}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
-    return TextField(
-      controller: _searchController,
-      decoration: InputDecoration(
-        hintText: 'Search...',
-        suffixIcon: IconButton(
-          icon: const Icon(Icons.search),
-          onPressed: () {
-            if (kDebugMode) {
-              print('Search button pressed');
-            }
-          },
+    return Container(
+      decoration: BoxDecoration(
+        border: Border.all(
+            color: const Color.fromARGB(255, 0, 101, 32), width: 3.0),
+        borderRadius: BorderRadius.circular(10),
+      ),
+      child: TextField(
+        controller: _searchController,
+        decoration: InputDecoration(
+          prefixIconColor:
+              MaterialStateColor.resolveWith((Set<MaterialState> states) {
+            return states.contains(MaterialState.focused)
+                ? const Color.fromARGB(255, 0, 101, 32)
+                : Colors.grey;
+          }),
+          suffixIconColor: const Color.fromARGB(255, 0, 101, 32),
+          border: InputBorder.none,
+          hintText: 'Search...',
+          prefixIcon: IconButton(
+            icon: const Icon(Icons.search),
+            onPressed: () {
+              if (kDebugMode) {
+                print('Search button pressed');
+              }
+            },
+          ),
+          suffixIcon: IconButton(
+            icon: const Icon(Icons.filter_list),
+            onPressed: () {
+              if (kDebugMode) {
+                print('Filter button pressed');
+              }
+            },
+          ),
         ),
       ),
     );
