@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
-import 'package:gado_app/productsInfoPages/LandInfoPage.dart';
+import 'package:gado_app/land/LandInfoPage.dart';
 
-import '../productsInfoPages/animalInfoPage.dart';
+import '../animal/animalInfoPage.dart';
 
 class LandListPage extends StatefulWidget {
   const LandListPage({super.key});

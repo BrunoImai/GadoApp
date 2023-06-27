@@ -1,6 +1,6 @@
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
-import 'package:gado_app/productList/landList.dart';
-import 'package:gado_app/productList/machineList.dart';
+import 'package:gado_app/land/landList.dart';
+import 'package:gado_app/machine/machineList.dart';
 
 import 'package:url_launcher/link.dart';
 
@@ -8,7 +8,7 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 
 import '../newProductFile/newProductView.dart';
-import '../productList/AnimalList.dart';
+import '../animal/AnimalList.dart';
 // import 'package:gado_app/home/widgets/widgetsHome';
 
 class HomePage extends StatefulWidget {

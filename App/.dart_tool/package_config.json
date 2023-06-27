@@ -2,6 +2,24 @@
   "configVersion": 2,
   "packages": [
     {
+      "name": "_fe_analyzer_shared",
+      "rootUri": "file:///Users/brunoimai/.pub-cache/hosted/pub.dev/_fe_analyzer_shared-61.0.0",
+      "packageUri": "lib/",
+      "languageVersion": "2.17"
+    },
+    {
+      "name": "analyzer",
+      "rootUri": "file:///Users/brunoimai/.pub-cache/hosted/pub.dev/analyzer-5.13.0",
+      "packageUri": "lib/",
+      "languageVersion": "2.19"
+    },
+    {
+      "name": "args",
+      "rootUri": "file:///Users/brunoimai/.pub-cache/hosted/pub.dev/args-2.4.2",
+      "packageUri": "lib/",
+      "languageVersion": "2.19"
+    },
+    {
       "name": "async",
       "rootUri": "file:///Users/brunoimai/.pub-cache/hosted/pub.dev/async-2.11.0",
       "packageUri": "lib/",
@@ -12,6 +30,54 @@
       "rootUri": "file:///Users/brunoimai/.pub-cache/hosted/pub.dev/boolean_selector-2.1.1",
       "packageUri": "lib/",
       "languageVersion": "2.17"
+    },
+    {
+      "name": "build",
+      "rootUri": "file:///Users/brunoimai/.pub-cache/hosted/pub.dev/build-2.4.0",
+      "packageUri": "lib/",
+      "languageVersion": "2.18"
+    },
+    {
+      "name": "build_config",
+      "rootUri": "file:///Users/brunoimai/.pub-cache/hosted/pub.dev/build_config-1.1.1",
+      "packageUri": "lib/",
+      "languageVersion": "2.14"
+    },
+    {
+      "name": "build_daemon",
+      "rootUri": "file:///Users/brunoimai/.pub-cache/hosted/pub.dev/build_daemon-4.0.0",
+      "packageUri": "lib/",
+      "languageVersion": "2.14"
+    },
+    {
+      "name": "build_resolvers",
+      "rootUri": "file:///Users/brunoimai/.pub-cache/hosted/pub.dev/build_resolvers-2.2.0",
+      "packageUri": "lib/",
+      "languageVersion": "2.18"
+    },
+    {
+      "name": "build_runner",
+      "rootUri": "file:///Users/brunoimai/.pub-cache/hosted/pub.dev/build_runner-2.4.5",
+      "packageUri": "lib/",
+      "languageVersion": "3.0"
+    },
+    {
+      "name": "build_runner_core",
+      "rootUri": "file:///Users/brunoimai/.pub-cache/hosted/pub.dev/build_runner_core-7.2.10",
+      "packageUri": "lib/",
+      "languageVersion": "2.19"
+    },
+    {
+      "name": "built_collection",
+      "rootUri": "file:///Users/brunoimai/.pub-cache/hosted/pub.dev/built_collection-5.1.1",
+      "packageUri": "lib/",
+      "languageVersion": "2.12"
+    },
+    {
+      "name": "built_value",
+      "rootUri": "file:///Users/brunoimai/.pub-cache/hosted/pub.dev/built_value-8.6.1",
+      "packageUri": "lib/",
+      "languageVersion": "2.12"
     },
     {
       "name": "carousel_slider",
@@ -26,10 +92,22 @@
       "languageVersion": "2.12"
     },
     {
+      "name": "checked_yaml",
+      "rootUri": "file:///Users/brunoimai/.pub-cache/hosted/pub.dev/checked_yaml-2.0.3",
+      "packageUri": "lib/",
+      "languageVersion": "2.19"
+    },
+    {
       "name": "clock",
       "rootUri": "file:///Users/brunoimai/.pub-cache/hosted/pub.dev/clock-1.1.1",
       "packageUri": "lib/",
       "languageVersion": "2.12"
+    },
+    {
+      "name": "code_builder",
+      "rootUri": "file:///Users/brunoimai/.pub-cache/hosted/pub.dev/code_builder-4.5.0",
+      "packageUri": "lib/",
+      "languageVersion": "2.19"
     },
     {
       "name": "collection",
@@ -38,10 +116,28 @@
       "languageVersion": "2.18"
     },
     {
+      "name": "convert",
+      "rootUri": "file:///Users/brunoimai/.pub-cache/hosted/pub.dev/convert-3.1.1",
+      "packageUri": "lib/",
+      "languageVersion": "2.18"
+    },
+    {
+      "name": "crypto",
+      "rootUri": "file:///Users/brunoimai/.pub-cache/hosted/pub.dev/crypto-3.0.3",
+      "packageUri": "lib/",
+      "languageVersion": "2.19"
+    },
+    {
       "name": "cupertino_icons",
       "rootUri": "file:///Users/brunoimai/.pub-cache/hosted/pub.dev/cupertino_icons-1.0.5",
       "packageUri": "lib/",
       "languageVersion": "2.12"
+    },
+    {
+      "name": "dart_style",
+      "rootUri": "file:///Users/brunoimai/.pub-cache/hosted/pub.dev/dart_style-2.3.1",
+      "packageUri": "lib/",
+      "languageVersion": "2.19"
     },
     {
       "name": "fake_async",
@@ -60,6 +156,12 @@
       "rootUri": "file:///Users/brunoimai/.pub-cache/hosted/pub.dev/file-6.1.4",
       "packageUri": "lib/",
       "languageVersion": "2.12"
+    },
+    {
+      "name": "fixnum",
+      "rootUri": "file:///Users/brunoimai/.pub-cache/hosted/pub.dev/fixnum-1.1.0",
+      "packageUri": "lib/",
+      "languageVersion": "2.19"
     },
     {
       "name": "flutter",
@@ -92,14 +194,44 @@
       "languageVersion": "2.12"
     },
     {
+      "name": "frontend_server_client",
+      "rootUri": "file:///Users/brunoimai/.pub-cache/hosted/pub.dev/frontend_server_client-3.2.0",
+      "packageUri": "lib/",
+      "languageVersion": "2.12"
+    },
+    {
+      "name": "glob",
+      "rootUri": "file:///Users/brunoimai/.pub-cache/hosted/pub.dev/glob-2.1.2",
+      "packageUri": "lib/",
+      "languageVersion": "2.19"
+    },
+    {
+      "name": "graphs",
+      "rootUri": "file:///Users/brunoimai/.pub-cache/hosted/pub.dev/graphs-2.3.1",
+      "packageUri": "lib/",
+      "languageVersion": "2.18"
+    },
+    {
       "name": "http",
-      "rootUri": "file:///Users/brunoimai/.pub-cache/hosted/pub.dev/http-1.0.0",
+      "rootUri": "file:///Users/brunoimai/.pub-cache/hosted/pub.dev/http-1.1.0",
       "packageUri": "lib/",
       "languageVersion": "3.0"
     },
     {
+      "name": "http_multi_server",
+      "rootUri": "file:///Users/brunoimai/.pub-cache/hosted/pub.dev/http_multi_server-3.2.1",
+      "packageUri": "lib/",
+      "languageVersion": "2.12"
+    },
+    {
       "name": "http_parser",
       "rootUri": "file:///Users/brunoimai/.pub-cache/hosted/pub.dev/http_parser-4.0.2",
+      "packageUri": "lib/",
+      "languageVersion": "2.12"
+    },
+    {
+      "name": "io",
+      "rootUri": "file:///Users/brunoimai/.pub-cache/hosted/pub.dev/io-1.0.4",
       "packageUri": "lib/",
       "languageVersion": "2.12"
     },
@@ -110,10 +242,28 @@
       "languageVersion": "2.19"
     },
     {
-      "name": "lints",
-      "rootUri": "file:///Users/brunoimai/.pub-cache/hosted/pub.dev/lints-2.1.0",
+      "name": "json_annotation",
+      "rootUri": "file:///Users/brunoimai/.pub-cache/hosted/pub.dev/json_annotation-4.8.1",
+      "packageUri": "lib/",
+      "languageVersion": "2.19"
+    },
+    {
+      "name": "json_serializable",
+      "rootUri": "file:///Users/brunoimai/.pub-cache/hosted/pub.dev/json_serializable-6.7.0",
       "packageUri": "lib/",
       "languageVersion": "3.0"
+    },
+    {
+      "name": "lints",
+      "rootUri": "file:///Users/brunoimai/.pub-cache/hosted/pub.dev/lints-2.1.1",
+      "packageUri": "lib/",
+      "languageVersion": "3.0"
+    },
+    {
+      "name": "logging",
+      "rootUri": "file:///Users/brunoimai/.pub-cache/hosted/pub.dev/logging-1.2.0",
+      "packageUri": "lib/",
+      "languageVersion": "2.19"
     },
     {
       "name": "matcher",
@@ -134,6 +284,12 @@
       "languageVersion": "2.12"
     },
     {
+      "name": "mime",
+      "rootUri": "file:///Users/brunoimai/.pub-cache/hosted/pub.dev/mime-1.0.4",
+      "packageUri": "lib/",
+      "languageVersion": "2.18"
+    },
+    {
       "name": "motion_tab_bar_v2",
       "rootUri": "file:///Users/brunoimai/.pub-cache/hosted/pub.dev/motion_tab_bar_v2-0.2.6",
       "packageUri": "lib/",
@@ -142,6 +298,12 @@
     {
       "name": "nested",
       "rootUri": "file:///Users/brunoimai/.pub-cache/hosted/pub.dev/nested-1.0.0",
+      "packageUri": "lib/",
+      "languageVersion": "2.12"
+    },
+    {
+      "name": "package_config",
+      "rootUri": "file:///Users/brunoimai/.pub-cache/hosted/pub.dev/package_config-2.1.0",
       "packageUri": "lib/",
       "languageVersion": "2.12"
     },
@@ -165,9 +327,9 @@
     },
     {
       "name": "path_provider_windows",
-      "rootUri": "file:///Users/brunoimai/.pub-cache/hosted/pub.dev/path_provider_windows-2.1.6",
+      "rootUri": "file:///Users/brunoimai/.pub-cache/hosted/pub.dev/path_provider_windows-2.1.7",
       "packageUri": "lib/",
-      "languageVersion": "2.17"
+      "languageVersion": "2.18"
     },
     {
       "name": "platform",
@@ -182,6 +344,12 @@
       "languageVersion": "2.17"
     },
     {
+      "name": "pool",
+      "rootUri": "file:///Users/brunoimai/.pub-cache/hosted/pub.dev/pool-1.5.1",
+      "packageUri": "lib/",
+      "languageVersion": "2.12"
+    },
+    {
       "name": "process",
       "rootUri": "file:///Users/brunoimai/.pub-cache/hosted/pub.dev/process-4.2.4",
       "packageUri": "lib/",
@@ -194,10 +362,22 @@
       "languageVersion": "2.12"
     },
     {
-      "name": "shared_preferences",
-      "rootUri": "file:///Users/brunoimai/.pub-cache/hosted/pub.dev/shared_preferences-2.1.1",
+      "name": "pub_semver",
+      "rootUri": "file:///Users/brunoimai/.pub-cache/hosted/pub.dev/pub_semver-2.1.4",
       "packageUri": "lib/",
       "languageVersion": "2.17"
+    },
+    {
+      "name": "pubspec_parse",
+      "rootUri": "file:///Users/brunoimai/.pub-cache/hosted/pub.dev/pubspec_parse-1.2.3",
+      "packageUri": "lib/",
+      "languageVersion": "2.18"
+    },
+    {
+      "name": "shared_preferences",
+      "rootUri": "file:///Users/brunoimai/.pub-cache/hosted/pub.dev/shared_preferences-2.1.2",
+      "packageUri": "lib/",
+      "languageVersion": "2.18"
     },
     {
       "name": "shared_preferences_android",
@@ -219,9 +399,9 @@
     },
     {
       "name": "shared_preferences_platform_interface",
-      "rootUri": "file:///Users/brunoimai/.pub-cache/hosted/pub.dev/shared_preferences_platform_interface-2.2.0",
+      "rootUri": "file:///Users/brunoimai/.pub-cache/hosted/pub.dev/shared_preferences_platform_interface-2.3.0",
       "packageUri": "lib/",
-      "languageVersion": "2.17"
+      "languageVersion": "2.18"
     },
     {
       "name": "shared_preferences_web",
@@ -236,10 +416,34 @@
       "languageVersion": "2.17"
     },
     {
+      "name": "shelf",
+      "rootUri": "file:///Users/brunoimai/.pub-cache/hosted/pub.dev/shelf-1.4.1",
+      "packageUri": "lib/",
+      "languageVersion": "2.17"
+    },
+    {
+      "name": "shelf_web_socket",
+      "rootUri": "file:///Users/brunoimai/.pub-cache/hosted/pub.dev/shelf_web_socket-1.0.4",
+      "packageUri": "lib/",
+      "languageVersion": "2.17"
+    },
+    {
       "name": "sky_engine",
       "rootUri": "file:///Users/brunoimai/fvm/versions/stable/bin/cache/pkg/sky_engine",
       "packageUri": "lib/",
       "languageVersion": "3.0"
+    },
+    {
+      "name": "source_gen",
+      "rootUri": "file:///Users/brunoimai/.pub-cache/hosted/pub.dev/source_gen-1.3.2",
+      "packageUri": "lib/",
+      "languageVersion": "2.18"
+    },
+    {
+      "name": "source_helper",
+      "rootUri": "file:///Users/brunoimai/.pub-cache/hosted/pub.dev/source_helper-1.3.3",
+      "packageUri": "lib/",
+      "languageVersion": "2.17"
     },
     {
       "name": "source_span",
@@ -256,6 +460,12 @@
     {
       "name": "stream_channel",
       "rootUri": "file:///Users/brunoimai/.pub-cache/hosted/pub.dev/stream_channel-2.1.1",
+      "packageUri": "lib/",
+      "languageVersion": "2.14"
+    },
+    {
+      "name": "stream_transform",
+      "rootUri": "file:///Users/brunoimai/.pub-cache/hosted/pub.dev/stream_transform-2.1.0",
       "packageUri": "lib/",
       "languageVersion": "2.14"
     },
@@ -278,6 +488,12 @@
       "languageVersion": "2.18"
     },
     {
+      "name": "timing",
+      "rootUri": "file:///Users/brunoimai/.pub-cache/hosted/pub.dev/timing-1.0.1",
+      "packageUri": "lib/",
+      "languageVersion": "2.14"
+    },
+    {
       "name": "typed_data",
       "rootUri": "file:///Users/brunoimai/.pub-cache/hosted/pub.dev/typed_data-1.3.2",
       "packageUri": "lib/",
@@ -291,7 +507,7 @@
     },
     {
       "name": "url_launcher_android",
-      "rootUri": "file:///Users/brunoimai/.pub-cache/hosted/pub.dev/url_launcher_android-6.0.34",
+      "rootUri": "file:///Users/brunoimai/.pub-cache/hosted/pub.dev/url_launcher_android-6.0.36",
       "packageUri": "lib/",
       "languageVersion": "2.18"
     },
@@ -315,15 +531,15 @@
     },
     {
       "name": "url_launcher_platform_interface",
-      "rootUri": "file:///Users/brunoimai/.pub-cache/hosted/pub.dev/url_launcher_platform_interface-2.1.2",
+      "rootUri": "file:///Users/brunoimai/.pub-cache/hosted/pub.dev/url_launcher_platform_interface-2.1.3",
       "packageUri": "lib/",
-      "languageVersion": "2.12"
+      "languageVersion": "2.18"
     },
     {
       "name": "url_launcher_web",
-      "rootUri": "file:///Users/brunoimai/.pub-cache/hosted/pub.dev/url_launcher_web-2.0.16",
+      "rootUri": "file:///Users/brunoimai/.pub-cache/hosted/pub.dev/url_launcher_web-2.0.17",
       "packageUri": "lib/",
-      "languageVersion": "2.17"
+      "languageVersion": "2.18"
     },
     {
       "name": "url_launcher_windows",
@@ -338,10 +554,22 @@
       "languageVersion": "2.14"
     },
     {
-      "name": "win32",
-      "rootUri": "file:///Users/brunoimai/.pub-cache/hosted/pub.dev/win32-4.1.4",
+      "name": "watcher",
+      "rootUri": "file:///Users/brunoimai/.pub-cache/hosted/pub.dev/watcher-1.1.0",
       "packageUri": "lib/",
-      "languageVersion": "2.17"
+      "languageVersion": "3.0"
+    },
+    {
+      "name": "web_socket_channel",
+      "rootUri": "file:///Users/brunoimai/.pub-cache/hosted/pub.dev/web_socket_channel-2.4.0",
+      "packageUri": "lib/",
+      "languageVersion": "2.15"
+    },
+    {
+      "name": "win32",
+      "rootUri": "file:///Users/brunoimai/.pub-cache/hosted/pub.dev/win32-5.0.5",
+      "packageUri": "lib/",
+      "languageVersion": "3.0"
     },
     {
       "name": "xdg_directories",
@@ -350,13 +578,19 @@
       "languageVersion": "2.17"
     },
     {
+      "name": "yaml",
+      "rootUri": "file:///Users/brunoimai/.pub-cache/hosted/pub.dev/yaml-3.1.2",
+      "packageUri": "lib/",
+      "languageVersion": "2.19"
+    },
+    {
       "name": "gado_app",
       "rootUri": "../",
       "packageUri": "lib/",
       "languageVersion": "3.0"
     }
   ],
-  "generated": "2023-05-28T18:09:53.493561Z",
+  "generated": "2023-06-27T18:32:39.779405Z",
   "generator": "pub",
   "generatorVersion": "3.0.1"
 }

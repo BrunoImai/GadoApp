@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:gado_app/productsInfoPages/animalInfoPage.dart';
+import 'package:gado_app/animal/animalInfoPage.dart';
 
 class ProductListPage extends StatefulWidget {
   const ProductListPage({super.key});

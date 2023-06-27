@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
-import 'package:gado_app/productsInfoPages/LandInfoPage.dart';
-import 'package:gado_app/productsInfoPages/machineInfoPage.dart';
+import 'package:gado_app/land/LandInfoPage.dart';
+import 'package:gado_app/machine/machineInfoPage.dart';
 
-import '../productsInfoPages/animalInfoPage.dart';
+import '../animal/animalInfoPage.dart';
 
 class MachineryListPage extends StatefulWidget {
   const MachineryListPage({super.key});

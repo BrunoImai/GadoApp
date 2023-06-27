@@ -18,7 +18,7 @@
 		</data>
 		<key>Assets.car</key>
 		<data>
-		Jp8facDB5UCKVZt57eTGwhBz6Yc=
+		9KMSW070XOhhebfW+aWjsqVHNSU=
 		</data>
 		<key>Base.lproj/LaunchScreen.storyboardc/01J-lp-oVM-view-Ze5-6b-2t3.nib</key>
 		<data>
@@ -46,7 +46,7 @@
 		</data>
 		<key>Frameworks/App.framework/App</key>
 		<data>
-		PRqHxbPVJUnODWcOJumSzZakThY=
+		Y3LYfg0e4yOvNH67Kn+gg7nEhTI=
 		</data>
 		<key>Frameworks/App.framework/Info.plist</key>
 		<data>
@@ -54,7 +54,7 @@
 		</data>
 		<key>Frameworks/App.framework/_CodeSignature/CodeResources</key>
 		<data>
-		Sxw0DfL/dY7Ec0Q34pNATpYHLy0=
+		v1HRXgEeqJuAjyMe0tZ+0mBwV9o=
 		</data>
 		<key>Frameworks/App.framework/flutter_assets/AssetManifest.json</key>
 		<data>
@@ -86,7 +86,7 @@
 		</data>
 		<key>Frameworks/App.framework/flutter_assets/kernel_blob.bin</key>
 		<data>
-		3fhmUSUtuCgSUiGtbTYTtrZ5lnc=
+		4MaTVH7+3bfrgtuU39usUzJ/IYA=
 		</data>
 		<key>Frameworks/App.framework/flutter_assets/packages/cupertino_icons/assets/CupertinoIcons.ttf</key>
 		<data>
@@ -256,7 +256,7 @@
 		<dict>
 			<key>hash2</key>
 			<data>
-			sSz3BXx7KjE1MhrzDRs6ABTqUtqiMTELziyuci+4DGM=
+			kxVexwaMawmmD4DYL8i31pk4kndbRTyFQC96ukUXvc4=
 			</data>
 		</dict>
 		<key>Base.lproj/LaunchScreen.storyboardc/01J-lp-oVM-view-Ze5-6b-2t3.nib</key>
@@ -305,7 +305,7 @@
 		<dict>
 			<key>hash2</key>
 			<data>
-			FjDOyHm7XakLXy/IEXEZvPqZp2oRqXBsxI/z/6MByB4=
+			yFNexUB4PwphCPG2YLDn27B6YpJyjAd6/NJKCVJdNpw=
 			</data>
 		</dict>
 		<key>Frameworks/App.framework/Info.plist</key>
@@ -319,7 +319,7 @@
 		<dict>
 			<key>hash2</key>
 			<data>
-			5NEjQKhwyiqs/T8hHwShZoOVEOF4eo8Er26FmLeQ1f4=
+			FhjUBqa0QAEa9YK72c8gGpYnVGd+sSIqsuH4ehbRQtM=
 			</data>
 		</dict>
 		<key>Frameworks/App.framework/flutter_assets/AssetManifest.json</key>
@@ -375,7 +375,7 @@
 		<dict>
 			<key>hash2</key>
 			<data>
-			GQlF5VnXA/a5OL17M5GjMz08NvaG7Bj2YiRzU60X228=
+			212gIHXeRI5JQ0h6aww3K3bzgm6L1q3P4BH3SlMwGw0=
 			</data>
 		</dict>
 		<key>Frameworks/App.framework/flutter_assets/packages/cupertino_icons/assets/CupertinoIcons.ttf</key>
