@@ -1,14 +1,16 @@
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
-import 'package:gado_app/productList/landList.dart';
-import 'package:gado_app/productList/machineList.dart';
+import 'package:gado_app/land/landFormView.dart';
+import 'package:gado_app/land/landList.dart';
+import 'package:gado_app/machine/machineList.dart';
+import 'package:gado_app/user/registerView.dart';
 
 import 'package:url_launcher/link.dart';
 
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 
-import '../newProductFile/newProductView.dart';
-import '../productList/AnimalList.dart';
+import '../animal/animalFormView.dart';
+import '../animal/AnimalList.dart';
 // import 'package:gado_app/home/widgets/widgetsHome';
 
 class HomePage extends StatefulWidget {
@@ -21,7 +23,7 @@ class HomePage extends StatefulWidget {
 class _HomePageState extends State<HomePage> {
   int _selectedIndex = 0;
 
-  final List<Widget> _screens = [homePageScreen, const NewProductView()];
+  final List<Widget> _screens = [homePageScreen, const AnimalFormView(), const LandFormView()];
 
   void _onItemTapped(int index) {
     setState(() {
@@ -87,7 +89,7 @@ Widget homePageScreen = Column(
 );
 // Rest of the code...
 
-Widget categoriesSection = const Column(
+Widget categoriesSection =  const Column(
   children: [
     Padding(
       padding: EdgeInsets.only(bottom: 16),
@@ -107,7 +109,7 @@ Widget categoriesSection = const Column(
           destination: ProductListPage(),
           ),
         ),
-        Flexible(
+         Flexible(
           child: CategoryBox(
             imageLink:
                 "https://humanidades.com/wp-content/uploads/2016/04/campo-1-e1558303226877.jpg",
@@ -147,8 +149,6 @@ class CategoryBox extends StatelessWidget {
       decoration: BoxDecoration(
         color: const Color.fromARGB(255, 0, 101, 32),
         borderRadius: BorderRadius.circular(10),
-        // border:
-        //     Border.all(color: const Color.fromARGB(255, 0, 101, 32), width: 1),
       ),
       child: ClipRRect(
         borderRadius: BorderRadius.circular(10),
@@ -165,17 +165,21 @@ class CategoryBox extends StatelessWidget {
             children: [
               Align(
                 alignment: AlignmentDirectional.topCenter,
-                child: FractionallySizedBox(
-                  heightFactor: 0.8,
-                  widthFactor: 1,
-                  child: ClipRRect(
-                    borderRadius: BorderRadius.circular(10),
-                    child: Image.network(
-                      imageLink,
-                      fit: BoxFit.cover,
+                child: Padding(
+                  padding: const EdgeInsets.only(top: 8),
+                  child: FractionallySizedBox(
+                    heightFactor: 0.8,
+                    widthFactor: 1,
+                    child: ClipRRect(
+                      borderRadius: BorderRadius.circular(10),
+                      child: Image.network(
+                        imageLink,
+                        fit: BoxFit.cover,
+                      ),
                     ),
                   ),
                 ),
+
               ),
               FractionallySizedBox(
                 alignment: Alignment.bottomCenter,
@@ -220,7 +224,7 @@ Widget regulationBox = Column(children: [
     ),
   ),
   FlatMenuButton(
-      icon: Icon(Icons.file_copy_rounded),
+      icon: const Icon(Icons.file_copy_rounded),
       buttonName: "Regulamento",
       onPress: () {
 
