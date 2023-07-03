@@ -4,10 +4,10 @@
   <component name="GradleSettings">
     <option name="linkedExternalProjectsSettings">
       <GradleProjectSettings>
-        <option name="externalProjectPath" value="$PROJECT_DIR$/gadoAppDB" />
+        <option name="externalProjectPath" value="$PROJECT_DIR$/authserver-main" />
         <option name="modules">
           <set>
-            <option value="$PROJECT_DIR$/gadoAppDB" />
+            <option value="$PROJECT_DIR$/authserver-main" />
           </set>
         </option>
       </GradleProjectSettings>

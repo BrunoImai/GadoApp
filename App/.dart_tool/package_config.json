@@ -171,9 +171,9 @@
     },
     {
       "name": "flutter_lints",
-      "rootUri": "file:///Users/brunoimai/.pub-cache/hosted/pub.dev/flutter_lints-2.0.1",
+      "rootUri": "file:///Users/brunoimai/.pub-cache/hosted/pub.dev/flutter_lints-2.0.2",
       "packageUri": "lib/",
-      "languageVersion": "2.17"
+      "languageVersion": "2.18"
     },
     {
       "name": "flutter_test",
@@ -189,9 +189,9 @@
     },
     {
       "name": "font_awesome_flutter",
-      "rootUri": "file:///Users/brunoimai/.pub-cache/hosted/pub.dev/font_awesome_flutter-10.4.0",
+      "rootUri": "file:///Users/brunoimai/.pub-cache/hosted/pub.dev/font_awesome_flutter-10.5.0",
       "packageUri": "lib/",
-      "languageVersion": "2.12"
+      "languageVersion": "3.0"
     },
     {
       "name": "frontend_server_client",
@@ -226,6 +226,12 @@
     {
       "name": "http_parser",
       "rootUri": "file:///Users/brunoimai/.pub-cache/hosted/pub.dev/http_parser-4.0.2",
+      "packageUri": "lib/",
+      "languageVersion": "2.12"
+    },
+    {
+      "name": "intl",
+      "rootUri": "file:///Users/brunoimai/.pub-cache/hosted/pub.dev/intl-0.17.0",
       "packageUri": "lib/",
       "languageVersion": "2.12"
     },
@@ -590,7 +596,7 @@
       "languageVersion": "3.0"
     }
   ],
-  "generated": "2023-06-27T18:32:39.779405Z",
+  "generated": "2023-06-29T02:50:56.328847Z",
   "generator": "pub",
   "generatorVersion": "3.0.1"
 }

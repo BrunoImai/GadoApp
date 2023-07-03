@@ -1,5 +1,10 @@
+import 'dart:convert';
+
 import 'package:flutter/material.dart';
 import 'package:gado_app/animal/animalInfoPage.dart';
+
+import 'Animal.dart';
+import 'package:http/http.dart' as http;
 
 class ProductListPage extends StatefulWidget {
   const ProductListPage({super.key});
@@ -11,6 +16,45 @@ class ProductListPage extends StatefulWidget {
 
 class _ProductListPageState extends State<ProductListPage> {
   bool searchBarInUse = false;
+  late Future<List<AnimalAd>> futureData;
+
+  @override
+  void initState() {
+    super.initState();
+    futureData = getAllAnimalAds();
+  }
+
+
+  Future<List<AnimalAd>> getAllAnimalAds() async {
+    final response = await http.get(Uri.parse('http://localhost:8080/api/users/ads/animal'));
+
+    if (response.statusCode == 200) {
+      final jsonData = json.decode(response.body) as List<dynamic>;
+
+      // Map the JSON data to a list of AnimalAdResponse objects
+      final animalAds = jsonData.map((item) {
+        return AnimalAd(
+          name: item['name'],
+          price: item['price'].toDouble(),
+          localization: item['localization'],
+          batch: item['batch'],
+          weight: item['weight'],
+          quantity: item['quantity'],
+          priceType: item['priceType'],
+          description: item['description'],
+        );
+      }).toList();
+
+      return animalAds;
+    } else {
+      print('Response status: ${response.statusCode}');
+      print('Response body: ${response.body}');
+      throw Exception('Failed to load animal ads');
+      // Request failed
+      throw Exception('Failed to load animal ads');
+    }
+  }
+
 
   @override
   Widget build(BuildContext context) {
@@ -74,8 +118,8 @@ class _ProductListPageState extends State<ProductListPage> {
                       PillButton(
                           text: 'Tudo',
                           onPressed: () {
-                            // Handle button press
-                            print('Button pressed!');
+                            getAllAnimalAds();
+                            print(  getAllAnimalAds());
                           }),
                       PillButton(
                           text: 'Bovino',
@@ -96,34 +140,37 @@ class _ProductListPageState extends State<ProductListPage> {
                 child: Center(
                   child: SizedBox(
                     width: double.infinity,
-                    child: ListView(children: [
-                      productAnimal(
-                          "https://upload.wikimedia.org/wikipedia/commons/thumb/0/0c/Cow_female_black_white.jpg/1280px-Cow_female_black_white.jpg",
-                          "gado",
-                          "0000",
-                          "ctba",
-                          "2",
-                          price: "5000,00",
-                          priceType: "Unid"),
+                    child: FutureBuilder<List<AnimalAd>>(
+                      future: futureData,
+                      builder: (context, snapshot) {
+                        if (snapshot.hasData) {
+                          return ListView.builder(
+                            itemCount: snapshot.data!.length,
+                            itemBuilder: (context, index) {
+                              final data = snapshot.data![index];
+                              return productAnimal(
+                                  "https://s2.glbimg.com/V4XsshzNU57Brn3e127b80Rbk24=/e.glbimg.com/og/ed/f/original/2016/05/30/gado.jpg",
+                                  data.name,
+                                  data.batch,
+                                  data.localization,
+                                  data.price,
+                                  priceType: data.priceType,
+                                  price: data.price,
+                                  weight: data.weight
+                              );
+                            },
+                          );
+                        } else if (snapshot.hasError) {
+                          return Center(
+                            child: Text('Error: ${snapshot.error}'),
+                          );
+                        }
+                        return const Center(
+                          child: CircularProgressIndicator(),
+                        );
+                      },
+                    ),
 
-                      productAnimal(
-                          "https://s2.glbimg.com/V4XsshzNU57Brn3e127b80Rbk24=/e.glbimg.com/og/ed/f/original/2016/05/30/gado.jpg",
-                          "gado",
-                          "0000",
-                          "ctba",
-                          "2",
-                          price: "200,00",
-                          priceType: "KG",
-                          weight: "200"),
-
-                      productAnimal(
-                          "https://dicas.boisaude.com.br/wp-content/uploads/2020/12/rac%CC%A7as-de-gado-brasileiro.jpg",
-                          "gado",
-                          "0000",
-                          "Curitiba/PR",
-                          "2",
-                          weight: "200")
-                    ]),
                   ),
                 ),
               ),
