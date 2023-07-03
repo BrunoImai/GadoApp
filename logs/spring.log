@@ -119,3 +119,30 @@ This generated password is for development use only. Your security configuration
 2023-07-03T10:59:00.413-03:00  INFO 2023 --- [SpringApplicationShutdownHook] j.LocalContainerEntityManagerFactoryBean : Closing JPA EntityManagerFactory for persistence unit 'default'
 2023-07-03T10:59:00.416-03:00  INFO 2023 --- [SpringApplicationShutdownHook] com.zaxxer.hikari.HikariDataSource       : HikariPool-1 - Shutdown initiated...
 2023-07-03T10:59:00.421-03:00  INFO 2023 --- [SpringApplicationShutdownHook] com.zaxxer.hikari.HikariDataSource       : HikariPool-1 - Shutdown completed.
+2023-07-03T11:14:22.631-03:00  INFO 5325 --- [main] b.p.authserver.AuthServerApplicationKt   : Starting AuthServerApplicationKt using Java 18.0.2.1 with PID 5325 (/Users/brunoimai/gado_app/GadoApp/authserver-main/build/classes/kotlin/main started by brunoimai in /Users/brunoimai/gado_app/GadoApp)
+2023-07-03T11:14:22.639-03:00  INFO 5325 --- [main] b.p.authserver.AuthServerApplicationKt   : No active profile set, falling back to 1 default profile: "default"
+2023-07-03T11:14:23.984-03:00  INFO 5325 --- [main] .s.d.r.c.RepositoryConfigurationDelegate : Bootstrapping Spring Data JPA repositories in DEFAULT mode.
+2023-07-03T11:14:24.078-03:00  INFO 5325 --- [main] .s.d.r.c.RepositoryConfigurationDelegate : Finished Spring Data repository scanning in 78 ms. Found 5 JPA repository interfaces.
+2023-07-03T11:14:25.065-03:00  INFO 5325 --- [main] o.s.b.w.embedded.tomcat.TomcatWebServer  : Tomcat initialized with port(s): 8080 (http)
+2023-07-03T11:14:25.078-03:00  INFO 5325 --- [main] o.apache.catalina.core.StandardService   : Starting service [Tomcat]
+2023-07-03T11:14:25.079-03:00  INFO 5325 --- [main] o.apache.catalina.core.StandardEngine    : Starting Servlet engine: [Apache Tomcat/10.1.7]
+2023-07-03T11:14:25.204-03:00  INFO 5325 --- [main] o.a.c.c.C.[Tomcat].[localhost].[/api]    : Initializing Spring embedded WebApplicationContext
+2023-07-03T11:14:25.204-03:00  INFO 5325 --- [main] w.s.c.ServletWebServerApplicationContext : Root WebApplicationContext: initialization completed in 2438 ms
+2023-07-03T11:14:25.452-03:00  INFO 5325 --- [main] o.hibernate.jpa.internal.util.LogHelper  : HHH000204: Processing PersistenceUnitInfo [name: default]
+2023-07-03T11:14:25.526-03:00  INFO 5325 --- [main] org.hibernate.Version                    : HHH000412: Hibernate ORM core version 6.1.7.Final
+2023-07-03T11:14:25.864-03:00  INFO 5325 --- [main] com.zaxxer.hikari.HikariDataSource       : HikariPool-1 - Starting...
+2023-07-03T11:14:26.341-03:00  INFO 5325 --- [main] com.zaxxer.hikari.pool.HikariPool        : HikariPool-1 - Added connection com.mysql.cj.jdbc.ConnectionImpl@7c956dda
+2023-07-03T11:14:26.346-03:00  INFO 5325 --- [main] com.zaxxer.hikari.HikariDataSource       : HikariPool-1 - Start completed.
+2023-07-03T11:14:26.456-03:00  INFO 5325 --- [main] SQL dialect                              : HHH000400: Using dialect: org.hibernate.dialect.MySQLDialect
+2023-07-03T11:14:27.807-03:00  INFO 5325 --- [main] o.h.e.t.j.p.i.JtaPlatformInitiator       : HHH000490: Using JtaPlatform implementation: [org.hibernate.engine.transaction.jta.platform.internal.NoJtaPlatform]
+2023-07-03T11:14:27.818-03:00  INFO 5325 --- [main] j.LocalContainerEntityManagerFactoryBean : Initialized JPA EntityManagerFactory for persistence unit 'default'
+2023-07-03T11:14:28.856-03:00  WARN 5325 --- [main] JpaBaseConfiguration$JpaWebConfiguration : spring.jpa.open-in-view is enabled by default. Therefore, database queries may be performed during view rendering. Explicitly configure spring.jpa.open-in-view to disable this warning
+2023-07-03T11:14:28.904-03:00  WARN 5325 --- [main] .s.s.UserDetailsServiceAutoConfiguration : 
+
+Using generated security password: c20e6181-1909-4d90-93b3-40c654c30b9b
+
+This generated password is for development use only. Your security configuration must be updated before running your application in production.
+
+2023-07-03T11:14:29.232-03:00  INFO 5325 --- [main] o.s.s.web.DefaultSecurityFilterChain     : Will secure any request with [org.springframework.security.web.session.DisableEncodeUrlFilter@7e00a43e, org.springframework.security.web.context.request.async.WebAsyncManagerIntegrationFilter@3f4b59fd, org.springframework.security.web.context.SecurityContextHolderFilter@3e3b41cb, org.springframework.security.web.header.HeaderWriterFilter@3e283f1a, org.springframework.web.filter.CorsFilter@35dece42, org.springframework.security.web.authentication.logout.LogoutFilter@7ae5f795, br.pucpr.authserver.security.JwtTokenFilter@36bed37a, org.springframework.security.web.savedrequest.RequestCacheAwareFilter@5acf51d7, org.springframework.security.web.servletapi.SecurityContextHolderAwareRequestFilter@441a2d52, org.springframework.security.web.authentication.AnonymousAuthenticationFilter@22599048, org.springframework.security.web.session.SessionManagementFilter@5b7e2a88, org.springframework.security.web.access.ExceptionTranslationFilter@5e79bdf6, org.springframework.security.web.access.intercept.AuthorizationFilter@20c7a91d]
+2023-07-03T11:14:29.602-03:00  INFO 5325 --- [main] o.s.b.w.embedded.tomcat.TomcatWebServer  : Tomcat started on port(s): 8080 (http) with context path '/api'
+2023-07-03T11:14:29.699-03:00  INFO 5325 --- [main] b.p.authserver.AuthServerApplicationKt   : Started AuthServerApplicationKt in 7.879 seconds (process running for 8.68)

@@ -63,5 +63,5 @@ allOpen {
     annotation("jakarta.persistence.Entity")
 }
 kotlin {
-    jvmToolchain(11)
+
 }
