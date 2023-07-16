@@ -7,12 +7,12 @@ Content-Type: application/json
 
 {
   "name": "Vinicius Godoy",
-  "email": "vinigodoy@gmail.cosm",
+  "email": "vinigodoy@gmail.com",
   "password": "password"
 }
 
 ### Lista o usuário 2
-GET localhost:8080/api/users/2
+GET localhost:8080/api/users
 
 ### Lista o próprio usuário
 GET localhost:8080/api/users/me
@@ -23,7 +23,7 @@ POST localhost:8080/api/users/login
 Content-Type: application/json
 
 {
-  "email": "vinigodoy@gmail.com",
+  "email": "vinigodoy@gmail.cosm",
   "password": "password"
 }
 > {%
@@ -81,5 +81,22 @@ Authorization: Bearer {{token}}
   "localization": "Curitiba/PR"
 }
 
-### Adiciona um novo anúncio de maquinario ao usuário com o id 2
+### Retorna todos os anuncios de animais
 GET localhost:8080/api/users/ads/animal
+
+### Retorna todos os anuncios de terras
+GET localhost:8080/api/users/ads/land
+
+### Retorna todos os anuncios de terras
+GET localhost:8080/api/users/ads/land/2
+
+
+### Retorna todos os anuncios de máquinas
+GET localhost:8080/api/users/ads/machinery
+
+### Retorna todos os anuncios criados pelo usuario 2
+GET localhost:8080/api/users/2/ads
+
+### Retorna todos os anuncios favoritados pelo usuario 2
+GET localhost:8080/api/users/2/favorites
+

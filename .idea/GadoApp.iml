@@ -69,13 +69,13 @@
     </content>
     <orderEntry type="inheritedJdk" />
     <orderEntry type="sourceFolder" forTests="false" />
-    <orderEntry type="library" name="Dart SDK" level="project" />
     <orderEntry type="library" name="Flutter Plugins" level="project" />
     <orderEntry type="library" name="Java EE 6-Java EE 6" level="project" />
     <orderEntry type="library" name="Gradle: org.springframework.data:spring-data-jpa:3.1.0" level="project" />
     <orderEntry type="library" name="Gradle: org.springframework.data:spring-data-commons:3.1.0" level="project" />
     <orderEntry type="library" name="Gradle: org.springframework:spring-web:6.0.9" level="project" />
     <orderEntry type="library" name="Gradle: org.springframework:spring-context:6.0.9" level="project" />
+    <orderEntry type="library" name="Dart SDK" level="project" />
     <orderEntry type="library" name="Dart Packages" level="project" />
   </component>
 </module>

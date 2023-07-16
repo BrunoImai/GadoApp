@@ -1,6 +1,5 @@
 package br.pucpr.authserver.machineryAds
 
-import br.pucpr.authserver.landAds.response.LandAdResponse
 import br.pucpr.authserver.machineryAds.response.MachineryAdResponse
 import br.pucpr.authserver.users.User
 import jakarta.persistence.*
@@ -34,6 +33,9 @@ class MachineryAd (
     @Column()
     val status: String ? = "",
 
+    @Column()
+    val isFavorite: Boolean ? = false,
+
     @ManyToOne
     @JoinColumn(name = "owner_id")
     val owner: User,
@@ -42,6 +44,6 @@ class MachineryAd (
     val images: Set<String> ? = setOf(),
 
     ) {
-    fun toResponse() = MachineryAdResponse( name, price, localization, batch!!, quantity, priceType, description)
+    fun toResponse() = MachineryAdResponse( name, price, localization, id!! ,batch!! ,quantity, priceType, description, isFavorite!!)
 
 }

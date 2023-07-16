@@ -1,0 +1,46 @@
+{
+  "project_info": {
+    "project_number": "226093502936",
+    "project_id": "negocio-rural-da5b3",
+    "storage_bucket": "negocio-rural-da5b3.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:226093502936:android:8890ea1bbec20265ec22ad",
+        "android_client_info": {
+          "package_name": "com.example.gado_app"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "226093502936-tuv2160s5up4lqhd7kbjdo8egp33kk7g.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyD5LE1NkyCNIekW5D45PywGnaJhl-7nVHE"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "226093502936-tuv2160s5up4lqhd7kbjdo8egp33kk7g.apps.googleusercontent.com",
+              "client_type": 3
+            },
+            {
+              "client_id": "226093502936-a7eqe0o9ddutr6g0rrauv1rti9takvve.apps.googleusercontent.com",
+              "client_type": 2,
+              "ios_info": {
+                "bundle_id": "com.example.gadoApp.RunnerTests"
+              }
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

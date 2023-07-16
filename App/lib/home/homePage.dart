@@ -1,7 +1,10 @@
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
+import 'package:gado_app/favorite/favoriteView.dart';
 import 'package:gado_app/land/landFormView.dart';
 import 'package:gado_app/land/landList.dart';
 import 'package:gado_app/machine/machineList.dart';
+import 'package:gado_app/machine/machineryFormView.dart';
+import 'package:gado_app/user/UserManager.dart';
 import 'package:gado_app/user/registerView.dart';
 
 import 'package:url_launcher/link.dart';
@@ -11,6 +14,7 @@ import 'package:flutter/material.dart';
 
 import '../animal/animalFormView.dart';
 import '../animal/AnimalList.dart';
+import '../user/UserAds.dart';
 // import 'package:gado_app/home/widgets/widgetsHome';
 
 class HomePage extends StatefulWidget {
@@ -19,77 +23,103 @@ class HomePage extends StatefulWidget {
   @override
   State<HomePage> createState() => _HomePageState();
 }
-
 class _HomePageState extends State<HomePage> {
   int _selectedIndex = 0;
+  late PageController _pageController;
 
-  final List<Widget> _screens = [homePageScreen, const AnimalFormView(), const LandFormView()];
+  final List<Widget> _screens = [
+    const HomePageScreen(),
+    const UserFavListPage(),
+    const UserAdsListPage(),
+  ];
+
+  @override
+  void initState() {
+    super.initState();
+    _pageController = PageController(initialPage: _selectedIndex);
+  }
+
+  @override
+  void dispose() {
+    _pageController.dispose();
+    super.dispose();
+  }
 
   void _onItemTapped(int index) {
     setState(() {
       _selectedIndex = index;
+      _pageController.jumpToPage(index);
     });
   }
-
   @override
   Widget build(BuildContext context) {
-    return MaterialApp(
-      debugShowCheckedModeBanner: false,
-      home: Scaffold(
-        body: IndexedStack(
-          index: _selectedIndex,
-          children: _screens,
-        ),
-        bottomNavigationBar: BottomNavigationBar(
-          backgroundColor: const Color.fromARGB(255, 0, 101, 32),
-          selectedItemColor: Colors.white,
-          unselectedItemColor: const Color.fromARGB(100, 215, 208, 208),
-          items: const [
-            BottomNavigationBarItem(
-              icon: Icon(Icons.shopping_cart),
-              label: "Comprar",
-            ),
-            BottomNavigationBarItem(
-              icon: Icon(Icons.storefront),
-              label: "Vender",
-            ),
-            BottomNavigationBarItem(
-              icon: Icon(Icons.favorite),
-              label: "Favoritos",
-            ),
-          ],
-          currentIndex: _selectedIndex,
-          onTap: _onItemTapped,
-        ),
+    return Scaffold(
+      body: PageView(
+        controller: _pageController,
+        onPageChanged: _onItemTapped,
+        children: _screens,
       ),
+      floatingActionButton: const ExpandableFab(),
+      bottomNavigationBar: BottomNavigationBar(
+        backgroundColor: const Color.fromARGB(255, 0, 101, 32),
+        selectedItemColor: Colors.white,
+        unselectedItemColor: const Color.fromARGB(100, 215, 208, 208),
+        items: const [
+          BottomNavigationBarItem(
+            icon: Icon(Icons.shopping_cart),
+            label: "Comprar",
+          ),
+          BottomNavigationBarItem(
+            icon: Icon(Icons.favorite),
+            label: "Favoritos",
+          ),
+
+          BottomNavigationBarItem(
+            icon: Icon(Icons.person),
+            label: "Meus Anúncios",
+          ),
+        ],
+        currentIndex: _selectedIndex,
+        onTap: _onItemTapped,
+      ),
+      floatingActionButtonLocation: FloatingActionButtonLocation.miniEndFloat,
     );
   }
 }
 
-Widget homePageScreen = Column(
-  mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-  children: [
-    Expanded(
-      child: ListView(
-        children: [
-          homePageLogo,
-          SearchBarWidget(),
-          categoriesSection,
-          regulationBox,
-          socialMediaBox("facebookLink", "instagramLink", "youtubeLink"),
-        ]
-            .map((widget) => Padding(
-                  padding: const EdgeInsets.all(24),
-                  child: widget,
-                ))
-            .toList(),
-      ),
-    ),
-  ],
-);
+class HomePageScreen extends StatelessWidget {
+  const HomePageScreen({
+    super.key,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return Column(
+      mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+      children: [
+        Expanded(
+          child: ListView(
+            children: [
+              const HomePageLogo(),
+              SearchBarWidget(),
+              categoriesSection,
+              regulationBox,
+              socialMediaBox("facebookLink", "instagramLink", "youtubeLink"),
+            ]
+                .map((widget) => Padding(
+                      padding: const EdgeInsets.all(24),
+                      child: widget,
+                    ))
+                .toList(),
+          ),
+        ),
+      ],
+    );
+  }
+}
 // Rest of the code...
 
-Widget categoriesSection =  const Column(
+Widget categoriesSection = const Column(
   children: [
     Padding(
       padding: EdgeInsets.only(bottom: 16),
@@ -103,13 +133,13 @@ Widget categoriesSection =  const Column(
       children: [
         Flexible(
           child: CategoryBox(
-              imageLink:
-                  "https://s2.glbimg.com/V4XsshzNU57Brn3e127b80Rbk24=/e.glbimg.com/og/ed/f/original/2016/05/30/gado.jpg",
-              categoryText: "GADO",
-          destination: ProductListPage(),
+            imageLink:
+                "https://s2.glbimg.com/V4XsshzNU57Brn3e127b80Rbk24=/e.glbimg.com/og/ed/f/original/2016/05/30/gado.jpg",
+            categoryText: "GADO",
+            destination: AnimalListPage(),
           ),
         ),
-         Flexible(
+        Flexible(
           child: CategoryBox(
             imageLink:
                 "https://humanidades.com/wp-content/uploads/2016/04/campo-1-e1558303226877.jpg",
@@ -119,11 +149,10 @@ Widget categoriesSection =  const Column(
         ),
         Flexible(
           child: CategoryBox(
-            imageLink:
-                "https://blog.buscarrural.com/wp-content/uploads/elementor/thumbs/maquinas-agricolas-p1pbgi0lbgjhgun9dzsoe1x3of68qs2xhp67wstl68.jpg",
-            categoryText: "MÁQUINA",
-              destination: MachineryListPage()
-          ),
+              imageLink:
+                  "https://blog.buscarrural.com/wp-content/uploads/elementor/thumbs/maquinas-agricolas-p1pbgi0lbgjhgun9dzsoe1x3of68qs2xhp67wstl68.jpg",
+              categoryText: "MÁQUINA",
+              destination: MachineryListPage()),
         ),
       ],
     ),
@@ -138,7 +167,8 @@ class CategoryBox extends StatelessWidget {
   const CategoryBox({
     super.key,
     required this.imageLink,
-    required this.categoryText, required this.destination,
+    required this.categoryText,
+    required this.destination,
   });
 
   @override
@@ -179,7 +209,6 @@ class CategoryBox extends StatelessWidget {
                     ),
                   ),
                 ),
-
               ),
               FractionallySizedBox(
                 alignment: Alignment.bottomCenter,
@@ -206,14 +235,27 @@ class CategoryBox extends StatelessWidget {
   }
 }
 
-Widget homePageLogo = SizedBox(
-  height: 100,
-  child: ClipRect(
-    child: Image.network(
-      "https://upload.wikimedia.org/wikipedia/commons/f/fd/Crowd_Cow_logo.png?20210119092057",
-    ),
-  ),
-);
+class HomePageLogo extends StatelessWidget {
+  const HomePageLogo({
+    super.key,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return Expanded(
+      child: Center(
+        child: SizedBox(
+          width: MediaQuery.of(context).size.width * 0.8,
+          height: 100,
+          child: Image.network(
+            "https://upload.wikimedia.org/wikipedia/commons/f/fd/Crowd_Cow_logo.png?20210119092057",
+            fit: BoxFit.contain,
+          ),
+        ),
+      ),
+    );
+  }
+}
 
 Widget regulationBox = Column(children: [
   const Padding(
@@ -224,11 +266,9 @@ Widget regulationBox = Column(children: [
     ),
   ),
   FlatMenuButton(
-      icon: const Icon(Icons.file_copy_rounded),
-      buttonName: "Regulamento",
-      onPress: () {
-
-      },
+    icon: const Icon(Icons.file_copy_rounded),
+    buttonName: "Regulamento",
+    onPress: () {},
   ),
 ]);
 
@@ -275,10 +315,6 @@ Widget socialMediaBox(facebookLink, instagramLink, youtubeLink) {
         mainAxisAlignment: MainAxisAlignment.spaceEvenly,
         children: [
           iconButtonSocialMedia(
-              "https://www.youtube.com/channel/UCxuPRi2hPqJdfnIEJH4lb_Q",
-              const Icon(FontAwesomeIcons.youtube),
-              Colors.red),
-          iconButtonSocialMedia(
               "https://www.instagram.com/brunoyli/",
               const Icon(FontAwesomeIcons.instagram),
               const Color.fromARGB(255, 225, 48, 108)),
@@ -305,6 +341,13 @@ Widget iconButtonSocialMedia(externalLink, icon, color) {
     );
   });
 }
+
+Widget LogoBox = SizedBox(
+  height: 100,
+  child: Image.network(
+    "https://upload.wikimedia.org/wikipedia/commons/f/fd/Crowd_Cow_logo.png?20210119092057",
+  ),
+);
 
 class SearchBarWidget extends StatelessWidget {
   final TextEditingController _searchController = TextEditingController();
@@ -348,6 +391,150 @@ class SearchBarWidget extends StatelessWidget {
             },
           ),
         ),
+      ),
+    );
+  }
+}
+
+class ExpandableFab extends StatefulWidget {
+  const ExpandableFab({Key? key}) : super(key: key);
+
+  @override
+  _ExpandableFabState createState() => _ExpandableFabState();
+}
+
+class _ExpandableFabState extends State<ExpandableFab>
+    with SingleTickerProviderStateMixin {
+  late AnimationController _animationController;
+  bool _isExpanded = false;
+
+  @override
+  void initState() {
+    _animationController = AnimationController(
+      vsync: this,
+      duration: const Duration(milliseconds: 200),
+    );
+    super.initState();
+  }
+
+  @override
+  void dispose() {
+    _animationController.dispose();
+    super.dispose();
+  }
+
+  void _toggleExpanded() {
+    setState(() {
+      _isExpanded = !_isExpanded;
+    });
+
+    if (_isExpanded) {
+      _animationController.forward();
+    } else {
+      _animationController.reverse();
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Column(
+      mainAxisAlignment: MainAxisAlignment.end,
+      crossAxisAlignment: CrossAxisAlignment.end,
+      mainAxisSize: MainAxisSize.min,
+      children: <Widget>[
+        const SizedBox(height: 16.0),
+        Visibility(
+          visible: _isExpanded,
+          child: _buildOption(
+            icon: Icons.pets,
+            label: 'Animais',
+            onPressed: () {
+              _toggleExpanded();
+              Navigator.push(
+                context,
+                MaterialPageRoute(builder: (context) => const AnimalFormView()),
+              );
+            },
+          ),
+        ),
+        const SizedBox(height: 16.0),
+        Visibility(
+          visible: _isExpanded,
+          child: _buildOption(
+            icon: Icons.factory,
+            label: 'Maquinário',
+            onPressed: () {
+              _toggleExpanded();
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                    builder: (context) => const MachineryFormView()),
+              );
+            },
+          ),
+        ),
+        const SizedBox(height: 16.0),
+        Visibility(
+          visible: _isExpanded,
+          child: _buildOption(
+            icon: Icons.landscape,
+            label: 'Terra',
+            onPressed: () {
+              _toggleExpanded();
+              Navigator.push(
+                context,
+                MaterialPageRoute(builder: (context) => const LandFormView()),
+              );
+            },
+          ),
+        ),
+        const SizedBox(height: 16.0),
+        SizedBox(
+          height: 80,
+          width: 80,
+          child: FloatingActionButton(
+            onPressed: _toggleExpanded,
+            tooltip: 'Expand',
+            backgroundColor: const Color.fromARGB(255, 0, 101, 32),
+            elevation: 10,
+            child: Stack(
+              children: [
+
+                if (!_isExpanded)
+                  const Text(
+                  "Criar Anúncio",
+                  textAlign: TextAlign.center,
+                  style: TextStyle(fontWeight: FontWeight.w600, fontSize: 12),
+                ) else AnimatedIcon(
+                    icon: AnimatedIcons.menu_close,
+                    progress: _animationController,
+                  ),
+              ],
+            ),
+          ),
+        ),
+      ],
+    );
+  }
+
+  Widget _buildOption(
+      {required IconData icon,
+      required String label,
+      required VoidCallback onPressed}) {
+    return SlideTransition(
+      position: Tween<Offset>(
+        begin: const Offset(0, 1),
+        end: Offset.zero,
+      ).animate(CurvedAnimation(
+        parent: _animationController,
+        curve: const Interval(0.0, 1.0, curve: Curves.easeOut),
+      )),
+      child: FloatingActionButton.extended(
+        backgroundColor: const Color.fromARGB(255, 0, 101, 32),
+        onPressed: onPressed,
+        elevation: 10,
+        label: Text(label),
+        icon: Icon(icon),
       ),
     );
   }

@@ -6,15 +6,15 @@ import 'package:gado_app/animal/animalInfoPage.dart';
 import 'Animal.dart';
 import 'package:http/http.dart' as http;
 
-class ProductListPage extends StatefulWidget {
-  const ProductListPage({super.key});
+class AnimalListPage extends StatefulWidget {
+  const AnimalListPage({super.key});
 
 
   @override
-  State<ProductListPage> createState() => _ProductListPageState();
+  State<AnimalListPage> createState() => _AnimalListPageState();
 }
 
-class _ProductListPageState extends State<ProductListPage> {
+class _AnimalListPageState extends State<AnimalListPage> {
   bool searchBarInUse = false;
   late Future<List<AnimalAd>> futureData;
 
@@ -34,6 +34,7 @@ class _ProductListPageState extends State<ProductListPage> {
       // Map the JSON data to a list of AnimalAdResponse objects
       final animalAds = jsonData.map((item) {
         return AnimalAd(
+          id: item['id'],
           name: item['name'],
           price: item['price'].toDouble(),
           localization: item['localization'],
@@ -68,7 +69,7 @@ class _ProductListPageState extends State<ProductListPage> {
             centerTitle: true,
             backgroundColor: const Color.fromARGB(255, 0, 101, 32),
             title: const Text(
-              "Anúncios de Gado",
+              "Anúncios de Animais",
               style: TextStyle(color: Colors.white),
             ),
             leading: IconButton(
@@ -118,8 +119,7 @@ class _ProductListPageState extends State<ProductListPage> {
                       PillButton(
                           text: 'Tudo',
                           onPressed: () {
-                            getAllAnimalAds();
-                            print(  getAllAnimalAds());
+
                           }),
                       PillButton(
                           text: 'Bovino',
@@ -150,10 +150,11 @@ class _ProductListPageState extends State<ProductListPage> {
                               final data = snapshot.data![index];
                               return productAnimal(
                                   "https://s2.glbimg.com/V4XsshzNU57Brn3e127b80Rbk24=/e.glbimg.com/og/ed/f/original/2016/05/30/gado.jpg",
-                                  data.name,
+                                   data.name,
                                   data.batch,
                                   data.localization,
                                   data.price,
+                                  data.id,
                                   priceType: data.priceType,
                                   price: data.price,
                                   weight: data.weight
@@ -183,7 +184,7 @@ class _ProductListPageState extends State<ProductListPage> {
 }
 
 Widget productAnimal(
-    imageLink, productName, batch, localization, qtt,
+    imageLink, productName, batch, localization, qtt, id,
     {price, priceType, weight}) {
   return Builder(
     builder: (context) {
@@ -266,7 +267,7 @@ Widget productAnimal(
               {
                 Navigator.push(
                   context,
-                  MaterialPageRoute(builder: (context) => const AnimalInfoPage()),
+                  MaterialPageRoute(builder: (context) => AnimalInfoPage(animalId: id)),
                 )
               }
           ),

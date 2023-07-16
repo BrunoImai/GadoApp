@@ -4,16 +4,21 @@ import 'package:flutter/material.dart';
 import 'package:gado_app/user/user.dart';
 import 'package:http/http.dart' as http;
 
+import '../home/homePage.dart';
+import 'UserManager.dart';
+
 class RegisterView extends StatelessWidget {
   final TextEditingController nameController = TextEditingController();
   final TextEditingController emailController = TextEditingController();
   final TextEditingController passwordController = TextEditingController();
   final TextEditingController confirmPasswordController = TextEditingController();
 
+  RegisterView({super.key});
+
   @override
   Widget build(BuildContext context) {
 
-    Future<void> registerUser() async {
+    Future<void> registerUser(VoidCallback onSuccess) async {
       String name = nameController.text;
       String email = emailController.text;
       String password = passwordController.text;
@@ -29,9 +34,18 @@ class RegisterView extends StatelessWidget {
           },
           body: requestBody,
         );
-
+        final jsonData = json.decode(response.body);
         if (response.statusCode == 200 || response.statusCode == 201) {
           // Registration successful
+          final token = jsonData['token'];
+          final user = jsonData['user'];
+
+          final userId = user['id'];
+          final userName = user['name'];
+          final userEmail = user['email'];
+
+          UserManager.instance.loggedUser = LoggedUser(token, userId, userName, userEmail);
+          onSuccess.call();
           print('Registration successful!');
         } else {
           // Registration failed
@@ -45,7 +59,8 @@ class RegisterView extends StatelessWidget {
     
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Register'),
+        title: const Text('Cadastro'),
+        backgroundColor: const Color.fromARGB(255, 0, 101, 32),
       ),
       body: Padding(
         padding: const EdgeInsets.all(16.0),
@@ -96,15 +111,16 @@ class RegisterView extends StatelessWidget {
                       return const AlertPopUp(errorDescription: 'As senhas não coincidem ');
                     },
                   );
-                // } else if (password.length < 8 || password.length > 50){
-                //   showDialog(
-                //     context: context,
-                //     builder: (BuildContext context) {
-                //       return const AlertPopUp(errorDescription: 'A senha deve conter entre 8 e 50 caracteres');
-                //     },
-                //   );
                 } else {
-                  registerUser();
+                  registerUser(() {
+                    Navigator.push(
+                        context,
+                        MaterialPageRoute(builder: (context) => const HomePage())
+                    );
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      const SnackBar(content: Text('Login Realizado')),
+                    );
+                  });
                 }
               },
               child: const Text('Register'),

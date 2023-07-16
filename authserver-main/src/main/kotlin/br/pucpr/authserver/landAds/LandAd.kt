@@ -40,6 +40,6 @@ class LandAd (
     val images: Set<String> ? = setOf(),
 
     ){
-    fun toResponse() = LandAdResponse( name, price, localization, batch!!, area, priceType, description)
+    fun toResponse() = LandAdResponse( name, price, localization, id!!, batch!!, area, priceType, description)
 
 }

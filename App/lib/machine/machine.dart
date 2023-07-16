@@ -1,25 +1,38 @@
-class MachineAdRequest {
-  final String name;
-  final double price;
-  final String localization;
+
+import '../ad/Ad.dart';
+
+class MachineryAd extends Ad {
   final int? quantity;
   final String? priceType;
   final String? description;
 
+  MachineryAd({
+    int? id,
+    required String name,
+    required double price,
+    required String localization,
+    this.quantity,
+    this.priceType,
+    this.description,
+    String? batch,
+    bool? isFavorite,
+  }) : super(
+    id: id,
+    name: name,
+    price: price,
+    localization: localization,
+    batch: batch,
+    isFavorite: isFavorite,
+  );
 
-  MachineAdRequest(
-      {required this.name, required this.price, required this.localization,
-        this.quantity, this.priceType, this.description});
-
-
+  @override
   Map<String, dynamic> toJson() {
-    return {
-      'name': name,
-      'price': price,
-      'localization': localization,
-      'priceType': priceType,
+    final data = super.toJson();
+    data.addAll({
       'quantity': quantity,
+      'priceType': priceType,
       'description': description,
-    };
+    });
+    return data;
   }
 }
