@@ -31,7 +31,6 @@ class User(
     )
     val roles: MutableSet<Role> = mutableSetOf(),
 
-
     @OneToMany(mappedBy = "owner", cascade = [CascadeType.ALL], orphanRemoval = true)
     val animalAds : MutableList<AnimalAd>,
 
@@ -40,6 +39,32 @@ class User(
 
     @OneToMany(mappedBy = "owner", cascade = [CascadeType.ALL], orphanRemoval = true)
     val landAds : MutableList<LandAd>,
+
+    @ManyToMany
+    @JoinTable(
+        name = "UserFavoriteLandAds",
+        joinColumns = [JoinColumn(name = "userId")],
+        inverseJoinColumns = [JoinColumn(name = "adId")]
+    )
+    val favoriteLandAds: MutableSet<LandAd> = mutableSetOf(),
+
+    @ManyToMany
+    @JoinTable(
+        name = "UserFavoriteAnimalAds",
+        joinColumns = [JoinColumn(name = "userId")],
+        inverseJoinColumns = [JoinColumn(name = "adId")]
+    )
+    val favoriteAnimalAds: MutableSet<AnimalAd> = mutableSetOf(),
+
+    @ManyToMany
+    @JoinTable(
+        name = "UserFavoriteMachineryAds",
+        joinColumns = [JoinColumn(name = "userId")],
+        inverseJoinColumns = [JoinColumn(name = "adId")]
+    )
+    val favoriteMachineAds: MutableSet<MachineryAd> = mutableSetOf(),
+
+
     ) {
     fun toResponse() = UserResponse(id!!, name, email)
 }

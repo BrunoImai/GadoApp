@@ -34,6 +34,9 @@ class AnimalAd (
     @Column()
     val description: String ? = "",
 
+    @Column()
+    val isFavorite: Boolean ? = false,
+
     @ManyToOne
     @JoinColumn(name = "owner_id")
     val owner: User,
@@ -43,5 +46,5 @@ class AnimalAd (
 
     )
 {
-    fun toResponse() = AnimalAdResponse( name, price, localization, batch!!, weight, quantity, priceType, description)
+    fun toResponse() = AnimalAdResponse( name, price, localization, id!!, batch!!, weight, quantity, priceType, description, isFavorite!!)
 }

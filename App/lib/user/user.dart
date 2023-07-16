@@ -14,3 +14,27 @@ class UserRequest {
     };
   }
 }
+
+
+class UserLoginRequest {
+  final String email;
+  final String password;
+
+  UserLoginRequest({required this.email, required this.password});
+
+  Map<String, dynamic> toJson() {
+    return {
+      'email': email,
+      'password': password,
+    };
+  }
+}
+
+class LoggedUser {
+  String token;
+  int id;
+  String name;
+  String email;
+
+  LoggedUser(this.token, this.id, this.name, this.email);
+}

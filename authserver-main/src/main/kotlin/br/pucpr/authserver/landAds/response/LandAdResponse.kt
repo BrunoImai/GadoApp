@@ -11,9 +11,11 @@ data class LandAdResponse (
 
     @NotBlank
     val localization: String?,
+
+    val id: Long,
     val batch: String ? = "0000",
     val area : String? = null,
     val priceType: String? = "Unid",
     val description: String? = null,
-
+    var isFavorite: Boolean? = false,
     )

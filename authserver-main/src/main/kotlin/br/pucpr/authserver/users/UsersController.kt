@@ -39,11 +39,20 @@ class UsersController (val service: UsersService) {
         service.findAllAnimalAd()
             .map { it.toResponse() }
 
+    @GetMapping("/ads/land")
+    fun listLandAds() =
+        service.findAllLandAd()
+            .map { it.toResponse() }
+
+    @GetMapping("/ads/machinery")
+    fun listMachineryAds() =
+        service.findAllMachineryAd()
+            .map { it.toResponse() }
+
     @Transactional
     @PostMapping
     fun createUser(@Valid @RequestBody req: UserRequest) =
         service.save(req)
-            .toResponse()
             .let { ResponseEntity.status(CREATED).body(it) }
 
     @PostMapping("/{userId}/ads/animal")
@@ -74,6 +83,31 @@ class UsersController (val service: UsersService) {
             ?.let { ResponseEntity.ok(it.toResponse()) }
             ?: ResponseEntity.notFound().build()
 
+
+    @GetMapping("/ads/animal/{adId}")
+    fun getAnimal(@PathVariable("adId") adId: Long) =
+        service.getAnimalById(adId)
+            .let { ResponseEntity.ok(it) }
+
+
+    @GetMapping("/ads/land/{adId}")
+    fun getLand(@PathVariable("adId") adId: Long) =
+        service.getLandById(adId)
+            .let { ResponseEntity.ok(it) }
+
+
+
+    @GetMapping("/ads/machinery/{adId}")
+    fun getMachinery(@PathVariable("adId") adId: Long) =
+        service.getMachineryById(adId)
+            .let { ResponseEntity.ok(it) }
+
+
+    @GetMapping("/{id}/ads")
+    fun getAllUserAds(@PathVariable("id") id: Long) =
+        service.getAllAdsCreatedByUser(id)
+
+
     @PostMapping("/login")
     fun login(@Valid @RequestBody credentials: LoginRequest) =
         service.login(credentials)
@@ -86,4 +120,57 @@ class UsersController (val service: UsersService) {
     fun delete(@PathVariable("id") id: Long): ResponseEntity<Void> =
         if (service.delete(id)) ResponseEntity.ok().build()
         else ResponseEntity.notFound().build()
+
+    @PostMapping("/{userId}/favorites/landAd/{landAdId}")
+    fun addLandFavorite(@PathVariable("userId") userId: Long, @PathVariable("landAdId") landAdId: Long): ResponseEntity<Void> {
+        if (service.addLandAdFavorite(userId, landAdId)) {
+            return ResponseEntity.ok().build()
+        }
+        return ResponseEntity.notFound().build()
+    }
+
+    @PostMapping("/{userId}/favorites/animalAd/{animalAdId}")
+    fun addAnimalFavorite(@PathVariable("userId") userId: Long, @PathVariable("animalAdId") animalAdId: Long): ResponseEntity<Void> {
+        if (service.addAnimalAdFavorite(userId, animalAdId)) {
+            return ResponseEntity.ok().build()
+        }
+        return ResponseEntity.notFound().build()
+    }
+
+    @PostMapping("/{userId}/favorites/machineryAd/{mechineryAdId}")
+    fun addMachineryFavorite(@PathVariable("userId") userId: Long, @PathVariable("mechineryAdId") mechineryAdId: Long): ResponseEntity<Void> {
+        if (service.addMachineryAdFavorite(userId, mechineryAdId)) {
+            return ResponseEntity.ok().build()
+        }
+        return ResponseEntity.notFound().build()
+    }
+
+    @DeleteMapping("/{userId}/favorites/landAd/l{landAdId}")
+    fun removeLandFavorite(@PathVariable("userId") userId: Long, @PathVariable("landAdId") landAdId: Long): ResponseEntity<Void> {
+        if (service.removeLandFavorite(userId, landAdId)) {
+            return ResponseEntity.ok().build()
+        }
+        return ResponseEntity.notFound().build()
+    }
+
+    @DeleteMapping("/{userId}/favorites/animalAd/{animalAdId}")
+    fun removeAnimalFavorite(@PathVariable("userId") userId: Long, @PathVariable("animalAdId") animalAdId: Long): ResponseEntity<Void> {
+        if (service.removeAnimalFavorite(userId, animalAdId)) {
+            return ResponseEntity.ok().build()
+        }
+        return ResponseEntity.notFound().build()
+    }
+
+    @DeleteMapping("/{userId}/favorites/machineryAd/{machineryAdId}")
+    fun removeMachineryFavorite(@PathVariable("userId") userId: Long, @PathVariable("machineryAdId") machineryAdId: Long): ResponseEntity<Void> {
+        if (service.removeMachineryFavorite(userId, machineryAdId)) {
+            return ResponseEntity.ok().build()
+        }
+        return ResponseEntity.notFound().build()
+    }
+
+    @GetMapping("/{userId}/favorites")
+    fun getFavoriteAds(@PathVariable("userId") userId: Long) =
+        service.getFavoriteAds(userId)
+
 }

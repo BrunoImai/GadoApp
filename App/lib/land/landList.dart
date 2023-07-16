@@ -1,5 +1,10 @@
+import 'dart:convert';
+
 import 'package:flutter/material.dart';
 import 'package:gado_app/land/LandInfoPage.dart';
+import 'package:gado_app/land/land.dart';
+
+import 'package:http/http.dart' as http;
 
 import '../animal/animalInfoPage.dart';
 
@@ -13,6 +18,43 @@ class LandListPage extends StatefulWidget {
 
 class _LandListPageState extends State<LandListPage> {
   bool searchBarInUse = false;
+  late Future<List<LandAd>> futureData;
+
+  @override
+  void initState() {
+    super.initState();
+    futureData = getAllLandAds();
+  }
+
+  Future<List<LandAd>> getAllLandAds() async {
+    final response = await http.get(Uri.parse('http://localhost:8080/api/users/ads/land'));
+
+    if (response.statusCode == 200) {
+      final jsonData = json.decode(response.body) as List<dynamic>;
+
+      // Map the JSON data to a list of AnimalAdResponse objects
+      final landAds = jsonData.map((item) {
+        return LandAd(
+          id: item['id'],
+          name: item['name'],
+          price: item['price'].toDouble(),
+          localization: item['localization'],
+          batch: item['batch'],
+          area: item['area'],
+          priceType: item['priceType'],
+          description: item['description'],
+        );
+      }).toList();
+
+      return landAds;
+    } else {
+      print('Response status: ${response.statusCode}');
+      print('Response body: ${response.body}');
+      throw Exception('Failed to load land ads');
+      // Request failed
+      throw Exception('Failed to load animal ads');
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -26,7 +68,7 @@ class _LandListPageState extends State<LandListPage> {
             centerTitle: true,
             backgroundColor: const Color.fromARGB(255, 0, 101, 32),
             title: const Text(
-              "Anúncios de Gado",
+              "Anúncios de Terra",
               style: TextStyle(color: Colors.white),
             ),
             leading: IconButton(
@@ -104,33 +146,36 @@ class _LandListPageState extends State<LandListPage> {
                 child: Center(
                   child: SizedBox(
                     width: double.infinity,
-                    child: ListView(children: [
-                      productLand(
-                          "https://media-cdn.tripadvisor.com/media/photo-s/07/48/b4/c7/pousada-agua-azul.jpg",
-                          "Terra a Venda",
-                          "0000",
-                          "Curitiba/PR",
-                          "120,00",
-                          ),
-
-                      productLand(
-                          "https://images.freeimages.com/images/large-previews/d93/the-open-field-1361608.jpg",
-                          "Fazenda em Pinhais",
-                          "0000",
-                          "Curitiba/PR",
-                          "2",
-                          price: "20.000,00",
-                          priceType: "ha",
-                          ),
-
-                      productLand(
-                          "https://www.10wallpaper.com/wallpaper/1366x768/1107/Open_field_in_San_Luis_Valley_1366x768.jpg",
-                          "Terra em Campo Comprido",
-                          "0000",
-                          "Curitiba/PR",
-                          "2",
-                          )
-                    ]),
+                    child: FutureBuilder<List<LandAd>>(
+                      future: futureData,
+                      builder: (context, snapshot) {
+                        if (snapshot.hasData) {
+                          return ListView.builder(
+                            itemCount: snapshot.data!.length,
+                            itemBuilder: (context, index) {
+                              final data = snapshot.data![index];
+                              return productLand(
+                                  "https://s2.glbimg.com/V4XsshzNU57Brn3e127b80Rbk24=/e.glbimg.com/og/ed/f/original/2016/05/30/gado.jpg",
+                                  data.name,
+                                  data.batch,
+                                  data.localization,
+                                  data.area,
+                                  data.id,
+                                  priceType: data.priceType,
+                                  price: data.price,
+                              );
+                            },
+                          );
+                        } else if (snapshot.hasError) {
+                          return Center(
+                            child: Text('Error: ${snapshot.error}'),
+                          );
+                        }
+                        return const Center(
+                          child: CircularProgressIndicator(),
+                        );
+                      },
+                    ),
                   ),
                 ),
               ),
@@ -143,7 +188,7 @@ class _LandListPageState extends State<LandListPage> {
 }
 
 Widget productLand(
-    imageLink, productName, batch, localization, area,
+    imageLink, productName, batch, localization, area, id,
     {price, priceType}) {
   return Builder(
       builder: (context) {
@@ -223,7 +268,7 @@ Widget productLand(
                 {
                   Navigator.push(
                     context,
-                    MaterialPageRoute(builder: (context) => const LandInfoPage()),
+                    MaterialPageRoute(builder: (context) =>  LandInfoPage(landId: id,)),
                   )
                 }
             ),

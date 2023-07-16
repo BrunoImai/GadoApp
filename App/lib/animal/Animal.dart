@@ -1,29 +1,40 @@
+import '../ad/Ad.dart';
 
-
-class AnimalAd {
-  final String name;
-  final double price;
-  final String localization;
+class AnimalAd extends Ad {
   final String? weight;
   final int? quantity;
   final String? priceType;
   final String? description;
-  final String? batch = "0000";
 
+  AnimalAd({
+    int? id,
+    required String name,
+    required double price,
+    required String localization,
+    this.weight,
+    this.quantity,
+    this.priceType,
+    this.description,
+    String? batch,
+    bool? isFavorite,
+  }) : super(
+    id: id,
+    name: name,
+    price: price,
+    localization: localization,
+    batch: batch,
+    isFavorite: isFavorite,
+  );
 
-  AnimalAd({required this.name, required this.price, required this.localization, this.weight,
-      this.quantity, this.priceType, this.description, required batch});
-
-
+  @override
   Map<String, dynamic> toJson() {
-    return {
-      'name': name,
-      'price': price,
-      'localization': localization,
-      'priceType': priceType,
-      'quantity': quantity,
-      'description': description,
+    final data = super.toJson();
+    data.addAll({
       'weight': weight,
-    };
+      'quantity': quantity,
+      'priceType': priceType,
+      'description': description,
+    });
+    return data;
   }
 }

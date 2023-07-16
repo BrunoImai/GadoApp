@@ -1,29 +1,107 @@
+import 'dart:convert';
+
 import 'package:carousel_slider/carousel_slider.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
+import 'package:gado_app/animal/Animal.dart';
 import 'package:gado_app/home/homePage.dart';
 
+import 'package:http/http.dart' as http;
+
+import '../user/UserManager.dart';
+
 class AnimalInfoPage extends StatefulWidget {
-  const AnimalInfoPage({Key? key}) : super(key: key);
+  const AnimalInfoPage({Key? key, required this.animalId}) : super(key: key);
+  final int animalId;
 
   @override
   State<AnimalInfoPage> createState() => _AnimalInfoPageState();
 }
 
 class _AnimalInfoPageState extends State<AnimalInfoPage> {
-  bool isFavorite = false;
-  String productName = "Gado";
-  String batch = "9839";
-  String localization = "Curitiba/PR";
-  int qtt = 12;
-  String weight = "20";
-  String price = "2300";
-  String priceType = "Unidade";
 
-  void toggleFavorite() {
-    setState(() {
-      isFavorite = !isFavorite;
-    });
+  late Future<AnimalAd> _animalAdFuture;
+
+  @override
+  void initState() {
+    super.initState();
+    _animalAdFuture = _fetchAnimalAd();
+  }
+
+  Future<AnimalAd> _fetchAnimalAd() async {
+    // Make the API call to get the animal ad data based on the animalId
+    // Replace 'your_api_endpoint' with the actual API endpoint to get animal details.
+    final response = await http.get(Uri.parse(
+        'http://localhost:8080/api/users/ads/animal/${widget.animalId}'),
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': 'Bearer ${UserManager.instance.loggedUser!.token}',
+      },
+    );
+    if (response.statusCode == 200) {
+      // Parse the response JSON and return the data.
+      final jsonData = json.decode(response.body);
+      return AnimalAd(
+        id: jsonData['id'],
+        name: jsonData['name'],
+        price: jsonData['price'].toDouble(),
+        localization: jsonData['localization'],
+        batch: jsonData['batch'],
+        weight: jsonData['weight'],
+        quantity: jsonData['quantity'],
+        priceType: jsonData['priceType'],
+        description: jsonData['description'],
+        isFavorite: jsonData['isFavorite']
+      );
+    } else {
+      // Handle API call errors, you can show an error message or throw an exception.
+      throw Exception('Failed to load animal ad');
+    }
+  }
+
+  late bool isFavorite = false;
+
+  Future<void> toggleFavorite() async {
+
+    final userId = UserManager.instance.loggedUser!.id;
+    final favoriteId = widget.animalId;
+
+    if (kDebugMode) {
+      print("Print funfa");
+    }
+
+    if (!isFavorite) {
+      // Add the land ad to user's favorites
+      final response = await http.post(Uri.parse('http://localhost:8080/api/users/$userId/favorites/animalAd/$favoriteId'),
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': 'Bearer ${UserManager.instance.loggedUser!.token}',
+        },
+      );
+
+      print(response.statusCode);
+
+      if (response.statusCode == 200 || response.statusCode == 201) {
+        setState(() {
+          isFavorite = !isFavorite;
+          print("Entrei");
+        });
+      }
+    } else {
+
+      // Remove the land ad from user's favorites
+      final response = await http.delete(Uri.parse('http://localhost:8080/api/users/$userId/favorites/animalAd/$favoriteId'),
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': 'Bearer ${UserManager.instance.loggedUser!.token}',
+        },);
+      if (response.statusCode == 200 || response.statusCode == 201) {
+        setState(() {
+          isFavorite = !isFavorite;
+        });
+      }
+    }
   }
 
   @override
@@ -34,88 +112,106 @@ class _AnimalInfoPageState extends State<AnimalInfoPage> {
       "https://upload.wikimedia.org/wikipedia/commons/thumb/0/0c/Cow_female_black_white.jpg/1280px-Cow_female_black_white.jpg",
     ];
 
-    return MaterialApp(
-      debugShowCheckedModeBanner: false,
-      home: Scaffold(
-        appBar: AppBar(
-          centerTitle: true,
-          backgroundColor: const Color.fromARGB(255, 0, 101, 32),
-          title: const Text(
-            "Anúncio",
-            style: TextStyle(color: Colors.white),
-          ),
-          leading: IconButton(
-            icon: const Icon(Icons.arrow_back),
-            onPressed: () {
-              Navigator.pop(context);
-            },
-          ),
-          actions: [
-            IconButton(
-              icon: Icon(
-                isFavorite ? Icons.favorite : Icons.favorite_border,
+    return FutureBuilder<AnimalAd>(
+        future: _animalAdFuture,
+        builder: (context, snapshot) {
+          if (snapshot.connectionState == ConnectionState.waiting) {
+            // While waiting for the data, show a loading spinner.
+            return const Center(child: CircularProgressIndicator());
+          } else if (snapshot.hasError) {
+            // If there was an error in the API call, show an error message.
+            return Center(child: Text('Error: ${snapshot.error}'));
+          } else {
+            // Data fetched successfully, use it to populate the AnimalDetails widget.
+            final animalAd = snapshot.data!;
+            isFavorite = animalAd.isFavorite!;
+            return MaterialApp(
+              debugShowCheckedModeBanner: false,
+              home: Scaffold(
+                appBar: AppBar(
+                  centerTitle: true,
+                  backgroundColor: const Color.fromARGB(255, 0, 101, 32),
+                  title: const Text(
+                    "Anúncio",
+                    style: TextStyle(color: Colors.white),
+                  ),
+                  leading: IconButton(
+                    icon: const Icon(Icons.arrow_back),
+                    onPressed: () {
+                      Navigator.pop(context);
+                    },
+                  ),
+                  actions: [
+                    IconButton(
+                      icon: Icon(
+                        isFavorite ? Icons.favorite : Icons.favorite_border,
+                      ),
+                      onPressed: () {
+                        toggleFavorite();
+                      },
+                    ),
+                    Padding(
+                      padding: const EdgeInsets.only(right: 6),
+                      child: IconButton(
+                        icon: const Icon(Icons.share),
+                        onPressed: () {},
+                      ),
+                    ),
+                  ],
+                ),
+                body: ListView(children: [
+                  Column(
+                    children: [
+                      CarouselProducts(images),
+                      AnimalDetails(
+                        productName: animalAd.name,
+                        batch: animalAd.batch!,
+                        localization: animalAd.localization,
+                        qtt: animalAd.quantity!,
+                        weight: animalAd.weight.toString(),
+                        price: animalAd.price.toString(),
+                        priceType: animalAd.priceType!,
+                      ),
+                       Padding(
+                        padding: const EdgeInsets.all(12.0),
+                        child: Text( animalAd.description!,
+                            style: const TextStyle(
+                                fontWeight: FontWeight.w300,
+                                color: Colors.black)),
+                      ),
+                      Padding(
+                        padding: const EdgeInsets.all(12.0),
+                        child: FlatMenuButton(
+                            icon: const Icon(Icons.email),
+                            buttonName: "Enviar proposta",
+                            onPress: () {}),
+                      ),
+                      Padding(
+                        padding: const EdgeInsets.only(
+                            left: 12, right: 12, bottom: 12),
+                        child: FlatMenuButton(
+                            icon: const Icon(FontAwesomeIcons.whatsapp),
+                            buttonName: "Chamar WhatsApp",
+                            onPress: () {}),
+                      ),
+                      Padding(
+                        padding: const EdgeInsets.only(
+                            left: 12, right: 12, bottom: 12),
+                        child: FlatMenuButton(
+                            icon: const Icon(Icons.paste_rounded),
+                            buttonName: "Solicitar Financiamento",
+                            onPress: () {}),
+                      ),
+                    ],
+                  ),
+                ]),
               ),
-              onPressed: () {
-                toggleFavorite();
-              },
-            ),
-            Padding(
-              padding: const EdgeInsets.only(right: 6),
-              child: IconButton(
-                icon: const Icon(Icons.share),
-                onPressed: () {},
-              ),
-            ),
-          ],
-        ),
-        body: ListView(children: [
-          Column(
-            children: [
-              CarouselProducts(images),
-              AnimalDetails(
-                  productName: productName,
-                  batch: batch,
-                  localization: localization,
-                  qtt: qtt,
-                  weight: weight,
-                  price: price,
-                  priceType: priceType),
-              const Padding(
-                padding: EdgeInsets.all(12.0),
-                child: Text(
-                    """Animais com boas referências, as mais produz em média 25 litros dia, regime de pasto. Fazenda produz 2000 litros dia .""",
-                    style: TextStyle(
-                        fontWeight: FontWeight.w300, color: Colors.black)),
-              ),
-              Padding(
-                padding: const EdgeInsets.all(12.0),
-                child: FlatMenuButton(
-                    icon: const Icon(Icons.email),
-                    buttonName: "Enviar proposta",
-                    onPress: () {}),
-              ),
-              Padding(
-                padding: const EdgeInsets.only(left: 12, right: 12, bottom: 12),
-                child: FlatMenuButton(
-                    icon: const Icon(FontAwesomeIcons.whatsapp),
-                    buttonName: "Chamar WhatsApp",
-                    onPress: () {}),
-              ),
-              Padding(
-                padding: const EdgeInsets.only(left: 12, right: 12, bottom: 12),
-                child: FlatMenuButton(
-                    icon: const Icon(Icons.paste_rounded),
-                    buttonName: "Solicitar Financiamento",
-                    onPress: () {}),
-              ),
-            ],
-          ),
-        ]),
-      ),
+            );
+          }
+        }
     );
   }
 }
-
 class AnimalDetails extends StatelessWidget {
   const AnimalDetails({
     super.key,

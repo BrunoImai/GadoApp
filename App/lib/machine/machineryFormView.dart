@@ -1,0 +1,186 @@
+import 'dart:convert';
+import 'dart:ffi';
+
+import 'package:flutter/cupertino.dart';
+import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
+import 'package:font_awesome_flutter/font_awesome_flutter.dart';
+import 'package:gado_app/animal/Animal.dart';
+import 'package:gado_app/land/land.dart';
+import 'package:gado_app/machine/machine.dart';
+import 'package:intl/intl.dart';
+import 'package:http/http.dart' as http;
+
+import '../animal/animalFormView.dart';
+import '../home/homePage.dart';
+import '../user/UserManager.dart';
+
+
+class MachineryFormView extends StatefulWidget {
+  const MachineryFormView({Key? key}) : super(key: key);
+
+
+  @override
+  State<MachineryFormView> createState() => _MachineryFormViewState();
+}
+
+class _MachineryFormViewState extends State<MachineryFormView> {
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      body: GestureDetector(
+        onTap: () => FocusManager.instance.primaryFocus?.unfocus(),
+        child: const SafeArea(
+          child: Scaffold(
+            body: NewLandAdForm(),
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+class NewLandAdForm extends StatefulWidget {
+  const NewLandAdForm({super.key});
+
+  @override
+  NewLandAdFormState createState() {
+    return NewLandAdFormState();
+  }
+
+}
+
+class NewLandAdFormState extends State<NewLandAdForm> {
+
+  final _buyFormKey = GlobalKey<FormState>();
+
+  final TextEditingController _nameController = TextEditingController();
+  final TextEditingController _locationController = TextEditingController();
+  final TextEditingController _priceController= TextEditingController();
+  final TextEditingController _qttController = TextEditingController();
+  final TextEditingController _descriptionController = TextEditingController();
+
+  String priceTypeValue = "Unid";
+
+  void handleDropdownValueChanged(String? value) {
+    setState(() {
+      priceTypeValue = value!;
+    });
+  }
+
+
+  Future<void> registerMachineryAd() async {
+    final String name =  _nameController.text;
+    final String location =  _locationController.text;
+    final double price =  double.parse(_priceController.text);
+    final String description =  _descriptionController.text;
+    final int qtt = int.parse(_qttController.text);
+    const String priceType =  "Unid";
+
+    MachineryAd machineryRequest = MachineryAd(name: name, price: price, localization: location, quantity: qtt,priceType: priceType,description: description, id: 0 );
+    String requestBody = jsonEncode(machineryRequest.toJson());
+
+    try {
+      final response = await http.post(
+        Uri.parse('http://localhost:8080/api/users/${UserManager.instance.loggedUser!.id}/ads/machinery'),
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': 'Bearer ${UserManager.instance.loggedUser!.token}',
+        },
+        body: requestBody,
+      );
+
+      if (response.statusCode == 200 || response.statusCode == 201) {
+        // Registration successful
+        print('Registration successful!');
+      } else {
+        // Registration failed
+        print('Registration failed. Status code: ${response.statusCode}');
+      }
+    } catch (e) {
+      // Handle any error that occurred during the HTTP request
+      print('Error occurred: $e');
+    }
+  }
+
+
+  @override
+  Widget build(BuildContext context) {
+    // Build a Form widget using the _formKey created above.
+    return Scaffold(
+      appBar: AppBar(
+        centerTitle: true,
+        backgroundColor: const Color.fromARGB(255, 0, 101, 32),
+        title: const Text(
+          "Novo Anúncio de Máquina",
+          style: TextStyle(color: Colors.white),
+        ),
+        leading: IconButton(
+          icon: const Icon(Icons.arrow_back),
+          onPressed: () {
+            Navigator.pop(context);
+          },
+        ),
+      ),
+      body: Form(
+        key: _buyFormKey,
+        child: ListView(
+            children: [Column(
+              children: <Widget>[
+                LogoBox,
+                OneLineInputField(
+                  "Titulo", controller: _nameController,
+                ),
+                Row(
+                  children: [
+                    Flexible(
+                      flex: 4,
+                      child: OneLineInputField(
+                        "Valor",
+                        suffixText: "R\$",
+                        controller: _priceController,
+                      ),
+                    ),
+                    const Spacer(
+                      flex: 1,
+                    ),
+                    Flexible(
+                        flex: 4,
+                        child: OneLineInputField("Quantidade", controller: _qttController)
+                    ),
+                  ],
+                ),
+
+                OneLineInputField(
+                  "Local", controller: _locationController,
+                ),
+
+                MultiLineInputField(
+                  controller: _descriptionController, fieldLabelText: 'Descrição', visibleRows: 5,
+                ),
+                FlatMenuButton(
+                    icon: const Icon(Icons.send),
+                    buttonName: "Enviar",
+                    onPress: () {
+                      if (_buyFormKey.currentState!.validate()) {
+                        registerMachineryAd();
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          const SnackBar(content: Text('Pedido Enviado')),
+                        );
+                        Navigator.pop(context);
+                      }
+                    }
+                )
+              ] .map((widget) => Padding(
+                padding: const EdgeInsets.all(24),
+                child: widget,
+              ))
+                  .toList(),
+            ),
+            ]
+        ),
+      ),
+    );
+  }
+}

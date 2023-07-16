@@ -1,6 +1,10 @@
+import 'dart:convert';
+
 import 'package:flutter/material.dart';
 import 'package:gado_app/land/LandInfoPage.dart';
+import 'package:gado_app/machine/machine.dart';
 import 'package:gado_app/machine/machineInfoPage.dart';
+import 'package:http/http.dart' as http;
 
 import '../animal/animalInfoPage.dart';
 
@@ -14,6 +18,45 @@ class MachineryListPage extends StatefulWidget {
 
 class _MachineryListPageState extends State<MachineryListPage> {
   bool searchBarInUse = false;
+  late Future<List<MachineryAd>> futureData;
+
+  @override
+  void initState() {
+    super.initState();
+    futureData = getAllMachineryAds();
+  }
+
+  Future<List<MachineryAd>> getAllMachineryAds() async {
+    final response = await http.get(Uri.parse('http://localhost:8080/api/users/ads/machinery'));
+
+    if (response.statusCode == 200) {
+      final jsonData = json.decode(response.body) as List<dynamic>;
+
+      // Map the JSON data to a list of AnimalAdResponse objects
+      final machineryAds = jsonData.map((item) {
+        return MachineryAd(
+          name: item['name'],
+          price: item['price'].toDouble(),
+          localization: item['localization'],
+          quantity: item['quantity'],
+          priceType: item['priceType'],
+          description: item['description'],
+          id: item['id'],
+        );
+      }).toList();
+
+      return machineryAds;
+    } else {
+      print('Response status: ${response.statusCode}');
+      print('Response body: ${response.body}');
+      throw Exception('Failed to load machinery ads');
+      // Request failed
+      throw Exception('Failed to load animal ads');
+    }
+  }
+
+
+
 
   @override
   Widget build(BuildContext context) {
@@ -123,35 +166,36 @@ class _MachineryListPageState extends State<MachineryListPage> {
                 child: Center(
                   child: SizedBox(
                     width: double.infinity,
-                    child: ListView(children: [
-                      productMachine(
-                        "https://imagens.mfrural.com.br/mfrural-produtos-us/105054-413525-2173339-ensiladeira.jpg",
-                        "Ensiladeira",
-                        "0000",
-                        "Curitiba/PR",
-                        1,
-                        price: "75.000,00",
-                        priceType: "unid"
-                      ),
-
-                      productMachine(
-                        "https://upload.wikimedia.org/wikipedia/commons/6/61/2018_Ford_Ranger_%28PX%29_XLT_4WD_4-door_utility_%282018-10-22%29_01.jpg",
-                        "Ford Ranger",
-                        "0000",
-                        "Curitiba/PR",
-                        2,
-                        price: "139.075,00",
-                        priceType: "unid",
-                      ),
-
-                      productMachine(
-                        "https://motortudo.com/wp-content/uploads/2021/02/Mercedes-Benz-1519-1981-caminhoes-antigos-1a.jpg",
-                        "Caminhão Mercedes-Benz",
-                        "0000",
-                        "Curitiba/PR",
-                        2,
-                      )
-                    ]),
+                    child: FutureBuilder<List<MachineryAd>>(
+                      future: futureData,
+                      builder: (context, snapshot) {
+                        if (snapshot.hasData) {
+                          return ListView.builder(
+                            itemCount: snapshot.data!.length,
+                            itemBuilder: (context, index) {
+                              final data = snapshot.data![index];
+                              return productMachine(
+                                  "https://s2.glbimg.com/V4XsshzNU57Brn3e127b80Rbk24=/e.glbimg.com/og/ed/f/original/2016/05/30/gado.jpg",
+                                  data.name,
+                                  data.batch,
+                                  data.localization,
+                                  data.price,
+                                  data.id,
+                                  priceType: data.priceType,
+                                  price: data.price,
+                              );
+                            },
+                          );
+                        } else if (snapshot.hasError) {
+                          return Center(
+                            child: Text('Error: ${snapshot.error}'),
+                          );
+                        }
+                        return const Center(
+                          child: CircularProgressIndicator(),
+                        );
+                      },
+                    ),
                   ),
                 ),
               ),
@@ -164,7 +208,7 @@ class _MachineryListPageState extends State<MachineryListPage> {
 }
 
 Widget productMachine(
-    imageLink, productName, batch, localization, qtt,
+    imageLink, productName, batch, localization, qtt, id,
     {price, priceType}) {
   return Builder(
       builder: (context) {
@@ -244,7 +288,7 @@ Widget productMachine(
                 {
                   Navigator.push(
                     context,
-                    MaterialPageRoute(builder: (context) => const MachineInfoPage()),
+                    MaterialPageRoute(builder: (context) =>  MachineInfoPage(machineId: id)),
                   )
                 }
             ),

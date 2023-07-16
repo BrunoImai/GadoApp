@@ -6,6 +6,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:gado_app/animal/Animal.dart';
+import 'package:gado_app/user/UserManager.dart';
 import 'package:intl/intl.dart';
 import 'package:http/http.dart' as http;
 
@@ -24,9 +25,8 @@ class _AnimalFormViewState extends State<AnimalFormView> {
 
   @override
   Widget build(BuildContext context) {
-    return MaterialApp(
-      debugShowCheckedModeBanner: false,
-      home: GestureDetector(
+    return Scaffold(
+      body: GestureDetector(
         onTap: () => FocusManager.instance.primaryFocus?.unfocus(),
         child: const SafeArea(
           child: Scaffold(
@@ -78,15 +78,15 @@ class NewAnimalAdFormState extends State<NewAnimalAdForm> {
     final String description =  _descriptionController.text;
     final String priceType =  priceTypeValue;
 
-    AnimalAd animalRequest = AnimalAd(name: name, price: price, weight: weight, localization: location, quantity: qtt,priceType: priceType,description: description, batch: null );
+    AnimalAd animalRequest = AnimalAd(name: name, price: price, weight: weight, localization: location, quantity: qtt,priceType: priceType,description: description, batch: null, id: null );
     String requestBody = jsonEncode(animalRequest.toJson());
 
     try {
       final response = await http.post(
-        Uri.parse('http://localhost:8080/api/users/2/ads/animal'),
+        Uri.parse('http://localhost:8080/api/users/${UserManager.instance.loggedUser!.id}/ads/animal'),
         headers: {
           'Content-Type': 'application/json',
-          'Authorization': 'Bearer eyJhbGciOiJIUzI1NiJ9.eyJpYXQiOjE2ODgzMjU1OTUsImV4cCI6MTY4ODQxMTk5NSwiaXNzIjoiQXV0aCBTZXJ2ZXIiLCJzdWIiOiIxIiwidXNlciI6eyJpZCI6MSwibmFtZSI6IkF1dGggU2VydmVyIEFkbWluaXN0cmF0b3IiLCJyb2xlcyI6WyJBRE1JTiJdfX0.SN8YzNc6T80f6INpLdqh6F7Tx35tXBiU0VVArrCEA-U',
+          'Authorization': 'Bearer ${UserManager.instance.loggedUser!.token}',
         },
         body: requestBody,
       );
@@ -108,86 +108,103 @@ class NewAnimalAdFormState extends State<NewAnimalAdForm> {
   @override
   Widget build(BuildContext context) {
     // Build a Form widget using the _formKey created above.
-    return Form(
-      key: _buyFormKey,
-      child: ListView(
-        children: [Column(
-          children: <Widget>[
-            homePageLogo,
-            OneLineInputField(
-                "Titulo", controller: _nameController,
-            ),
-            Row(
-              children: [
-                Flexible(
-                  flex: 4,
-                  child: OneLineInputField(
-                    "Valor",
-                    controller: _priceController,
-                    suffixText: "R\$",
-                  ),
-                ),
-                const Spacer(
-                  flex: 1,
-                ),
-                Flexible(
-                  flex: 4,
-                  child: DropdownButtonExample(
-                    list: const ["Unid", "KG"],
-                    selectedValue: priceTypeValue,
-                    onChanged: handleDropdownValueChanged,
-                  ),
-                ),
-              ],
-            ),
-            Row(
-              children: [
-                Flexible(
-                  flex: 4,
-                  child: OneLineInputField(
-                    "Peso", controller: _weightController,
-                  ),
-                ),
-                const Spacer(
-                  flex: 1,
-                )
-                ,
-                Flexible(
-                  flex: 4,
-                  child: OneLineInputField(
-                    "Quantidade", controller: _qttController,
-                  ),
-                ),
-              ],
-            ),
-
-            OneLineInputField(
-              "Local", controller: _locationController,
-            ),
-
-            MultiLineInputField(
-              controller: _descriptionController, fieldLabelText: 'Descrição', visibleRows: 5,
-            ),
-            FlatMenuButton(
-              icon: const Icon(Icons.send),
-              buttonName: "Enviar",
-              onPress: () {
-                if (_buyFormKey.currentState!.validate()) {
-                  registerAnimalAd();
-                  ScaffoldMessenger.of(context).showSnackBar(
-                    const SnackBar(content: Text('Pedido Enviado')),
-                  );
-                }
-              }
-            )
-          ] .map((widget) => Padding(
-            padding: const EdgeInsets.all(24),
-            child: widget,
-          ))
-              .toList(),
+    return Scaffold(
+        appBar: AppBar(
+          centerTitle: true,
+          backgroundColor: const Color.fromARGB(255, 0, 101, 32),
+          title: const Text(
+            "Novo Anúncio de Animal",
+            style: TextStyle(color: Colors.white),
+          ),
+          leading: IconButton(
+            icon: const Icon(Icons.arrow_back),
+            onPressed: () {
+              Navigator.pop(context);
+            },
+          ),
         ),
-      ]
-      ),
+        body: Form(
+          key: _buyFormKey,
+          child: ListView(
+            children: [Column(
+              children: <Widget>[
+                LogoBox,
+                OneLineInputField(
+                    "Titulo", controller: _nameController,
+                ),
+                Row(
+                  children: [
+                    Flexible(
+                      flex: 4,
+                      child: OneLineInputField(
+                        "Valor",
+                        controller: _priceController,
+                        suffixText: "R\$",
+                      ),
+                    ),
+                    const Spacer(
+                      flex: 1,
+                    ),
+                    Flexible(
+                      flex: 4,
+                      child: DropdownButtonExample(
+                        list: const ["Unid", "KG"],
+                        selectedValue: priceTypeValue,
+                        onChanged: handleDropdownValueChanged,
+                      ),
+                    ),
+                  ],
+                ),
+                Row(
+                  children: [
+                    Flexible(
+                      flex: 4,
+                      child: OneLineInputField(
+                        "Peso", controller: _weightController, suffixText: "KG",
+                      ),
+                    ),
+                    const Spacer(
+                      flex: 1,
+                    )
+                    ,
+                    Flexible(
+                      flex: 4,
+                      child: OneLineInputField(
+                        "Quantidade", controller: _qttController,
+                      ),
+                    ),
+                  ],
+                ),
+
+                OneLineInputField(
+                  "Local", controller: _locationController,
+                ),
+
+                MultiLineInputField(
+                  controller: _descriptionController, fieldLabelText: 'Descrição', visibleRows: 5,
+                ),
+                FlatMenuButton(
+                  icon: const Icon(Icons.send),
+                  buttonName: "Enviar",
+                  onPress: () {
+                    if (_buyFormKey.currentState!.validate()) {
+                      registerAnimalAd();
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        const SnackBar(content: Text('Pedido Enviado')),
+                      );
+                      Navigator.pop(context);
+                    }
+                  }
+                )
+              ] .map((widget) => Padding(
+                padding: const EdgeInsets.all(24),
+                child: widget,
+              ))
+                  .toList(),
+            ),
+          ]
+          ),
+        )
     );
   }
 }
