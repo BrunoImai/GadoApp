@@ -1,8 +1,6 @@
 import 'dart:convert';
 
 import 'package:flutter/material.dart';
-import 'package:gado_app/animal/animalInfoPage.dart';
-
 import 'package:http/http.dart' as http;
 
 import '../animal/Animal.dart';
