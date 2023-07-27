@@ -9,6 +9,8 @@ import 'package:gado_app/user/UserManager.dart';
 
 import 'package:http/http.dart' as http;
 
+import '../animal/animalInfoPage.dart';
+
 class LandInfoPage extends StatefulWidget {
   const LandInfoPage({Key? key, required this.landId}) : super(key: key);
   final int landId;
@@ -50,7 +52,8 @@ class _LandInfoPageState extends State<LandInfoPage> {
         area: jsonData['area'],
         priceType: jsonData['priceType'],
         description: jsonData['description'],
-          isFavorite: jsonData['isFavorite']
+          isFavorite: jsonData['isFavorite'],
+          images: jsonData['images'].cast<String>()
       );
     } else {
       // Handle API call errors, you can show an error message or throw an exception.
@@ -150,7 +153,7 @@ class _LandInfoPageState extends State<LandInfoPage> {
               body: ListView(children: [
                 Column(
                   children: [
-                    CarouselProducts(images),
+                    CarouselProducts(landAd.images),
                     LandDetails(
                       productName: landAd.name,
                       batch: landAd.batch!,
@@ -276,74 +279,5 @@ class LandDetails extends StatelessWidget {
             .toList(),
       ),
     );
-  }
-}
-
-class CarouselProducts extends StatefulWidget {
-  final List<String> images;
-  int pageIndex = 1;
-
-  CarouselProducts(this.images, {super.key});
-
-  @override
-  State<CarouselProducts> createState() => _CarouselProductsState();
-}
-
-class _CarouselProductsState extends State<CarouselProducts> {
-  @override
-  Widget build(BuildContext context) {
-    return Stack(children: [
-      CarouselSlider(
-        items: super.widget.images.map<Widget>((image) {
-          return Builder(
-            builder: (BuildContext context) {
-              return Container(
-                width: MediaQuery.of(context).size.width,
-                decoration: const BoxDecoration(
-                  color: Colors.grey,
-                ),
-                child: Image.network(
-                  image,
-                  fit: BoxFit.cover,
-                ),
-              );
-            },
-          );
-        }).toList(),
-        options: CarouselOptions(
-          height: 300.0,
-          viewportFraction: 1,
-          onPageChanged: (index, reason) => {
-            setState(() {
-              super.widget.pageIndex = index + 1;
-            })
-          },
-        ),
-      ),
-      Padding(
-        padding: const EdgeInsets.all(8.0),
-        child: Row(
-          mainAxisAlignment: MainAxisAlignment.end,
-          children: [
-            Container(
-              padding:
-                  const EdgeInsets.symmetric(horizontal: 16.0, vertical: 8.0),
-              decoration: BoxDecoration(
-                color: const Color.fromARGB(90, 0, 0, 0),
-                borderRadius: BorderRadius.circular(20.0),
-              ),
-              child: Text(
-                '${super.widget.pageIndex}/${super.widget.images.length}',
-                style: const TextStyle(
-                  color: Colors.white,
-                  fontSize: 16.0,
-                  fontWeight: FontWeight.bold,
-                ),
-              ),
-            )
-          ],
-        ),
-      )
-    ]);
   }
 }

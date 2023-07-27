@@ -19,5 +19,6 @@ data class MachineryAdResponse(
     val quantity: Int? = 1,
     val priceType: String? = "Unid",
     val description: String? = null,
-    var isFavorite: Boolean? = false,
+    var isFavorite: Boolean = false,
+    val images: List<String>? = listOf<String>()
 )

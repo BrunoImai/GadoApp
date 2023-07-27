@@ -1,7 +1,7 @@
 version: "Apple Swift version 5.7.2 (swiftlang-5.7.2.135.5 clang-1400.0.29.51)"
 options: "72ef84a9953c0158204eb6a584d17520b467a552e639308612f4d9b210e199cf"
-build_start_time: [1689106374, 309062957]
-build_end_time: [1689106375, 835319042]
+build_start_time: [1689526035, 438052177]
+build_end_time: [1689526039, 571580886]
 inputs:
-  "/Users/brunoimai/.pub-cache/hosted/pub.dev/url_launcher_macos-3.0.5/macos/Classes/UrlLauncherPlugin.swift": [1684443406, 198853015]
-  "/Users/brunoimai/.pub-cache/hosted/pub.dev/url_launcher_macos-3.0.5/macos/Classes/messages.g.swift": [1684443406, 199920654]
+  "/Users/brunoimai/.pub-cache/hosted/pub.dev/url_launcher_macos-3.0.6/macos/Classes/UrlLauncherPlugin.swift": [1689525941, 465617179]
+  "/Users/brunoimai/.pub-cache/hosted/pub.dev/url_launcher_macos-3.0.6/macos/Classes/messages.g.swift": [1689525941, 468964099]

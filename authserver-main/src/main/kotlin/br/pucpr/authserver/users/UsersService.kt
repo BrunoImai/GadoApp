@@ -69,8 +69,8 @@ class UsersService(
             price = req.price,
             priceType = req.priceType,
             description = req.description,
-            owner = owner
-
+            owner = owner,
+            images = req.images,
         )
 
         owner.animalAds.add(animalAd)
@@ -92,7 +92,9 @@ class UsersService(
             priceType = req.priceType,
             description = req.description,
             owner = owner,
-            batch = "0000"
+            batch = "0000",
+            images = req.images,
+
         )
 
         owner.landAds.add(landAd)
@@ -112,8 +114,8 @@ class UsersService(
             price = req.price,
             priceType = req.priceType,
             description = req.description,
-            owner = owner
-
+            owner = owner,
+            images = req.images,
         )
 
         owner.machineryAds.add(machineryAd)

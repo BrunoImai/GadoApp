@@ -56,7 +56,8 @@ Authorization: Bearer {{token}}
 {
   "name": "Vaca malhada",
   "price": 2000.0,
-  "localization": "Curitiba/PR"
+  "localization": "Curitiba/PR",
+  "images": ["rato.png"]
 }
 
 ### Adiciona um novo anúncio de terra ao usuário com o id 2

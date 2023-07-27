@@ -80,10 +80,12 @@ class _InitialViewState extends State<InitialView> {
                       "Email",
                       controller: emailController,
                     ),
-                    OneLineInputField(
+                    const SizedBox(height: 16.0),
+                    PassWordInputField(
                       "Senha",
                       controller: passwordController,
                     ),
+                    const SizedBox(height: 16.0),
                     FlatMenuButton(
                         icon: const Icon(Icons.send),
                         buttonName: "Login",
@@ -112,7 +114,7 @@ class _InitialViewState extends State<InitialView> {
               context,
               MaterialPageRoute(builder: (context) => RegisterView()),
               );
-              }, child: const Text("Não tem uma conta ainda? Cadastre-se!"),)
+              }, child: const Text("Não tem uma conta ainda? Cadastre-se!", style: TextStyle(color: Color.fromARGB(255, 0, 101, 32),)),)
             ]
                 .map((widget) => Padding(
               padding: const EdgeInsets.only(top: 16, bottom: 16),

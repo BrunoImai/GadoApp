@@ -1,12 +1,14 @@
 import 'dart:convert';
 import 'dart:ffi';
 
+import 'package:file_picker/file_picker.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:gado_app/animal/Animal.dart';
 import 'package:gado_app/user/UserManager.dart';
+import 'package:gado_app/firebase/storageService.dart';
 import 'package:intl/intl.dart';
 import 'package:http/http.dart' as http;
 
@@ -53,6 +55,12 @@ class NewAnimalAdFormState extends State<NewAnimalAdForm> {
 
   final _buyFormKey = GlobalKey<FormState>();
 
+  List<String> imagePaths = [];
+  List<String> imageNames = [];
+  List<Widget> imagePillButtons = [];
+
+  final Storage storage = Storage();
+
   final TextEditingController _nameController = TextEditingController();
   final TextEditingController _locationController = TextEditingController();
   final TextEditingController _priceController= TextEditingController();
@@ -68,6 +76,28 @@ class NewAnimalAdFormState extends State<NewAnimalAdForm> {
     });
   }
 
+  void addImage(String imagePath, String imageName) {
+    setState(() {
+      imagePaths.add(imagePath);
+      imageNames.add(imageName);
+      imagePillButtons.add(
+        ImagePillButton(
+          imageName: imageName,
+          onPressed: () => removeImage(imageName),
+        ),
+      );
+    });
+  }
+
+  void removeImage(String imageName) {
+    setState(() {
+      int index = imageNames.indexOf(imageName);
+      imagePaths.removeAt(index);
+      imageNames.removeAt(index);
+      imagePillButtons.removeAt(index);
+    });
+  }
+
 
   Future<void> registerAnimalAd() async {
     final String name =  _nameController.text;
@@ -77,9 +107,11 @@ class NewAnimalAdFormState extends State<NewAnimalAdForm> {
     final int qtt =  int.parse(_qttController.text);
     final String description =  _descriptionController.text;
     final String priceType =  priceTypeValue;
+    final List<String> images = imageNames;
 
-    AnimalAd animalRequest = AnimalAd(name: name, price: price, weight: weight, localization: location, quantity: qtt,priceType: priceType,description: description, batch: null, id: null );
+    AnimalAd animalRequest = AnimalAd(name: name, price: price, weight: weight, localization: location, quantity: qtt,priceType: priceType,description: description, batch: null, id: null , images: images);
     String requestBody = jsonEncode(animalRequest.toJson());
+    print("requestBody: $requestBody");
 
     try {
       final response = await http.post(
@@ -94,6 +126,8 @@ class NewAnimalAdFormState extends State<NewAnimalAdForm> {
       if (response.statusCode == 200 || response.statusCode == 201) {
         // Registration successful
         print('Registration successful!');
+        await storage.uploadFiles(imagePaths, imageNames).
+        then((value) => print("Done"));
       } else {
         // Registration failed
         print('Registration failed. Status code: ${response.statusCode}');
@@ -107,6 +141,7 @@ class NewAnimalAdFormState extends State<NewAnimalAdForm> {
 
   @override
   Widget build(BuildContext context) {
+
     // Build a Form widget using the _formKey created above.
     return Scaffold(
         appBar: AppBar(
@@ -180,6 +215,30 @@ class NewAnimalAdFormState extends State<NewAnimalAdForm> {
                   "Local", controller: _locationController,
                 ),
 
+                FlatMenuButton(
+                  icon: const Icon(Icons.image),
+                  buttonName: "Adicionar imagem",
+                    onPress: () async {
+                      final results = await FilePicker.platform.pickFiles(
+                        allowMultiple: false,
+                        type: FileType.custom,
+                        allowedExtensions: ['png', 'jpg', 'jpeg']
+                      );
+                      if (results == null) {
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          const SnackBar(content: Text('Nenhum arquivo selecionado!'))
+                        );
+                        return null;
+                      }
+                      addImage(results.files.single.path!, results.files.single.name);
+
+                    }
+                ),
+
+                Wrap(
+                  children: imagePillButtons,
+                ),
+
                 MultiLineInputField(
                   controller: _descriptionController, fieldLabelText: 'Descrição', visibleRows: 5,
                 ),
@@ -250,6 +309,51 @@ class OneLineInputField extends StatelessWidget {
     );
   }
 }
+
+class PassWordInputField extends StatelessWidget {
+  final String fieldLabelText;
+  final TextEditingController controller;
+  final String? suffixText;
+  final String? prefixText;
+
+  const PassWordInputField(this.fieldLabelText, {super.key, required this.controller, this.suffixText, this.prefixText});
+
+  @override
+  Widget build(BuildContext context) {
+    return TextFormField(
+      controller: controller,
+      obscureText: true,
+      decoration:  InputDecoration(
+          hintStyle: const TextStyle(color: Color.fromARGB(255, 0, 101, 32)),
+          border: const OutlineInputBorder(
+              borderRadius: BorderRadius.all(Radius.circular(20)),
+              borderSide: BorderSide(
+                  color: Colors.deepOrange,
+                  width: 10
+              )
+          ),
+
+
+          focusedBorder: const OutlineInputBorder(
+              borderSide: BorderSide(width: 3, color: Color.fromARGB(255, 0, 101, 32))
+          ),
+          suffix: suffixText != null ? Text(suffixText!) : const Text(""),
+          prefix: prefixText != null ? Text(prefixText!) : const Text(""),
+
+          labelText: fieldLabelText,
+          labelStyle: const TextStyle(color: Color.fromARGB(255, 0, 101, 32), fontWeight: FontWeight.bold)
+      ),
+      validator: (value) {
+        if (value == null || value.isEmpty) {
+          return 'Campo obrigatório';
+        }
+        return null;
+      },
+    );
+  }
+}
+
+
 
 class MultiLineInputField extends StatelessWidget {
   final String fieldLabelText;
@@ -384,6 +488,42 @@ class _DropdownButtonExampleState extends State<DropdownButtonExample> {
               );
             }).toList(),
           ),
+        ),
+      ),
+    );
+  }
+}
+
+class ImagePillButton extends StatelessWidget {
+  final String imageName;
+  final Function() onPressed;
+
+  const ImagePillButton({
+    required this.imageName,
+    required this.onPressed,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return Padding(
+      padding: const EdgeInsets.symmetric(vertical: 8),
+      child: Container(
+        decoration: BoxDecoration(
+          borderRadius: BorderRadius.circular(20),
+          border: Border.all(color: Colors.grey),
+        ),
+        child: Row(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Padding(
+              padding: const EdgeInsets.all(8),
+              child: Text(imageName),
+            ),
+            IconButton(
+              icon: Icon(Icons.close),
+              onPressed: onPressed,
+            ),
+          ],
         ),
       ),
     );

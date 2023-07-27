@@ -15,4 +15,5 @@ data class LandAdRequest(
     val area : String? = null,
     val priceType: String? = "Unid",
     val description: String? = null,
+    val images: List<String>? = listOf<String>()
 )

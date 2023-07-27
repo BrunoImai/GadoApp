@@ -37,9 +37,9 @@ class LandAd (
     val owner: User,
 
     @ElementCollection
-    val images: Set<String> ? = setOf(),
+    val images: List<String>? = listOf<String>()
 
     ){
-    fun toResponse() = LandAdResponse( name, price, localization, id!!, batch!!, area, priceType, description)
+    fun toResponse() = LandAdResponse( name, price, localization, id!!, batch!!, area, priceType, description,false ,images!!)
 
 }

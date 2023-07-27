@@ -34,17 +34,14 @@ class AnimalAd (
     @Column()
     val description: String ? = "",
 
-    @Column()
-    val isFavorite: Boolean ? = false,
-
     @ManyToOne
     @JoinColumn(name = "owner_id")
     val owner: User,
 
     @ElementCollection
-    val images: Set<String> ? = setOf(),
+    val images: List<String>? = listOf<String>()
 
     )
 {
-    fun toResponse() = AnimalAdResponse( name, price, localization, id!!, batch!!, weight, quantity, priceType, description, isFavorite!!)
+    fun toResponse() = AnimalAdResponse( name, price, localization, id!!, batch!!, weight, quantity, priceType, description, false, images!!)
 }

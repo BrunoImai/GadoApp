@@ -9,6 +9,7 @@ import 'package:gado_app/home/homePage.dart';
 
 import 'package:http/http.dart' as http;
 
+import '../firebase/storageService.dart';
 import '../user/UserManager.dart';
 
 class AnimalInfoPage extends StatefulWidget {
@@ -52,7 +53,8 @@ class _AnimalInfoPageState extends State<AnimalInfoPage> {
         quantity: jsonData['quantity'],
         priceType: jsonData['priceType'],
         description: jsonData['description'],
-        isFavorite: jsonData['isFavorite']
+        isFavorite: jsonData['isFavorite'],
+        images: jsonData['images'].cast<String>()
       );
     } else {
       // Handle API call errors, you can show an error message or throw an exception.
@@ -106,11 +108,6 @@ class _AnimalInfoPageState extends State<AnimalInfoPage> {
 
   @override
   Widget build(BuildContext context) {
-    final List<String> images = [
-      "https://dicas.boisaude.com.br/wp-content/uploads/2020/12/rac%CC%A7as-de-gado-brasileiro.jpg",
-      "https://s2.glbimg.com/V4XsshzNU57Brn3e127b80Rbk24=/e.glbimg.com/og/ed/f/original/2016/05/30/gado.jpg",
-      "https://upload.wikimedia.org/wikipedia/commons/thumb/0/0c/Cow_female_black_white.jpg/1280px-Cow_female_black_white.jpg",
-    ];
 
     return FutureBuilder<AnimalAd>(
         future: _animalAdFuture,
@@ -162,7 +159,7 @@ class _AnimalInfoPageState extends State<AnimalInfoPage> {
                 body: ListView(children: [
                   Column(
                     children: [
-                      CarouselProducts(images),
+                      CarouselProducts(animalAd.images),
                       AnimalDetails(
                         productName: animalAd.name,
                         batch: animalAd.batch!,
@@ -300,67 +297,85 @@ class CarouselProducts extends StatefulWidget {
   final List<String> images;
   int pageIndex = 1;
 
-  CarouselProducts(this.images, {super.key});
+  CarouselProducts(this.images, {Key? key}) : super(key: key);
 
   @override
   State<CarouselProducts> createState() => _CarouselProductsState();
 }
 
 class _CarouselProductsState extends State<CarouselProducts> {
+  final Storage storage = Storage();
+  List<Widget> carouselItems = [];
+
+  @override
+  void initState() {
+    super.initState();
+    fetchCarouselImages();
+  }
+
+  Future<void> fetchCarouselImages() async {
+    for (final image in widget.images) {
+      final imageUrl = await storage.getImageUrl(image);
+      setState(() {
+        carouselItems.add(
+          Container(
+            width: MediaQuery.of(context).size.width,
+            decoration: const BoxDecoration(
+              color: Colors.grey,
+            ),
+            child: Image.network(
+              imageUrl,
+              fit: BoxFit.cover,
+            ),
+          ),
+        );
+      });
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
-    return Stack(children: [
-      CarouselSlider(
-        items: super.widget.images.map<Widget>((image) {
-          return Builder(
-            builder: (BuildContext context) {
-              return Container(
-                width: MediaQuery.of(context).size.width,
-                decoration: const BoxDecoration(
-                  color: Colors.grey,
-                ),
-                child: Image.network(
-                  image,
-                  fit: BoxFit.cover,
-                ),
-              );
+    return Stack(
+      children: [
+        CarouselSlider(
+          items: carouselItems,
+          options: CarouselOptions(
+            height: 300.0,
+            viewportFraction: 1,
+            onPageChanged: (index, reason) {
+              setState(() {
+                widget.pageIndex = index + 1;
+              });
             },
-          );
-        }).toList(),
-        options: CarouselOptions(
-          height: 300.0,
-          viewportFraction: 1,
-          onPageChanged: (index, reason) => {
-            setState(() {
-              super.widget.pageIndex = index + 1;
-            })
-          },
+          ),
         ),
-      ),
-      Padding(
-        padding: const EdgeInsets.all(8.0),
-        child: Row(
-          mainAxisAlignment: MainAxisAlignment.end,
-          children: [
-            Container(
-              padding:
-                  const EdgeInsets.symmetric(horizontal: 16.0, vertical: 8.0),
-              decoration: BoxDecoration(
-                color: const Color.fromARGB(90, 0, 0, 0),
-                borderRadius: BorderRadius.circular(20.0),
-              ),
-              child: Text(
-                '${super.widget.pageIndex}/${super.widget.images.length}',
-                style: const TextStyle(
-                  color: Colors.white,
-                  fontSize: 16.0,
-                  fontWeight: FontWeight.bold,
+        Padding(
+          padding: const EdgeInsets.all(8.0),
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.end,
+            children: [
+              Container(
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 16.0,
+                  vertical: 8.0,
                 ),
-              ),
-            )
-          ],
-        ),
-      )
-    ]);
+                decoration: BoxDecoration(
+                  color: const Color.fromARGB(90, 0, 0, 0),
+                  borderRadius: BorderRadius.circular(20.0),
+                ),
+                child: Text(
+                  '${widget.pageIndex}/${widget.images.length}',
+                  style: const TextStyle(
+                    color: Colors.white,
+                    fontSize: 16.0,
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
+              )
+            ],
+          ),
+        )
+      ],
+    );
   }
 }

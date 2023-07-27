@@ -4,8 +4,6 @@
 <dict>
 	<key>BuildMachineOSBuild</key>
 	<string>22C65</string>
-	<key>CFBundleDevelopmentRegion</key>
-	<string>en</string>
 	<key>CFBundleExecutable</key>
 	<string>Pods_Runner</string>
 	<key>CFBundleIdentifier</key>

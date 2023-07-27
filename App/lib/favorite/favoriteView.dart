@@ -7,6 +7,7 @@ import 'package:http/http.dart' as http;
 
 import '../animal/Animal.dart';
 import '../animal/AnimalList.dart';
+import '../firebase/storageService.dart';
 import '../land/land.dart';
 import '../land/landList.dart';
 import '../machine/machine.dart';
@@ -25,6 +26,11 @@ class UserFavListPage extends StatefulWidget {
 class _UserFavListPageState extends State<UserFavListPage> {
   bool searchBarInUse = false;
 
+  late List<String> animalImages;
+  late List<String> landImages;
+  late List<String> machineryImages;
+
+  final Storage storage = Storage();
 
   late Future<List<dynamic>> futureData;
 
@@ -55,8 +61,17 @@ class _UserFavListPageState extends State<UserFavListPage> {
           quantity: item['quantity'],
           priceType: item['priceType'],
           description: item['description'],
+          images: item['images'].cast<String>(),
         );
       }).toList();
+
+      var animalImageUrlList = [];
+
+      for (var element in animalAds) {
+        animalImageUrlList.add(await storage.getImageUrl(element.images[0]));
+      }
+
+      animalImages = animalImageUrlList.cast<String>();
 
       final landAds = landAdsData.map((item) {
         return LandAd(
@@ -68,8 +83,17 @@ class _UserFavListPageState extends State<UserFavListPage> {
           area: item['area'],
           priceType: item['priceType'],
           description: item['description'],
+          images: item['images'].cast<String>(),
         );
       }).toList();
+
+      var landImageUrlList = [];
+
+      for (var element in landAds) {
+        landImageUrlList.add(await storage.getImageUrl(element.images[0]));
+      }
+
+      landImages = landImageUrlList.cast<String>();
 
       final machineryAds = machineryAdsData.map((item) {
         return MachineryAd(
@@ -80,8 +104,17 @@ class _UserFavListPageState extends State<UserFavListPage> {
           quantity: item['quantity'],
           priceType: item['priceType'],
           description: item['description'],
+          images: item['images'].cast<String>(),
         );
       }).toList();
+
+      var machineryImageUrlList = [];
+
+      for (var element in machineryAds) {
+        machineryImageUrlList.add(await storage.getImageUrl(element.images[0]));
+      }
+
+      machineryImages = machineryImageUrlList.cast<String>();
 
       return [...animalAds, ...landAds, ...machineryAds];
     } else {
@@ -135,8 +168,7 @@ class _UserFavListPageState extends State<UserFavListPage> {
                               final data = snapshot.data![index];
                               if (data is AnimalAd) {
                                 return productAnimal(
-                                  "https://s2.glbimg.com/V4XsshzNU57Brn3e127b80Rbk24=/e.glbimg.com/og/ed/f/original/2016/05/30/gado.jpg",
-                                  data.name,
+                                  Future.value(animalImages[index]),                                  data.name,
                                   data.batch,
                                   data.localization,
                                   data.quantity,
@@ -145,10 +177,10 @@ class _UserFavListPageState extends State<UserFavListPage> {
                                   price: data.price,
                                   weight: data.weight,
                                 );
-                              } else if (data is LandAd) {
+                              }
+                               if (data is LandAd) {
                                 return productLand(
-                                  "https://s2.glbimg.com/V4XsshzNU57Brn3e127b80Rbk24=/e.glbimg.com/og/ed/f/original/2016/05/30/gado.jpg",
-                                  data.name,
+                                  Future.value(landImages[index]),                                       data.name,
                                   data.batch,
                                   data.localization,
                                   data.area,
@@ -158,8 +190,7 @@ class _UserFavListPageState extends State<UserFavListPage> {
                                 );
                               } else if (data is MachineryAd) {
                                 return productMachine(
-                                  "https://s2.glbimg.com/V4XsshzNU57Brn3e127b80Rbk24=/e.glbimg.com/og/ed/f/original/2016/05/30/gado.jpg",
-                                  data.name,
+                                  Future.value(machineryImages[index]),                                     data.name,
                                   data.batch,
                                   data.localization,
                                   data.quantity,

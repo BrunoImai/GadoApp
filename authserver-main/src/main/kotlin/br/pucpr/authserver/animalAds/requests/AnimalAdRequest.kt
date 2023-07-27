@@ -16,4 +16,5 @@ data class AnimalAdRequest (
     val quantity: Int? = null,
     val priceType: String? = "Unid",
     val description: String? = null,
+    val images: List<String>? = listOf<String>()
 )

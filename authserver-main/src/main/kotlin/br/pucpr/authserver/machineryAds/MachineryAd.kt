@@ -41,9 +41,9 @@ class MachineryAd (
     val owner: User,
 
     @ElementCollection
-    val images: Set<String> ? = setOf(),
+    val images: List<String>? = listOf<String>()
 
     ) {
-    fun toResponse() = MachineryAdResponse( name, price, localization, id!! ,batch!! ,quantity, priceType, description, isFavorite!!)
+    fun toResponse() = MachineryAdResponse( name, price, localization, id!! ,batch!! ,quantity, priceType, description,false, images!!)
 
 }

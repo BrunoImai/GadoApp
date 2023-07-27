@@ -4,6 +4,7 @@ import 'package:gado_app/land/landFormView.dart';
 import 'package:gado_app/land/landList.dart';
 import 'package:gado_app/machine/machineList.dart';
 import 'package:gado_app/machine/machineryFormView.dart';
+import 'package:gado_app/publicity/publicityInfo.dart';
 import 'package:gado_app/user/UserManager.dart';
 import 'package:gado_app/user/registerView.dart';
 
@@ -89,27 +90,34 @@ class _HomePageState extends State<HomePage> {
 
 class HomePageScreen extends StatelessWidget {
   const HomePageScreen({
-    super.key,
-  });
+    Key? key,
+  }) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
     return Column(
       mainAxisAlignment: MainAxisAlignment.spaceEvenly,
       children: [
+        const HomePageLogo(),
+        SearchBarWidget(),
         Expanded(
           child: ListView(
             children: [
-              const HomePageLogo(),
-              SearchBarWidget(),
               categoriesSection,
               regulationBox,
               socialMediaBox("facebookLink", "instagramLink", "youtubeLink"),
+               const PublicityCard(
+                imageLink:
+                "https://imagens.mfrural.com.br/mfrural-produtos-us/245984-250772-2050402-sementes-de-capim-mpg-produtos-agropecuarios.jpg",
+                publicityDescription: 'Sementes boas a um preco barato',
+                publicityTitle: 'Sementes',
+                destination: PublicityInfoPage( machineId: 1,),
+              )
             ]
                 .map((widget) => Padding(
-                      padding: const EdgeInsets.all(24),
-                      child: widget,
-                    ))
+              padding: const EdgeInsets.all(24),
+              child: widget,
+            ))
                 .toList(),
           ),
         ),
@@ -117,7 +125,7 @@ class HomePageScreen extends StatelessWidget {
     );
   }
 }
-// Rest of the code...
+
 
 Widget categoriesSection = const Column(
   children: [
@@ -236,17 +244,16 @@ class CategoryBox extends StatelessWidget {
 }
 
 class HomePageLogo extends StatelessWidget {
-  const HomePageLogo({
-    super.key,
-  });
+  const HomePageLogo({Key? key});
 
   @override
   Widget build(BuildContext context) {
-    return Expanded(
+    return Padding(
+      padding: const EdgeInsets.all(24),
       child: Center(
         child: SizedBox(
           width: MediaQuery.of(context).size.width * 0.8,
-          height: 100,
+          height: 80,
           child: Image.network(
             "https://upload.wikimedia.org/wikipedia/commons/f/fd/Crowd_Cow_logo.png?20210119092057",
             fit: BoxFit.contain,
@@ -356,43 +363,47 @@ class SearchBarWidget extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Container(
-      decoration: BoxDecoration(
-        border: Border.all(
-            color: const Color.fromARGB(255, 0, 101, 32), width: 3.0),
-        borderRadius: BorderRadius.circular(10),
-      ),
-      child: TextField(
-        controller: _searchController,
-        decoration: InputDecoration(
-          prefixIconColor:
-              MaterialStateColor.resolveWith((Set<MaterialState> states) {
-            return states.contains(MaterialState.focused)
-                ? const Color.fromARGB(255, 0, 101, 32)
-                : Colors.grey;
-          }),
-          suffixIconColor: const Color.fromARGB(255, 0, 101, 32),
-          border: InputBorder.none,
-          hintText: 'Search...',
-          prefixIcon: IconButton(
-            icon: const Icon(Icons.search),
-            onPressed: () {
-              if (kDebugMode) {
-                print('Search button pressed');
-              }
-            },
-          ),
-          suffixIcon: IconButton(
-            icon: const Icon(Icons.filter_list),
-            onPressed: () {
-              if (kDebugMode) {
-                print('Filter button pressed');
-              }
-            },
+    return Padding(
+      padding: const EdgeInsets.all(24),
+      child: Container(
+        decoration: BoxDecoration(
+          border: Border.all(
+              color: const Color.fromARGB(255, 0, 101, 32), width: 3.0),
+          borderRadius: BorderRadius.circular(10),
+        ),
+        child: TextField(
+          controller: _searchController,
+          decoration: InputDecoration(
+            prefixIconColor:
+                MaterialStateColor.resolveWith((Set<MaterialState> states) {
+              return states.contains(MaterialState.focused)
+                  ? const Color.fromARGB(255, 0, 101, 32)
+                  : Colors.grey;
+            }),
+            suffixIconColor: const Color.fromARGB(255, 0, 101, 32),
+            border: InputBorder.none,
+            hintText: 'Search...',
+            prefixIcon: IconButton(
+              icon: const Icon(Icons.search),
+              onPressed: () {
+                if (kDebugMode) {
+                  print('Search button pressed');
+                }
+              },
+            ),
+            suffixIcon: IconButton(
+              icon: const Icon(Icons.filter_list),
+              onPressed: () {
+                if (kDebugMode) {
+                  print('Filter button pressed');
+                }
+              },
+            ),
           ),
         ),
       ),
     );
+
   }
 }
 
@@ -535,6 +546,96 @@ class _ExpandableFabState extends State<ExpandableFab>
         elevation: 10,
         label: Text(label),
         icon: Icon(icon),
+      ),
+    );
+  }
+}
+
+
+class PublicityCard extends StatelessWidget {
+  const PublicityCard({super.key, required this.imageLink, required this.publicityDescription,required this.publicityTitle, required this.destination});
+  final String imageLink;
+  final String publicityTitle;
+  final String publicityDescription;
+  final Widget destination;
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      width: MediaQuery.of(context).size.width * 0.8,
+      height: 400,
+      decoration: BoxDecoration(
+        color: const Color.fromARGB(255, 0, 101, 32),
+        borderRadius: BorderRadius.circular(10),
+      ),
+      child: ClipRRect(
+        borderRadius: BorderRadius.circular(10),
+        child: TextButton(
+          onPressed: () {
+            Navigator.push(
+              context,
+              MaterialPageRoute(builder: (context) => destination),
+            );
+          },
+          child: Stack(
+            alignment: Alignment.topCenter,
+            fit: StackFit.expand,
+            children: [
+              Align(
+                alignment: AlignmentDirectional.topCenter,
+                child: Padding(
+                  padding: const EdgeInsets.only(top: 8),
+                  child: FractionallySizedBox(
+                    heightFactor: 0.8,
+                    widthFactor: 1,
+                    child: ClipRRect(
+                      borderRadius: BorderRadius.circular(10),
+                      child: Image.network(
+                        imageLink,
+                        fit: BoxFit.cover,
+                      ),
+                    ),
+                  ),
+                ),
+              ),
+              FractionallySizedBox(
+                alignment: Alignment.bottomCenter,
+                heightFactor: 0.2,
+                child: Container(
+                  color: const Color.fromARGB(255, 0, 101, 32),
+                  child: Center(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Padding(
+                          padding: const EdgeInsets.only(top: 8.0, bottom: 8.0),
+                          child: Text(
+                            publicityTitle,
+                            textAlign: TextAlign.left,
+                            style: const TextStyle(
+                              fontWeight: FontWeight.bold,
+                              color: Colors.white,
+                            ),
+                          ),
+                        ),
+                        const Divider(
+                          color: Colors.white,
+                        ),
+                        Text(
+                          publicityDescription,
+                          textAlign: TextAlign.left,
+                          style: const TextStyle(
+                            color: Colors.white,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                ),
+              ),
+            ],
+          ),
+        ),
       ),
     );
   }

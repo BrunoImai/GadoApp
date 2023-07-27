@@ -1,17 +1,14 @@
 import 'dart:convert';
-import 'dart:ffi';
 
-import 'package:flutter/cupertino.dart';
+import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
-import 'package:font_awesome_flutter/font_awesome_flutter.dart';
-import 'package:gado_app/animal/Animal.dart';
-import 'package:gado_app/land/land.dart';
+
 import 'package:gado_app/machine/machine.dart';
-import 'package:intl/intl.dart';
+
 import 'package:http/http.dart' as http;
 
 import '../animal/animalFormView.dart';
+import '../firebase/storageService.dart';
 import '../home/homePage.dart';
 import '../user/UserManager.dart';
 
@@ -55,6 +52,12 @@ class NewLandAdFormState extends State<NewLandAdForm> {
 
   final _buyFormKey = GlobalKey<FormState>();
 
+  List<String> imagePaths = [];
+  List<String> imageNames = [];
+  List<Widget> imagePillButtons = [];
+
+  final Storage storage = Storage();
+
   final TextEditingController _nameController = TextEditingController();
   final TextEditingController _locationController = TextEditingController();
   final TextEditingController _priceController= TextEditingController();
@@ -69,6 +72,27 @@ class NewLandAdFormState extends State<NewLandAdForm> {
     });
   }
 
+  void addImage(String imagePath, String imageName) {
+    setState(() {
+      imagePaths.add(imagePath);
+      imageNames.add(imageName);
+      imagePillButtons.add(
+        ImagePillButton(
+          imageName: imageName,
+          onPressed: () => removeImage(imageName),
+        ),
+      );
+    });
+  }
+
+  void removeImage(String imageName) {
+    setState(() {
+      int index = imageNames.indexOf(imageName);
+      imagePaths.removeAt(index);
+      imageNames.removeAt(index);
+      imagePillButtons.removeAt(index);
+    });
+  }
 
   Future<void> registerMachineryAd() async {
     final String name =  _nameController.text;
@@ -77,8 +101,9 @@ class NewLandAdFormState extends State<NewLandAdForm> {
     final String description =  _descriptionController.text;
     final int qtt = int.parse(_qttController.text);
     const String priceType =  "Unid";
+    final List<String> images = imageNames;
 
-    MachineryAd machineryRequest = MachineryAd(name: name, price: price, localization: location, quantity: qtt,priceType: priceType,description: description, id: 0 );
+    MachineryAd machineryRequest = MachineryAd(name: name, price: price, localization: location, quantity: qtt,priceType: priceType,description: description, id: 0, images: images );
     String requestBody = jsonEncode(machineryRequest.toJson());
 
     try {
@@ -94,6 +119,8 @@ class NewLandAdFormState extends State<NewLandAdForm> {
       if (response.statusCode == 200 || response.statusCode == 201) {
         // Registration successful
         print('Registration successful!');
+        await storage.uploadFiles(imagePaths, imageNames).
+        then((value) => print("Done"));
       } else {
         // Registration failed
         print('Registration failed. Status code: ${response.statusCode}');
@@ -105,6 +132,7 @@ class NewLandAdFormState extends State<NewLandAdForm> {
   }
 
 
+  @override
   @override
   Widget build(BuildContext context) {
     // Build a Form widget using the _formKey created above.
@@ -126,11 +154,13 @@ class NewLandAdFormState extends State<NewLandAdForm> {
       body: Form(
         key: _buyFormKey,
         child: ListView(
-            children: [Column(
+          children: [
+            Column(
               children: <Widget>[
                 LogoBox,
                 OneLineInputField(
-                  "Titulo", controller: _nameController,
+                  "Titulo",
+                  controller: _nameController,
                 ),
                 Row(
                   children: [
@@ -146,41 +176,71 @@ class NewLandAdFormState extends State<NewLandAdForm> {
                       flex: 1,
                     ),
                     Flexible(
-                        flex: 4,
-                        child: OneLineInputField("Quantidade", controller: _qttController)
+                      flex: 4,
+                      child: OneLineInputField(
+                        "Quantidade",
+                        controller: _qttController,
+                      ),
                     ),
                   ],
                 ),
-
                 OneLineInputField(
-                  "Local", controller: _locationController,
-                ),
-
-                MultiLineInputField(
-                  controller: _descriptionController, fieldLabelText: 'Descrição', visibleRows: 5,
+                  "Local",
+                  controller: _locationController,
                 ),
                 FlatMenuButton(
-                    icon: const Icon(Icons.send),
-                    buttonName: "Enviar",
-                    onPress: () {
-                      if (_buyFormKey.currentState!.validate()) {
-                        registerMachineryAd();
-                        ScaffoldMessenger.of(context).showSnackBar(
-                          const SnackBar(content: Text('Pedido Enviado')),
-                        );
-                        Navigator.pop(context);
-                      }
+                  icon: const Icon(Icons.image),
+                  buttonName: "Adicionar imagem",
+                  onPress: () async {
+                    final results = await FilePicker.platform.pickFiles(
+                      allowMultiple: false,
+                      type: FileType.custom,
+                      allowedExtensions: ['png', 'jpg', 'jpeg'],
+                    );
+                    if (results == null) {
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        const SnackBar(content: Text('Nenhum arquivo selecionado!')),
+                      );
+                      return null;
                     }
-                )
-              ] .map((widget) => Padding(
+                    addImage(
+                      results.files.single.path!,
+                      results.files.single.name,
+                    );
+                  },
+                ),
+                Wrap(
+                  children: imagePillButtons,
+                ),
+                MultiLineInputField(
+                  controller: _descriptionController,
+                  fieldLabelText: 'Descrição',
+                  visibleRows: 5,
+                ),
+                FlatMenuButton(
+                  icon: const Icon(Icons.send),
+                  buttonName: "Enviar",
+                  onPress: () {
+                    if (_buyFormKey.currentState!.validate()) {
+                      registerMachineryAd();
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        const SnackBar(content: Text('Pedido Enviado')),
+                      );
+                      Navigator.pop(context);
+                    }
+                  },
+                ),
+              ]
+                  .map((widget) => Padding(
                 padding: const EdgeInsets.all(24),
                 child: widget,
               ))
                   .toList(),
             ),
-            ]
+          ],
         ),
       ),
     );
   }
+
 }

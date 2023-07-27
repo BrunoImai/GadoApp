@@ -1,6 +1,7 @@
 import 'dart:convert';
 
 import 'package:flutter/material.dart';
+import 'package:gado_app/animal/animalFormView.dart';
 import 'package:gado_app/user/user.dart';
 import 'package:http/http.dart' as http;
 
@@ -63,44 +64,22 @@ class RegisterView extends StatelessWidget {
         backgroundColor: const Color.fromARGB(255, 0, 101, 32),
       ),
       body: Padding(
-        padding: const EdgeInsets.all(16.0),
+        padding: const EdgeInsets.all(32.0),
         child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
+          mainAxisAlignment: MainAxisAlignment.start,
           children: [
-            TextField(
-              controller: nameController,
-              decoration: const InputDecoration(
-                labelText: 'Nome',
-              ),
-            ),
-            const SizedBox(height: 16.0),
-            TextField(
-              controller: emailController,
-              decoration: const InputDecoration(
-                labelText: 'Email',
-              ),
-            ),
-            const SizedBox(height: 16.0),
-            TextField(
-              controller: passwordController,
-              decoration: const InputDecoration(
-                labelText: 'Senha',
-              ),
-              obscureText: true,
-            ),
-            const SizedBox(height: 16.0),
-            TextField(
-              controller: confirmPasswordController,
-              decoration: const InputDecoration(
-                labelText: 'Confirme sua senha',
-              ),
-              obscureText: true,
-            ),
-            const SizedBox(height: 24.0),
-            ElevatedButton(
-              onPressed: () {
-
-                String email = emailController.text;
+            OneLineInputField("Nome", controller: nameController),
+            const SizedBox(height: 32.0),
+            OneLineInputField("Email", controller: emailController),
+            const SizedBox(height: 32.0),
+            PassWordInputField("Senha", controller: passwordController),
+            const SizedBox(height: 32.0),
+            PassWordInputField("Confirme sua senha", controller: confirmPasswordController),
+            const SizedBox(height: 48.0),
+            FlatMenuButton(
+              icon: const Icon(Icons.send),
+              buttonName: "Registro",
+              onPress: () {
                 String password = passwordController.text;
                 String confirmPassword = confirmPasswordController.text;
 
@@ -123,7 +102,6 @@ class RegisterView extends StatelessWidget {
                   });
                 }
               },
-              child: const Text('Register'),
             ),
           ],
         ),

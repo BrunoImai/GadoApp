@@ -7,6 +7,7 @@ import 'package:gado_app/land/land.dart';
 import 'package:http/http.dart' as http;
 
 import '../animal/animalInfoPage.dart';
+import '../firebase/storageService.dart';
 
 class LandListPage extends StatefulWidget {
   const LandListPage({super.key});
@@ -19,6 +20,8 @@ class LandListPage extends StatefulWidget {
 class _LandListPageState extends State<LandListPage> {
   bool searchBarInUse = false;
   late Future<List<LandAd>> futureData;
+  late List<String> images;
+  final Storage storage = Storage();
 
   @override
   void initState() {
@@ -43,8 +46,18 @@ class _LandListPageState extends State<LandListPage> {
           area: item['area'],
           priceType: item['priceType'],
           description: item['description'],
+          images: item['images'].cast<String>(),
         );
       }).toList();
+
+      var imageUrlList = [];
+
+      for (var element in landAds) {
+        imageUrlList.add(await storage.getImageUrl(element.images[0]));
+      }
+
+      images = imageUrlList.cast<String>();
+
 
       return landAds;
     } else {
@@ -155,14 +168,14 @@ class _LandListPageState extends State<LandListPage> {
                             itemBuilder: (context, index) {
                               final data = snapshot.data![index];
                               return productLand(
-                                  "https://s2.glbimg.com/V4XsshzNU57Brn3e127b80Rbk24=/e.glbimg.com/og/ed/f/original/2016/05/30/gado.jpg",
-                                  data.name,
-                                  data.batch,
-                                  data.localization,
-                                  data.area,
-                                  data.id,
-                                  priceType: data.priceType,
-                                  price: data.price,
+                                Future.value(images[index]),
+                                data.name,
+                                data.batch,
+                                data.localization,
+                                data.area,
+                                data.id,
+                                priceType: data.priceType,
+                                price: data.price,
                               );
                             },
                           );
@@ -188,91 +201,111 @@ class _LandListPageState extends State<LandListPage> {
 }
 
 Widget productLand(
-    imageLink, productName, batch, localization, area, id,
+    Future<String> imageLink, productName, batch, localization, area, id,
     {price, priceType}) {
   return Builder(
       builder: (context) {
-        return Padding(
-          padding: const EdgeInsets.all(12.0),
-          child: SizedBox(
-            width: double.infinity,
-            child: TextButton(
+        return FutureBuilder<String>(
+            future: imageLink,
+            builder: (context, snapshot) {
+              if (snapshot.hasData) {
+                final imageUrl = snapshot.data!;
+                return Padding(
+                  padding: const EdgeInsets.all(12.0),
+                  child: SizedBox(
+                    width: double.infinity,
+                    child: TextButton(
 
-                child: Column(
-                  mainAxisSize: MainAxisSize.max,
-                  children: [
-                    SizedBox(
-                      height: 300,
-                      width: double.infinity,
-                      child: ClipRRect(
-                        borderRadius: BorderRadius.circular(10),
-                        child: Image.network(
-                          imageLink,
-                          fit: BoxFit.cover,
+                        child: Column(
+                          mainAxisSize: MainAxisSize.max,
+                          children: [
+                            SizedBox(
+                              height: 300,
+                              width: double.infinity,
+                              child: ClipRRect(
+                                borderRadius: BorderRadius.circular(10),
+                                child: Image.network(
+                                  imageUrl,
+                                  fit: BoxFit.cover,
+                                ),
+                              ),
+                            ),
+                            Row(
+                              mainAxisAlignment: MainAxisAlignment.start,
+                              children: [
+                                Text(productName,
+                                    style: const TextStyle(
+                                        color: Color.fromARGB(255, 0, 101, 32),
+                                        fontWeight: FontWeight.bold,
+                                        fontSize: 18)),
+                              ],
+                            ),
+                            Row(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                              children: [
+                                Text("Lote: $batch",
+                                    style: const TextStyle(
+                                        fontWeight: FontWeight.w300,
+                                        color: Colors.black)),
+                                Text(localization,
+                                    style: const TextStyle(
+                                        fontWeight: FontWeight.w300,
+                                        color: Colors.black))
+                              ],
+                            ),
+                            Row(
+                                mainAxisAlignment: MainAxisAlignment
+                                    .spaceBetween,
+                                children: [Text("Area: $area ha",
+                                    style: const TextStyle(
+                                        fontWeight: FontWeight.w300,
+                                        color: Colors.black))
+                                ]
+                            ),
+                            Row(
+                              mainAxisAlignment: MainAxisAlignment.start,
+                              children: [
+                                price != null ?
+                                Text("R\$ $price $priceType",
+                                    style: const TextStyle(
+                                        color: Color.fromARGB(255, 0, 101, 32),
+                                        fontWeight: FontWeight.bold,
+                                        fontSize: 18))
+                                    :
+                                const Text("Consultar valor",
+                                    style: TextStyle(
+                                        color: Colors.deepOrangeAccent,
+                                        fontWeight: FontWeight.bold,
+                                        fontSize: 18))
+                              ],
+                            ),
+                          ]
+                              .map((widget) =>
+                              Padding(
+                                padding: const EdgeInsets.all(3),
+                                child: widget,
+                              ))
+                              .toList(),
                         ),
-                      ),
+                        onPressed: () =>
+                        {
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute(builder: (context) =>
+                                LandInfoPage(landId: id,)),
+                          )
+                        }
                     ),
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.start,
-                      children: [
-                        Text(productName,
-                            style: const TextStyle(
-                                color: Color.fromARGB(255, 0, 101, 32),
-                                fontWeight: FontWeight.bold,
-                                fontSize: 18)),
-                      ],
-                    ),
-                    Row(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      children: [
-                        Text("Lote: $batch",
-                            style: const TextStyle(fontWeight: FontWeight.w300,
-                                color: Colors.black)),
-                        Text(localization,
-                            style: const TextStyle(fontWeight: FontWeight.w300,
-                                color: Colors.black))
-                      ],
-                    ),
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      children: [Text("Area: $area ha" ,
-                          style: const TextStyle(fontWeight: FontWeight.w300,
-                              color: Colors.black))]
-                    ),
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.start,
-                      children: [
-                        price != null ?
-                        Text("R\$ $price $priceType",
-                            style: const TextStyle(
-                                color: Color.fromARGB(255, 0, 101, 32),
-                                fontWeight: FontWeight.bold,
-                                fontSize: 18))
-                            :
-                        const Text("Consultar valor",
-                            style: TextStyle(
-                                color: Colors.deepOrangeAccent,
-                                fontWeight: FontWeight.bold,
-                                fontSize: 18))
-                      ],
-                    ),
-                  ]
-                      .map((widget) => Padding(
-                    padding: const EdgeInsets.all(3),
-                    child: widget,
-                  ))
-                      .toList(),
-                ),
-                onPressed: () =>
-                {
-                  Navigator.push(
-                    context,
-                    MaterialPageRoute(builder: (context) =>  LandInfoPage(landId: id,)),
-                  )
-                }
-            ),
-          ),
+                  ),
+                );
+              }
+              else {
+                return const Center(
+                  child: CircularProgressIndicator(),
+                );
+              }
+            }
         );
       }
   );

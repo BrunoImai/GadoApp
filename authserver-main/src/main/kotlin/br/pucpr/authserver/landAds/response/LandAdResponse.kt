@@ -17,5 +17,6 @@ data class LandAdResponse (
     val area : String? = null,
     val priceType: String? = "Unid",
     val description: String? = null,
-    var isFavorite: Boolean? = false,
+    var isFavorite: Boolean = false,
+    val images: List<String>? = listOf<String>()
     )

@@ -15,4 +15,5 @@ data class MachineryAdRequest (
     val quantity: Int? = 1,
     val priceType: String? = "Unid",
     val description: String? = null,
+    val images: List<String>? = listOf<String>()
 )

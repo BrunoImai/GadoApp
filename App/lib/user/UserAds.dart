@@ -7,6 +7,7 @@ import 'package:http/http.dart' as http;
 
 import '../animal/Animal.dart';
 import '../animal/AnimalList.dart';
+import '../firebase/storageService.dart';
 import '../land/land.dart';
 import '../land/landList.dart';
 import '../machine/machine.dart';
@@ -24,6 +25,11 @@ class UserAdsListPage extends StatefulWidget {
 class _UserAdsListPageState extends State<UserAdsListPage> {
   bool searchBarInUse = false;
   late Future<List<dynamic>> futureData;
+  late List<String> animalImages;
+  late List<String> landImages;
+  late List<String> machineryImages;
+
+  final Storage storage = Storage();
 
   @override
   void initState() {
@@ -53,8 +59,17 @@ class _UserAdsListPageState extends State<UserAdsListPage> {
           quantity: item['quantity'],
           priceType: item['priceType'],
           description: item['description'],
+          images: item['images'].cast<String>(),
         );
       }).toList();
+
+      var animalImageUrlList = [];
+
+      for (var element in animalAds) {
+        animalImageUrlList.add(await storage.getImageUrl(element.images[0]));
+      }
+
+      animalImages = animalImageUrlList.cast<String>();
 
       final landAds = landAdsData.map((item) {
         return LandAd(
@@ -66,8 +81,17 @@ class _UserAdsListPageState extends State<UserAdsListPage> {
           area: item['area'],
           priceType: item['priceType'],
           description: item['description'],
+          images: item['images'].cast<String>(),
         );
       }).toList();
+
+      var landImageUrlList = [];
+
+      for (var element in landAds) {
+        landImageUrlList.add(await storage.getImageUrl(element.images[0]));
+      }
+
+      landImages = landImageUrlList.cast<String>();
 
       final machineryAds = machineryAdsData.map((item) {
         return MachineryAd(
@@ -78,8 +102,17 @@ class _UserAdsListPageState extends State<UserAdsListPage> {
           quantity: item['quantity'],
           priceType: item['priceType'],
           description: item['description'],
+          images: item['images'].cast<String>(),
         );
       }).toList();
+
+      var machineryImageUrlList = [];
+
+      for (var element in machineryAds) {
+        machineryImageUrlList.add(await storage.getImageUrl(element.images[0]));
+      }
+
+      machineryImages = machineryImageUrlList.cast<String>();
 
       return [...animalAds, ...landAds, ...machineryAds];
     } else {
@@ -100,7 +133,7 @@ class _UserAdsListPageState extends State<UserAdsListPage> {
             centerTitle: true,
             backgroundColor: const Color.fromARGB(255, 0, 101, 32),
             title: const Text(
-              "Anúncios de Animais",
+              "Meus Anúncios",
               style: TextStyle(color: Colors.white),
             ),
             actions: [
@@ -133,7 +166,7 @@ class _UserAdsListPageState extends State<UserAdsListPage> {
                               final data = snapshot.data![index];
                               if (data is AnimalAd) {
                                 return productAnimal(
-                                  "https://s2.glbimg.com/V4XsshzNU57Brn3e127b80Rbk24=/e.glbimg.com/og/ed/f/original/2016/05/30/gado.jpg",
+                                  Future.value(animalImages[index]),
                                   data.name,
                                   data.batch,
                                   data.localization,
@@ -143,9 +176,10 @@ class _UserAdsListPageState extends State<UserAdsListPage> {
                                   price: data.price,
                                   weight: data.weight,
                                 );
-                              } else if (data is LandAd) {
+                              } else
+                                if (data is LandAd) {
                                 return productLand(
-                                  "https://s2.glbimg.com/V4XsshzNU57Brn3e127b80Rbk24=/e.glbimg.com/og/ed/f/original/2016/05/30/gado.jpg",
+                                  Future.value(landImages[index]),
                                   data.name,
                                   data.batch,
                                   data.localization,
@@ -156,7 +190,7 @@ class _UserAdsListPageState extends State<UserAdsListPage> {
                                 );
                               } else if (data is MachineryAd) {
                                 return productMachine(
-                                  "https://s2.glbimg.com/V4XsshzNU57Brn3e127b80Rbk24=/e.glbimg.com/og/ed/f/original/2016/05/30/gado.jpg",
+                                  Future.value(machineryImages[index]),
                                   data.name,
                                   data.batch,
                                   data.localization,
