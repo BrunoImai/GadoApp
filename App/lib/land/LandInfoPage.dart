@@ -1,9 +1,7 @@
 import 'dart:convert';
-
-import 'package:carousel_slider/carousel_slider.dart';
 import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
-import 'package:gado_app/home/homePage.dart';
+import '../userHome/homePage.dart';
 import 'package:gado_app/land/land.dart';
 import 'package:gado_app/user/UserManager.dart';
 
@@ -97,12 +95,6 @@ class _LandInfoPageState extends State<LandInfoPage> {
 
   @override
   Widget build(BuildContext context) {
-    final List<String> images = [
-      "https://media-cdn.tripadvisor.com/media/photo-s/07/48/b4/c7/pousada-agua-azul.jpg",
-      "https://images.freeimages.com/images/large-previews/d93/the-open-field-1361608.jpg",
-      "https://www.10wallpaper.com/wallpaper/1366x768/1107/Open_field_in_San_Luis_Valley_1366x768.jpg",
-    ];
-
     return FutureBuilder<LandAd>(
         future: _landAdFuture,
       builder: (context, snapshot) {

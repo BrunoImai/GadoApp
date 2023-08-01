@@ -15,7 +15,6 @@ import 'UserManager.dart';
 class UserAdsListPage extends StatefulWidget {
   const UserAdsListPage({super.key});
 
-
   @override
   State<UserAdsListPage> createState() => _UserAdsListPageState();
 }
@@ -27,6 +26,10 @@ class _UserAdsListPageState extends State<UserAdsListPage> {
   late List<String> landImages;
   late List<String> machineryImages;
 
+  int animalImagesIndex = 0;
+  int landImagesIndex = 0;
+  int machineryImagesIndex = 0;
+
   final Storage storage = Storage();
 
   @override
@@ -35,9 +38,9 @@ class _UserAdsListPageState extends State<UserAdsListPage> {
     futureData = fetchAllAds();
   }
 
-
   Future<List<dynamic>> fetchAllAds() async {
-    final response = await http.get(Uri.parse('http://localhost:8080/api/users/${UserManager.instance.loggedUser!.id}/ads'));
+    final response = await http.get(Uri.parse(
+        'http://localhost:8080/api/users/${UserManager.instance.loggedUser!.id}/ads'));
 
     if (response.statusCode == 200) {
       final jsonData = json.decode(response.body) as Map<String, dynamic>;
@@ -45,6 +48,11 @@ class _UserAdsListPageState extends State<UserAdsListPage> {
       final animalAdsData = jsonData['animalAds'] as List<dynamic>;
       final landAdsData = jsonData['landAds'] as List<dynamic>;
       final machineryAdsData = jsonData['machineryAds'] as List<dynamic>;
+
+      animalImages = await fetchImages(animalAdsData);
+      landImages = await fetchImages(landAdsData);
+      machineryImages = await fetchImages(machineryAdsData);
+
 
       final animalAds = animalAdsData.map((item) {
         return AnimalAd(
@@ -61,14 +69,6 @@ class _UserAdsListPageState extends State<UserAdsListPage> {
         );
       }).toList();
 
-      var animalImageUrlList = [];
-
-      for (var element in animalAds) {
-        animalImageUrlList.add(await storage.getImageUrl(element.images[0]));
-      }
-
-      animalImages = animalImageUrlList.cast<String>();
-
       final landAds = landAdsData.map((item) {
         return LandAd(
           id: item['id'],
@@ -83,14 +83,6 @@ class _UserAdsListPageState extends State<UserAdsListPage> {
         );
       }).toList();
 
-      var landImageUrlList = [];
-
-      for (var element in landAds) {
-        landImageUrlList.add(await storage.getImageUrl(element.images[0]));
-      }
-
-      landImages = landImageUrlList.cast<String>();
-
       final machineryAds = machineryAdsData.map((item) {
         return MachineryAd(
           id: item['id'],
@@ -104,28 +96,37 @@ class _UserAdsListPageState extends State<UserAdsListPage> {
         );
       }).toList();
 
-      var machineryImageUrlList = [];
-
-      for (var element in machineryAds) {
-        machineryImageUrlList.add(await storage.getImageUrl(element.images[0]));
-      }
-
-      machineryImages = machineryImageUrlList.cast<String>();
-
-      return [...animalAds, ...landAds, ...machineryAds];
+      return [ ...machineryAds,...animalAds,...landAds, ];
     } else {
       throw Exception('Failed to load ads');
     }
   }
 
+  Future<List<String>> fetchImages(List<dynamic> adsData) async {
+    final imageUrlList = <String>[];
+
+    for (var item in adsData) {
+      final images = item['images'].cast<String>();
+      if (images.isNotEmpty) {
+        imageUrlList.add(await storage.getImageUrl(images[0]));
+      } else {
+        imageUrlList.add(''); // Provide a default empty image URL if no images are available.
+      }
+    }
+
+    return imageUrlList;
+  }
 
   @override
   Widget build(BuildContext context) {
-
     return MaterialApp(
       debugShowCheckedModeBanner: false,
       home: ColorFiltered(
-        colorFilter: ColorFilter.mode(searchBarInUse ? Colors.black54 : const Color.fromARGB(0, 0, 101, 32), BlendMode.darken),
+        colorFilter: ColorFilter.mode(
+            searchBarInUse
+                ? Colors.black54
+                : const Color.fromARGB(0, 0, 101, 32),
+            BlendMode.darken),
         child: Scaffold(
           appBar: AppBar(
             centerTitle: true,
@@ -158,53 +159,73 @@ class _UserAdsListPageState extends State<UserAdsListPage> {
                       future: futureData,
                       builder: (context, snapshot) {
                         if (snapshot.hasData) {
-                          return ListView.builder(
+                          int animalImagesIndex = 0;
+                          int landImagesIndex = 0;
+                          int machineryImagesIndex = 0;
+
+                          return ListView.separated(
                             itemCount: snapshot.data!.length,
+                            separatorBuilder: (context, index) => const SizedBox(height: 8),
                             itemBuilder: (context, index) {
-                              final data = snapshot.data![index];
-                              if (data is AnimalAd) {
-                                return productAnimal(
-                                  Future.value(animalImages[index]),
-                                  data.name,
-                                  data.batch,
-                                  data.localization,
-                                  data.quantity,
-                                  data.id,
-                                  priceType: data.priceType,
-                                  price: data.price,
-                                  weight: data.weight,
-                                );
-                              } else
-                                if (data is LandAd) {
-                                return productLand(
-                                  Future.value(landImages[index]),
-                                  data.name,
-                                  data.batch,
-                                  data.localization,
-                                  data.area,
-                                  data.id,
-                                  priceType: data.priceType,
-                                  price: data.price,
-                                );
-                              } else if (data is MachineryAd) {
-                                return productMachine(
-                                  Future.value(machineryImages[index]),
-                                  data.name,
-                                  data.batch,
-                                  data.localization,
-                                  data.quantity,
-                                  data.id,
-                                  priceType: data.priceType,
-                                  price: data.price,
-                                );
+                              if (index < snapshot.data!.length) {
+                                final data = snapshot.data![index];
+                                print(snapshot.data);
+                                print(data);
+                                print(index);
+                                print("\n\nIMAGES"
+                                    "\n nimalImages: $animalImages index: $animalImagesIndex"
+                                    "\n landImages: $landImages index: $landImagesIndex"
+                                    "\n machineryImages: $machineryImages index: $machineryImagesIndex\n\n");
+                                if (data is AnimalAd) {
+                                  var product = productAnimal(
+                                    Future.value(animalImages[animalImagesIndex]),
+                                    data.name,
+                                    data.batch,
+                                    data.localization,
+                                    data.quantity,
+                                    data.id,
+                                    priceType: data.priceType,
+                                    price: data.price,
+                                    weight: data.weight,
+                                  );
+
+                                  if (animalImages.length - 1 > animalImagesIndex)animalImagesIndex++;
+                                  print("Animal Index: $animalImagesIndex");
+                                  return product;
+                                } else if (data is LandAd) {
+                                  var product = productLand(
+                                    Future.value(landImages[landImagesIndex]),
+                                    data.name,
+                                    data.batch,
+                                    data.localization,
+                                    data.area,
+                                    data.id,
+                                    priceType: data.priceType,
+                                    price: data.price,
+                                  );
+                                  if (landImages.length - 1 > landImagesIndex)landImagesIndex++;
+                                  print("Land Index: $landImagesIndex");
+                                  return product;
+                                } else if (data is MachineryAd) {
+                                  var product = productMachine(
+                                    Future.value(machineryImages[machineryImagesIndex]),
+                                    data.name,
+                                    data.batch,
+                                    data.localization,
+                                    data.quantity,
+                                    data.id,
+                                    priceType: data.priceType,
+                                    price: data.price,
+                                  );
+                                  if (machineryImages.length - 1 > machineryImagesIndex)machineryImagesIndex++;
+                                  return product;
+                                 } else {
+                                  return const SizedBox(); // Return an empty container if the data type is not recognized
+                                }
                               } else {
-                                return const SizedBox(); // Return an empty container if the data type is not recognized
+                                return const SizedBox(); // Return an empty container if the index is out of range.
                               }
                             },
-                          );
-                        } else if (snapshot.hasError) {
-                          return Center(
-                            child: Text('Error: ${snapshot.error}'),
                           );
                         } else {
                           return const Center(
@@ -212,7 +233,8 @@ class _UserAdsListPageState extends State<UserAdsListPage> {
                           );
                         }
                       },
-                    ),
+                    )
+                    ,
                   ),
                 ),
               ),

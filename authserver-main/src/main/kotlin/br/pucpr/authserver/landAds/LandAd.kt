@@ -1,6 +1,4 @@
 package br.pucpr.authserver.landAds
-
-import br.pucpr.authserver.animalAds.responses.AnimalAdResponse
 import br.pucpr.authserver.landAds.response.LandAdResponse
 import br.pucpr.authserver.users.User
 import jakarta.persistence.*
@@ -8,6 +6,7 @@ import jakarta.persistence.*
 @Entity
 @Table(name = "land_ad")
 class LandAd (
+
     @Id @GeneratedValue
     val id: Long? = null,
 
@@ -32,6 +31,9 @@ class LandAd (
     @Column()
     val description: String ? = "",
 
+    @Column()
+    val status: String ? = "Analysis",
+
     @ManyToOne
     @JoinColumn(name = "owner_id")
     val owner: User,
@@ -41,5 +43,4 @@ class LandAd (
 
     ){
     fun toResponse() = LandAdResponse( name, price, localization, id!!, batch!!, area, priceType, description,false ,images!!)
-
 }

@@ -1,0 +1,29 @@
+version: "Apple Swift version 5.7.2 (swiftlang-5.7.2.135.5 clang-1400.0.29.51)"
+options: "39ac586f9f05487261dd6b6a431cdbec66e180758c583d3652ac309d1a45e1ec"
+build_start_time: [1689523072, 269202947]
+build_end_time: [1689523072, 341675996]
+inputs:
+  ? "/Users/brunoimai/gado_app/GadoApp/App/macos/Pods/FirebaseCoreInternal/FirebaseCore/Internal/Sources/HeartbeatLogging/Heartbeat.swift"
+  : !private [1689523041, 648183822]
+  ? "/Users/brunoimai/gado_app/GadoApp/App/macos/Pods/FirebaseCoreInternal/FirebaseCore/Internal/Sources/HeartbeatLogging/HeartbeatController.swift"
+  : !private [1689523041, 648772478]
+  ? "/Users/brunoimai/gado_app/GadoApp/App/macos/Pods/FirebaseCoreInternal/FirebaseCore/Internal/Sources/HeartbeatLogging/HeartbeatLoggingTestUtils.swift"
+  : !private [1689523041, 649290561]
+  ? "/Users/brunoimai/gado_app/GadoApp/App/macos/Pods/FirebaseCoreInternal/FirebaseCore/Internal/Sources/HeartbeatLogging/HeartbeatStorage.swift"
+  : !private [1689523041, 649519443]
+  ? "/Users/brunoimai/gado_app/GadoApp/App/macos/Pods/FirebaseCoreInternal/FirebaseCore/Internal/Sources/HeartbeatLogging/HeartbeatsBundle.swift"
+  : !private [1689523041, 649751663]
+  ? "/Users/brunoimai/gado_app/GadoApp/App/macos/Pods/FirebaseCoreInternal/FirebaseCore/Internal/Sources/HeartbeatLogging/HeartbeatsPayload.swift"
+  : !private [1689523041, 650189161]
+  ? "/Users/brunoimai/gado_app/GadoApp/App/macos/Pods/FirebaseCoreInternal/FirebaseCore/Internal/Sources/HeartbeatLogging/RingBuffer.swift"
+  : !private [1689523041, 648371458]
+  ? "/Users/brunoimai/gado_app/GadoApp/App/macos/Pods/FirebaseCoreInternal/FirebaseCore/Internal/Sources/HeartbeatLogging/Storage.swift"
+  : !private [1689523041, 647991180]
+  ? "/Users/brunoimai/gado_app/GadoApp/App/macos/Pods/FirebaseCoreInternal/FirebaseCore/Internal/Sources/HeartbeatLogging/StorageFactory.swift"
+  : !private [1689523041, 650472164]
+  ? "/Users/brunoimai/gado_app/GadoApp/App/macos/Pods/FirebaseCoreInternal/FirebaseCore/Internal/Sources/HeartbeatLogging/WeakContainer.swift"
+  : !private [1689523041, 649961471]
+  ? "/Users/brunoimai/gado_app/GadoApp/App/macos/Pods/FirebaseCoreInternal/FirebaseCore/Internal/Sources/HeartbeatLogging/_ObjC_HeartbeatController.swift"
+  : !private [1689523041, 648573398]
+  ? "/Users/brunoimai/gado_app/GadoApp/App/macos/Pods/FirebaseCoreInternal/FirebaseCore/Internal/Sources/HeartbeatLogging/_ObjC_HeartbeatsPayload.swift"
+  : !private [1689523041, 648974895]

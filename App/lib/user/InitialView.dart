@@ -6,8 +6,8 @@ import 'package:gado_app/user/UserManager.dart';
 import 'package:gado_app/user/registerView.dart';
 import 'package:gado_app/user/user.dart';
 import 'package:http/http.dart' as http;
+import '../userHome/homePage.dart';
 
-import '../home/homePage.dart';
 
 class InitialView extends StatefulWidget {
   const InitialView({Key? key}) : super(key: key);
@@ -95,7 +95,7 @@ class _InitialViewState extends State<InitialView> {
                               if (!mounted) return;
                               Navigator.push(
                                   context,
-                                  MaterialPageRoute(builder: (context) => const HomePage())
+                                  MaterialPageRoute(builder: (context) => const UserHomePage())
                               );
                               ScaffoldMessenger.of(context).showSnackBar(
                                 const SnackBar(content: Text('Login Realizado')),

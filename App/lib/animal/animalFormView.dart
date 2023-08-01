@@ -1,19 +1,17 @@
 import 'dart:convert';
-import 'dart:ffi';
 
 import 'package:file_picker/file_picker.dart';
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:gado_app/animal/Animal.dart';
 import 'package:gado_app/user/UserManager.dart';
 import 'package:gado_app/firebase/storageService.dart';
 import 'package:intl/intl.dart';
 import 'package:http/http.dart' as http;
 
+import '../userHome/homePage.dart';
 
-import '../home/homePage.dart';
+
 
 class AnimalFormView extends StatefulWidget {
   const AnimalFormView({Key? key}) : super(key: key);
@@ -498,13 +496,14 @@ class ImagePillButton extends StatelessWidget {
   final String imageName;
   final Function() onPressed;
 
-  const ImagePillButton({
+  const ImagePillButton({super.key,
     required this.imageName,
     required this.onPressed,
   });
 
   @override
   Widget build(BuildContext context) {
+    var imageNameUpdated = imageName.length > 20 ? "${imageName.substring(0, 19)}..." : imageName;
     return Padding(
       padding: const EdgeInsets.symmetric(vertical: 8),
       child: Container(
@@ -517,10 +516,10 @@ class ImagePillButton extends StatelessWidget {
           children: [
             Padding(
               padding: const EdgeInsets.all(8),
-              child: Text(imageName),
+              child: Text(imageNameUpdated),
             ),
             IconButton(
-              icon: Icon(Icons.close),
+              icon: const Icon(Icons.close),
               onPressed: onPressed,
             ),
           ],

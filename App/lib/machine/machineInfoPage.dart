@@ -1,9 +1,8 @@
 import 'dart:convert';
 
-import 'package:carousel_slider/carousel_slider.dart';
 import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
-import 'package:gado_app/home/homePage.dart';
+import '../userHome/homePage.dart';
 import 'package:gado_app/machine/machine.dart';
 import 'package:http/http.dart' as http;
 
@@ -96,10 +95,6 @@ class _MachineInfoPageState extends State<MachineInfoPage> {
 
   @override
   Widget build(BuildContext context) {
-    final List<String> images = [
-      "https://imagens.mfrural.com.br/mfrural-produtos-us/105054-413525-2173339-ensiladeira.jpg",
-    ];
-
     return FutureBuilder<MachineryAd>(
         future: _machineAdFuture,
         builder: (context, snapshot) {

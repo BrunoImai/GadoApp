@@ -1481,7 +1481,7 @@
 /Users/brunoimai/Development/flutter/packages/flutter_tools/lib/src/build_system/targets/common.dart
 /Users/brunoimai/Development/flutter/packages/flutter_tools/lib/src/build_system/targets/icon_tree_shaker.dart
 /Users/brunoimai/Development/flutter/packages/flutter_tools/lib/src/build_system/targets/macos.dart
-/Users/brunoimai/gado_app/GadoApp/App/DOES_NOT_EXIST_RERUN_FOR_WILDCARD340232326
+/Users/brunoimai/gado_app/GadoApp/App/DOES_NOT_EXIST_RERUN_FOR_WILDCARD304032040
 /Users/brunoimai/gado_app/GadoApp/App/assets/cowLogo.png
 /Users/brunoimai/gado_app/GadoApp/App/lib/ad/Ad.dart
 /Users/brunoimai/gado_app/GadoApp/App/lib/animal/Animal.dart
@@ -1500,6 +1500,7 @@
 /Users/brunoimai/gado_app/GadoApp/App/lib/machine/machineList.dart
 /Users/brunoimai/gado_app/GadoApp/App/lib/machine/machineryFormView.dart
 /Users/brunoimai/gado_app/GadoApp/App/lib/main.dart
+/Users/brunoimai/gado_app/GadoApp/App/lib/publicity/publicityInfo.dart
 /Users/brunoimai/gado_app/GadoApp/App/lib/user/InitialView.dart
 /Users/brunoimai/gado_app/GadoApp/App/lib/user/UserAds.dart
 /Users/brunoimai/gado_app/GadoApp/App/lib/user/UserManager.dart

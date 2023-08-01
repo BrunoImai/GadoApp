@@ -6,16 +6,15 @@ import 'package:firebase_storage/firebase_storage.dart' as firebaseStorage;
 class Storage{
   final firebaseStorage.FirebaseStorage storage = firebaseStorage.FirebaseStorage.instance;
 
-  Future<void> uploadFile(
-      String filePath,
-      String fileName,
-      ) async {
+  Future<bool> uploadFile(String filePath, String fileName) async {
     File file = File(filePath);
 
     try {
       await storage.ref('animalAds/$fileName').putFile(file);
+      return true; // Return true if the upload was successful.
     } on firebaseCore.FirebaseException catch (e) {
       print(e);
+      return false; // Return false if an exception occurred during the upload.
     }
   }
 

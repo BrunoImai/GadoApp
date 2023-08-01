@@ -34,6 +34,9 @@ class AnimalAd (
     @Column()
     val description: String ? = "",
 
+    @Column()
+    val status: String ? = "Analysis",
+
     @ManyToOne
     @JoinColumn(name = "owner_id")
     val owner: User,

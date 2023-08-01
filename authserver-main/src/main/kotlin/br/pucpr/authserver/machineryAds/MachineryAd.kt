@@ -31,7 +31,7 @@ class MachineryAd (
     val description: String ? = "",
 
     @Column()
-    val status: String ? = "",
+    val status: String ? = "Analysis",
 
     @Column()
     val isFavorite: Boolean ? = false,

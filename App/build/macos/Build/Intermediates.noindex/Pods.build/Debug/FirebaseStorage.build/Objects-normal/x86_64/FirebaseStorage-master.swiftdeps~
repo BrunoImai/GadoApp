@@ -1,0 +1,30 @@
+version: "Apple Swift version 5.7.2 (swiftlang-5.7.2.135.5 clang-1400.0.29.51)"
+options: "5dc19da508cae9e0f301d5a52cd13606d06cf202a3ea4989c76cb3816df18059"
+build_start_time: [1689523084, 700593948]
+build_end_time: [1689523084, 829236030]
+inputs:
+  "/Users/brunoimai/gado_app/GadoApp/App/macos/Pods/FirebaseStorage/FirebaseStorage/Sources/AsyncAwait.swift": !private [1689523048, 582133769]
+  "/Users/brunoimai/gado_app/GadoApp/App/macos/Pods/FirebaseStorage/FirebaseStorage/Sources/Internal/StorageDeleteTask.swift": !private [1689523048, 579939842]
+  ? "/Users/brunoimai/gado_app/GadoApp/App/macos/Pods/FirebaseStorage/FirebaseStorage/Sources/Internal/StorageGetDownloadURLTask.swift"
+  : !private [1689523048, 580378532]
+  "/Users/brunoimai/gado_app/GadoApp/App/macos/Pods/FirebaseStorage/FirebaseStorage/Sources/Internal/StorageGetMetadataTask.swift": !private [1689523048, 581695079]
+  "/Users/brunoimai/gado_app/GadoApp/App/macos/Pods/FirebaseStorage/FirebaseStorage/Sources/Internal/StorageListTask.swift": !private [1689523048, 581908226]
+  "/Users/brunoimai/gado_app/GadoApp/App/macos/Pods/FirebaseStorage/FirebaseStorage/Sources/Internal/StoragePath.swift": !private [1689523048, 580161094]
+  "/Users/brunoimai/gado_app/GadoApp/App/macos/Pods/FirebaseStorage/FirebaseStorage/Sources/Internal/StorageTaskState.swift": !private [1689523048, 581245422]
+  "/Users/brunoimai/gado_app/GadoApp/App/macos/Pods/FirebaseStorage/FirebaseStorage/Sources/Internal/StorageTokenAuthorizer.swift": !private [1689523048, 581479549]
+  ? "/Users/brunoimai/gado_app/GadoApp/App/macos/Pods/FirebaseStorage/FirebaseStorage/Sources/Internal/StorageUpdateMetadataTask.swift"
+  : !private [1689523048, 581012248]
+  "/Users/brunoimai/gado_app/GadoApp/App/macos/Pods/FirebaseStorage/FirebaseStorage/Sources/Internal/StorageUtils.swift": !private [1689523048, 580720186]
+  "/Users/brunoimai/gado_app/GadoApp/App/macos/Pods/FirebaseStorage/FirebaseStorage/Sources/Result.swift": !private [1689523048, 579457759]
+  "/Users/brunoimai/gado_app/GadoApp/App/macos/Pods/FirebaseStorage/FirebaseStorage/Sources/Storage.swift": !private [1689523048, 577454805]
+  "/Users/brunoimai/gado_app/GadoApp/App/macos/Pods/FirebaseStorage/FirebaseStorage/Sources/StorageComponent.swift": !private [1689523048, 579005718]
+  "/Users/brunoimai/gado_app/GadoApp/App/macos/Pods/FirebaseStorage/FirebaseStorage/Sources/StorageConstants.swift": !private [1689523048, 582765579]
+  "/Users/brunoimai/gado_app/GadoApp/App/macos/Pods/FirebaseStorage/FirebaseStorage/Sources/StorageDownloadTask.swift": !private [1689523048, 578504800]
+  "/Users/brunoimai/gado_app/GadoApp/App/macos/Pods/FirebaseStorage/FirebaseStorage/Sources/StorageError.swift": !private [1689523048, 583284854]
+  "/Users/brunoimai/gado_app/GadoApp/App/macos/Pods/FirebaseStorage/FirebaseStorage/Sources/StorageListResult.swift": !private [1689523048, 578741550]
+  "/Users/brunoimai/gado_app/GadoApp/App/macos/Pods/FirebaseStorage/FirebaseStorage/Sources/StorageMetadata.swift": !private [1689523048, 582549810]
+  "/Users/brunoimai/gado_app/GadoApp/App/macos/Pods/FirebaseStorage/FirebaseStorage/Sources/StorageObservableTask.swift": !private [1689523048, 578176498]
+  "/Users/brunoimai/gado_app/GadoApp/App/macos/Pods/FirebaseStorage/FirebaseStorage/Sources/StorageReference.swift": !private [1689523048, 583023548]
+  "/Users/brunoimai/gado_app/GadoApp/App/macos/Pods/FirebaseStorage/FirebaseStorage/Sources/StorageTask.swift": !private [1689523048, 579229354]
+  "/Users/brunoimai/gado_app/GadoApp/App/macos/Pods/FirebaseStorage/FirebaseStorage/Sources/StorageTaskSnapshot.swift": !private [1689523048, 577800273]
+  "/Users/brunoimai/gado_app/GadoApp/App/macos/Pods/FirebaseStorage/FirebaseStorage/Sources/StorageUploadTask.swift": !private [1689523048, 582343339]

@@ -5,7 +5,8 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:gado_app/animal/Animal.dart';
-import 'package:gado_app/home/homePage.dart';
+import '../userHome/homePage.dart';
+
 
 import 'package:http/http.dart' as http;
 
