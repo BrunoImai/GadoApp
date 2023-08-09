@@ -35,6 +35,7 @@ class LoggedUser {
   int id;
   String name;
   String email;
+  bool isAdm;
 
-  LoggedUser(this.token, this.id, this.name, this.email);
+  LoggedUser(this.token, this.id, this.name, this.email, this.isAdm);
 }

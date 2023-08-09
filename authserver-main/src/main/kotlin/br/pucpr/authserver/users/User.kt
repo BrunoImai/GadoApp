@@ -64,7 +64,6 @@ class User(
     )
     val favoriteMachineAds: MutableSet<MachineryAd> = mutableSetOf(),
 
-
     ) {
-    fun toResponse() = UserResponse(id!!, name, email)
+    fun toResponse() = UserResponse(id!!, name, email, roles.map { role -> role.name })
 }

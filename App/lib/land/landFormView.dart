@@ -120,9 +120,10 @@ class NewLandAdFormState extends State<NewLandAdForm> {
       if (response.statusCode == 200 || response.statusCode == 201) {
         // Registration successful
         print('Registration successful!');
-        await storage
-            .uploadFiles(imagePaths, imageNames)
-            .then((value) => print("Done"));
+        //TODO FIX THE IMAGE UPLOADER
+        // await storage
+        //     .uploadFiles(imagePaths, imageNames)
+        //     .then((value) => print("Done"));
       } else {
         // Registration failed
         print('Registration failed. Status code: ${response.statusCode}');

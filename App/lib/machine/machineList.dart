@@ -12,7 +12,6 @@ import '../firebase/storageService.dart';
 class MachineryListPage extends StatefulWidget {
   const MachineryListPage({super.key});
 
-
   @override
   State<MachineryListPage> createState() => _MachineryListPageState();
 }
@@ -30,7 +29,8 @@ class _MachineryListPageState extends State<MachineryListPage> {
   }
 
   Future<List<MachineryAd>> getAllMachineryAds() async {
-    final response = await http.get(Uri.parse('http://localhost:8080/api/users/ads/machinery'));
+    final response = await http
+        .get(Uri.parse('http://localhost:8080/api/users/ads/machinery'));
 
     if (response.statusCode == 200) {
       final jsonData = json.decode(response.body) as List<dynamic>;
@@ -41,6 +41,7 @@ class _MachineryListPageState extends State<MachineryListPage> {
           name: item['name'],
           price: item['price'].toDouble(),
           localization: item['localization'],
+          batch: item['batch'],
           quantity: item['quantity'],
           priceType: item['priceType'],
           description: item['description'],
@@ -67,14 +68,16 @@ class _MachineryListPageState extends State<MachineryListPage> {
     }
   }
 
-
   @override
   Widget build(BuildContext context) {
-
     return MaterialApp(
       debugShowCheckedModeBanner: false,
       home: ColorFiltered(
-        colorFilter: ColorFilter.mode(searchBarInUse ? Colors.black54 : const Color.fromARGB(0, 0, 101, 32), BlendMode.darken),
+        colorFilter: ColorFilter.mode(
+            searchBarInUse
+                ? Colors.black54
+                : const Color.fromARGB(0, 0, 101, 32),
+            BlendMode.darken),
         child: Scaffold(
           appBar: AppBar(
             centerTitle: true,
@@ -165,9 +168,9 @@ class _MachineryListPageState extends State<MachineryListPage> {
                           }),
                     ]
                         .map((widget) => Padding(
-                      padding: const EdgeInsets.all(3),
-                      child: widget,
-                    ))
+                              padding: const EdgeInsets.all(3),
+                              child: widget,
+                            ))
                         .toList(),
                   ),
                 ),
@@ -184,15 +187,31 @@ class _MachineryListPageState extends State<MachineryListPage> {
                             itemCount: snapshot.data!.length,
                             itemBuilder: (context, index) {
                               final data = snapshot.data![index];
-                              return productMachine(
-                                  Future.value(images[index]),
-                                  data.name,
-                                  data.batch,
-                                  data.localization,
-                                  data.price,
-                                  data.id,
-                                  priceType: data.priceType,
-                                  price: data.price,
+                              return ProductMachine(
+                                imageLink: Future.value(images[index]),
+                                productName: data.name,
+                                batch: data.batch!,
+                                localization: data.localization,
+                                id: data.id!,
+                                priceType: data.priceType,
+                                price: data.price,
+                                qtt: data.quantity!,
+                                onPressed: () async {
+                                  // Navigate to the AnimalInfoPage and wait for the result.
+                                  final result = await Navigator.push(
+                                    context,
+                                    MaterialPageRoute(
+                                      builder: (context) =>
+                                          MachineInfoPage(machineId: data.id!),
+                                    ),
+                                  );
+                                  // Check if the result is true, and reload the list.
+                                  if (result == true) {
+                                    setState(() {
+                                      futureData = getAllMachineryAds();
+                                    });
+                                  }
+                                },
                               );
                             },
                           );
@@ -217,115 +236,168 @@ class _MachineryListPageState extends State<MachineryListPage> {
   }
 }
 
-Widget productMachine(
-    Future<String> imageLink, productName, batch, localization, qtt, id,
-    {price, priceType}) {
-  return Builder(
+class ProductMachine extends StatefulWidget {
+  final Future<String> imageLink;
+  final String productName;
+  final String batch;
+  final String localization;
+  final int qtt;
+  final int id;
+  final Function? onPressed;
+  final dynamic price;
+  final dynamic priceType;
+
+  const ProductMachine({
+    Key? key,
+    required this.imageLink,
+    required this.productName,
+    required this.batch,
+    required this.localization,
+    required this.qtt,
+    required this.id,
+    this.price,
+    this.priceType,
+    this.onPressed,
+  }) : super(key: key);
+
+  @override
+  State<ProductMachine> createState() => _ProductMachineState();
+}
+
+class _ProductMachineState extends State<ProductMachine> {
+  @override
+  Widget build(BuildContext context) {
+    return Builder(
       builder: (context) {
         return FutureBuilder<String>(
-            future: imageLink,
-            builder: (context, snapshot) {
-              if (snapshot.hasData) {
-                final imageUrl = snapshot.data!;
-                return Padding(
-                  padding: const EdgeInsets.all(12.0),
-                  child: SizedBox(
-                    width: double.infinity,
-                    child: TextButton(
-
-                        child: Column(
-                          mainAxisSize: MainAxisSize.max,
+          future: widget.imageLink,
+          builder: (context, snapshot) {
+            if (snapshot.connectionState == ConnectionState.waiting) {
+              return const CircularProgressIndicator();
+            } else if (snapshot.hasData) {
+              final imageUrl = snapshot.data!;
+              return Padding(
+                padding: const EdgeInsets.all(12.0),
+                child: SizedBox(
+                  width: double.infinity,
+                  child: TextButton(
+                    child: Column(
+                      mainAxisSize: MainAxisSize.max,
+                      children: [
+                        SizedBox(
+                          height: 300,
+                          width: double.infinity,
+                          child: ClipRRect(
+                            borderRadius: BorderRadius.circular(10),
+                            child: Image.network(
+                              imageUrl,
+                              fit: BoxFit.cover,
+                            ),
+                          ),
+                        ),
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.start,
                           children: [
-                            SizedBox(
-                              height: 300,
-                              width: double.infinity,
-                              child: ClipRRect(
-                                borderRadius: BorderRadius.circular(10),
-                                child: Image.network(
-                                  imageUrl,
-                                  fit: BoxFit.cover,
-                                ),
+                            Text(
+                              widget.productName,
+                              style: const TextStyle(
+                                color: Color.fromARGB(255, 0, 101, 32),
+                                fontWeight: FontWeight.bold,
+                                fontSize: 18,
                               ),
                             ),
-                            Row(
-                              mainAxisAlignment: MainAxisAlignment.start,
-                              children: [
-                                Text(productName,
-                                    style: const TextStyle(
-                                        color: Color.fromARGB(255, 0, 101, 32),
-                                        fontWeight: FontWeight.bold,
-                                        fontSize: 18)),
-                              ],
-                            ),
-                            Row(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                              children: [
-                                Text("Lote: $batch",
-                                    style: const TextStyle(
-                                        fontWeight: FontWeight.w300,
-                                        color: Colors.black)),
-                                Text(localization,
-                                    style: const TextStyle(
-                                        fontWeight: FontWeight.w300,
-                                        color: Colors.black))
-                              ],
-                            ),
-                            Row(
-                                mainAxisAlignment: MainAxisAlignment
-                                    .spaceBetween,
-                                children: [Text("Quantidade: $qtt",
-                                    style: const TextStyle(
-                                        fontWeight: FontWeight.w300,
-                                        color: Colors.black))
-                                ]
-                            ),
-                            Row(
-                              mainAxisAlignment: MainAxisAlignment.start,
-                              children: [
-                                price != null ?
-                                Text("R\$ $price $priceType",
-                                    style: const TextStyle(
-                                        color: Color.fromARGB(255, 0, 101, 32),
-                                        fontWeight: FontWeight.bold,
-                                        fontSize: 18))
-                                    :
-                                const Text("Consultar valor",
-                                    style: TextStyle(
-                                        color: Colors.deepOrangeAccent,
-                                        fontWeight: FontWeight.bold,
-                                        fontSize: 18))
-                              ],
-                            ),
-                          ]
-                              .map((widget) =>
-                              Padding(
-                                padding: const EdgeInsets.all(3),
-                                child: widget,
-                              ))
-                              .toList(),
+                          ],
                         ),
-                        onPressed: () =>
-                        {
-                          Navigator.push(
-                            context,
-                            MaterialPageRoute(builder: (context) =>
-                                MachineInfoPage(machineId: id)),
+                        Row(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          children: [
+                            Text(
+                              "Lote: ${widget.batch}",
+                              style: const TextStyle(
+                                fontWeight: FontWeight.w300,
+                                color: Colors.black,
+                              ),
+                            ),
+                            Text(
+                              widget.localization,
+                              style: const TextStyle(
+                                fontWeight: FontWeight.w300,
+                                color: Colors.black,
+                              ),
+                            ),
+                          ],
+                        ),
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          children: [
+                            Text(
+                              "Quantidade: ${widget.qtt}",
+                              style: const TextStyle(
+                                fontWeight: FontWeight.w300,
+                                color: Colors.black,
+                              ),
+                            ),
+                          ],
+                        ),
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.start,
+                          children: [
+                            widget.price != null
+                                ? Text(
+                                    "R\$ ${widget.price} ${widget.priceType}",
+                                    style: const TextStyle(
+                                      color: Color.fromARGB(255, 0, 101, 32),
+                                      fontWeight: FontWeight.bold,
+                                      fontSize: 18,
+                                    ),
+                                  )
+                                : const Text(
+                                    "Consultar valor",
+                                    style: TextStyle(
+                                      color: Colors.deepOrangeAccent,
+                                      fontWeight: FontWeight.bold,
+                                      fontSize: 18,
+                                    ),
+                                  ),
+                          ],
+                        ),
+                      ]
+                          .map(
+                            (widget) => Padding(
+                              padding: const EdgeInsets.all(3),
+                              child: widget,
+                            ),
                           )
-                        }
+                          .toList(),
                     ),
+                    onPressed: () async {
+                      if (widget.onPressed != null) {
+                        await widget.onPressed!();
+                      } else {
+                        // Navigate to the AnimalInfoPage and wait for the result.
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder: (context) =>
+                                MachineInfoPage(machineId: widget.id),
+                          ),
+                        );
+                      }
+                    },
                   ),
-                );
-              }
-              else {
-                return const Center(
-                  child: CircularProgressIndicator(),
-                );
-              }
-          }
+                ),
+              );
+            } else {
+              return const Center(
+                child: CircularProgressIndicator(),
+              );
+            }
+          },
         );
-      }
-  );
+      },
+    );
+  }
 }
 
 class PillButton extends StatelessWidget {

@@ -17,7 +17,9 @@ class AnimalAd extends Ad {
     this.description,
     String? batch,
     bool? isFavorite,
-    images
+    images,
+    ownerId,
+    status
   }) : super(
     id: id,
     name: name,
@@ -26,6 +28,8 @@ class AnimalAd extends Ad {
     batch: batch,
     isFavorite: isFavorite,
     images: images,
+      ownerId: ownerId,
+    status: status
   );
 
   @override

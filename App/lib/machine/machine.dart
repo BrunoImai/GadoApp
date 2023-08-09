@@ -16,7 +16,8 @@ class MachineryAd extends Ad {
     this.description,
     String? batch,
     bool? isFavorite,
-    images
+    images,
+    ownerId
   }) : super(
     id: id,
     name: name,
@@ -24,7 +25,8 @@ class MachineryAd extends Ad {
     localization: localization,
     batch: batch,
     isFavorite: isFavorite,
-    images: images
+    images: images,
+      ownerId: ownerId
   );
 
   @override

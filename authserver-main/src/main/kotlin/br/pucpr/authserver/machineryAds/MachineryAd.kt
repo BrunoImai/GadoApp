@@ -31,7 +31,7 @@ class MachineryAd (
     val description: String ? = "",
 
     @Column()
-    val status: String ? = "Analysis",
+    var status: String ? = "Em Análise",
 
     @Column()
     val isFavorite: Boolean ? = false,
@@ -44,6 +44,6 @@ class MachineryAd (
     val images: List<String>? = listOf<String>()
 
     ) {
-    fun toResponse() = MachineryAdResponse( name, price, localization, id!! ,batch!! ,quantity, priceType, description,false, images!!)
+    fun toResponse() = MachineryAdResponse( name, price, localization, id!! ,batch!! ,quantity, priceType, description,false, images!!, status, owner.id!!)
 
 }

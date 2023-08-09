@@ -35,7 +35,7 @@ class AnimalAd (
     val description: String ? = "",
 
     @Column()
-    val status: String ? = "Analysis",
+    var status: String ? = "Em Análise",
 
     @ManyToOne
     @JoinColumn(name = "owner_id")
@@ -46,5 +46,7 @@ class AnimalAd (
 
     )
 {
-    fun toResponse() = AnimalAdResponse( name, price, localization, id!!, batch!!, weight, quantity, priceType, description, false, images!!)
+    fun toResponse() = AnimalAdResponse( name, price, localization, id!!, batch!!, weight, quantity, priceType, description, false, images!!, status,
+        owner.id!!
+    )
 }

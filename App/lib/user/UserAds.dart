@@ -89,6 +89,7 @@ class _UserAdsListPageState extends State<UserAdsListPage> {
           name: item['name'],
           price: item['price'].toDouble(),
           localization: item['localization'],
+          batch: item['batch'],
           quantity: item['quantity'],
           priceType: item['priceType'],
           description: item['description'],
@@ -110,7 +111,7 @@ class _UserAdsListPageState extends State<UserAdsListPage> {
       if (images.isNotEmpty) {
         imageUrlList.add(await storage.getImageUrl(images[0]));
       } else {
-        imageUrlList.add(''); // Provide a default empty image URL if no images are available.
+        imageUrlList.add('');
       }
     }
 
@@ -169,37 +170,30 @@ class _UserAdsListPageState extends State<UserAdsListPage> {
                             itemBuilder: (context, index) {
                               if (index < snapshot.data!.length) {
                                 final data = snapshot.data![index];
-                                print(snapshot.data);
-                                print(data);
-                                print(index);
-                                print("\n\nIMAGES"
-                                    "\n nimalImages: $animalImages index: $animalImagesIndex"
-                                    "\n landImages: $landImages index: $landImagesIndex"
-                                    "\n machineryImages: $machineryImages index: $machineryImagesIndex\n\n");
                                 if (data is AnimalAd) {
-                                  var product = productAnimal(
-                                    Future.value(animalImages[animalImagesIndex]),
-                                    data.name,
-                                    data.batch,
-                                    data.localization,
-                                    data.quantity,
-                                    data.id,
+                                  var product =  ProductAnimal(
+                                    imageLink: Future.value(animalImages[animalImagesIndex]),
+                                    productName: data.name,
+                                    batch: data.batch!,
+                                    localization: data.localization,
+                                    id: data.id!,
                                     priceType: data.priceType,
                                     price: data.price,
                                     weight: data.weight,
+                                    qtt: data.quantity!,
                                   );
 
-                                  if (animalImages.length - 1 > animalImagesIndex)animalImagesIndex++;
+                                  if (animalImages.length - 1 > animalImagesIndex) animalImagesIndex++;
                                   print("Animal Index: $animalImagesIndex");
                                   return product;
                                 } else if (data is LandAd) {
-                                  var product = productLand(
-                                    Future.value(landImages[landImagesIndex]),
-                                    data.name,
-                                    data.batch,
-                                    data.localization,
-                                    data.area,
-                                    data.id,
+                                  var product = ProductLand(
+                                    imageLink: Future.value(landImages[landImagesIndex]),
+                                    productName: data.name,
+                                    batch: data.batch!,
+                                    localization: data.localization,
+                                    area: data.area!,
+                                    id: data.id!,
                                     priceType: data.priceType,
                                     price: data.price,
                                   );
@@ -207,13 +201,13 @@ class _UserAdsListPageState extends State<UserAdsListPage> {
                                   print("Land Index: $landImagesIndex");
                                   return product;
                                 } else if (data is MachineryAd) {
-                                  var product = productMachine(
-                                    Future.value(machineryImages[machineryImagesIndex]),
-                                    data.name,
-                                    data.batch,
-                                    data.localization,
-                                    data.quantity,
-                                    data.id,
+                                  var product = ProductMachine(
+                                    imageLink: Future.value(machineryImages[machineryImagesIndex]),
+                                    productName: data.name,
+                                    batch: data.batch!,
+                                    localization: data.localization,
+                                    qtt: data.quantity!,
+                                    id: data.id!,
                                     priceType: data.priceType,
                                     price: data.price,
                                   );

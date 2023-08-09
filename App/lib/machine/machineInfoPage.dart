@@ -26,6 +26,39 @@ class _MachineInfoPageState extends State<MachineInfoPage> {
     _machineAdFuture = _fetchAnimalAd();
   }
 
+  Future<void> deleteAd() async {
+    final response = await http.delete(
+      Uri.parse(
+          'http://localhost:8080/api/users/adm/machineryAd/${widget.machineId}'),
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': 'Bearer ${UserManager.instance.loggedUser!.token}',
+      },
+    );
+    if (response.statusCode == 200 || response.statusCode == 201) {
+      setState(() {
+        Navigator.pop(context, true);
+      });
+    }
+  }
+
+  Future<void> deleteAdAsOwner() async {
+    final response = await http.delete(
+      Uri.parse(
+          'http://localhost:8080/api/users/machineAd/${widget.machineId}'),
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': 'Bearer ${UserManager.instance.loggedUser!.token}',
+      },
+    );
+
+    if (response.statusCode == 200 || response.statusCode == 201) {
+      setState(() {
+        Navigator.pop(context, true);
+      });
+    }
+  }
+
   Future<MachineryAd> _fetchAnimalAd() async {
     // Make the API call to get the animal ad data based on the animalId
     // Replace 'your_api_endpoint' with the actual API endpoint to get animal details.
@@ -49,7 +82,8 @@ class _MachineInfoPageState extends State<MachineInfoPage> {
         description: jsonData['description'],
         batch: jsonData['batch'],
           isFavorite: jsonData['isFavorite'],
-          images: jsonData['images'].cast<String>()
+          images: jsonData['images'].cast<String>(),
+          ownerId: jsonData['ownerId']
       );
     } else {
       // Handle API call errors, you can show an error message or throw an exception.
@@ -161,29 +195,60 @@ class _MachineInfoPageState extends State<MachineInfoPage> {
                                 fontWeight: FontWeight.w300,
                                 color: Colors.black)),
                       ),
-                      Padding(
-                        padding: const EdgeInsets.all(12.0),
-                        child: FlatMenuButton(
-                            icon: const Icon(Icons.email),
-                            buttonName: "Enviar proposta",
-                            onPress: () {}),
+                      if (UserManager.instance.loggedUser!.isAdm)
+                        Padding(
+                          padding: const EdgeInsets.all(12.0),
+                          child: FlatMenuButton(
+                              buttonName: "Excluir anúncio",
+                              icon: const Icon(Icons.delete),
+                              color: Colors.red,
+                              onPress: () {
+
+                                deleteAd();
+                              }
+                          ),
+                        )
+                      else if (UserManager.instance.loggedUser!.id == machineryAd.ownerId)
+                        Padding(
+                          padding: const EdgeInsets.all(12.0),
+                          child: FlatMenuButton(
+                              buttonName: "Excluir anúncio",
+                              icon: const Icon(Icons.delete),
+                              color: Colors.red,
+                              onPress: () {
+                                deleteAdAsOwner();
+                              }
+                          ),
+                        )
+                      else
+                      Column(
+                        children: [
+                          Padding(
+                            padding: const EdgeInsets.all(12.0),
+                            child: FlatMenuButton(
+                                icon: const Icon(Icons.email),
+                                buttonName: "Enviar proposta",
+                                onPress: () {}),
+                          ),
+                          Padding(
+                            padding: const EdgeInsets.only(
+                                left: 12, right: 12, bottom: 12),
+                            child: FlatMenuButton(
+                                icon: const Icon(FontAwesomeIcons.whatsapp),
+                                buttonName: "Chamar WhatsApp",
+                                onPress: () {}),
+                          ),
+                          Padding(
+                            padding: const EdgeInsets.only(
+                                left: 12, right: 12, bottom: 12),
+                            child: FlatMenuButton(
+                                icon: const Icon(Icons.paste_rounded),
+                                buttonName: "Solicitar Financiamento",
+                                onPress: () {}),
+                          ),
+                        ],
                       ),
-                      Padding(
-                        padding: const EdgeInsets.only(
-                            left: 12, right: 12, bottom: 12),
-                        child: FlatMenuButton(
-                            icon: const Icon(FontAwesomeIcons.whatsapp),
-                            buttonName: "Chamar WhatsApp",
-                            onPress: () {}),
-                      ),
-                      Padding(
-                        padding: const EdgeInsets.only(
-                            left: 12, right: 12, bottom: 12),
-                        child: FlatMenuButton(
-                            icon: const Icon(Icons.paste_rounded),
-                            buttonName: "Solicitar Financiamento",
-                            onPress: () {}),
-                      ),
+
                     ],
                   ),
                 ]),

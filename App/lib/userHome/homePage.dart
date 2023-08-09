@@ -5,8 +5,7 @@ import 'package:gado_app/land/landList.dart';
 import 'package:gado_app/machine/machineList.dart';
 import 'package:gado_app/machine/machineryFormView.dart';
 import 'package:gado_app/publicity/publicityInfo.dart';
-import 'package:gado_app/user/UserManager.dart';
-import 'package:gado_app/user/registerView.dart';
+import 'package:gado_app/user/InitialView.dart';
 
 import 'package:url_launcher/link.dart';
 
@@ -16,7 +15,6 @@ import 'package:flutter/material.dart';
 import '../animal/animalFormView.dart';
 import '../animal/AnimalList.dart';
 import '../user/UserAds.dart';
-// import 'package:gado_app/home/widgets/widgetsHome';
 
 class UserHomePage extends StatefulWidget {
   const UserHomePage({Key? key}) : super(key: key);
@@ -98,11 +96,21 @@ class HomePageScreen extends StatelessWidget {
     return Column(
       mainAxisAlignment: MainAxisAlignment.spaceEvenly,
       children: [
-        const HomePageLogo(),
-        SearchBarWidget(),
+        // FlatMenuButton(
+        //   icon: const Icon(Icons.exit_to_app),
+        //   buttonName: "Sair",
+        //   onPress: () {
+        //     Navigator.push(
+        //       context,
+        //       MaterialPageRoute(builder: (context) => const InitialView()),
+        //     );
+        //   },
+        // ),
+        // SearchBarWidget(),
         Expanded(
           child: ListView(
             children: [
+              const HomePageLogo(),
               categoriesSection,
               regulationBox,
               socialMediaBox("facebookLink", "instagramLink", "youtubeLink"),
@@ -283,8 +291,9 @@ class FlatMenuButton extends StatelessWidget {
   final Icon icon;
   final Function()? onPress;
   final String buttonName;
+  final Color? color;
   const FlatMenuButton(
-      {Key? key, this.onPress, required this.icon, required this.buttonName})
+      {Key? key, this.onPress, required this.icon, required this.buttonName, this.color})
       : super(key: key);
 
   @override
@@ -300,7 +309,7 @@ class FlatMenuButton extends StatelessWidget {
           style: const TextStyle(color: Colors.white),
         ),
         style: ElevatedButton.styleFrom(
-          backgroundColor: const Color.fromARGB(255, 0, 101, 32),
+          backgroundColor: color ?? const Color.fromARGB(255, 0, 101, 32),
 // padding: EdgeInsets.zero,
           shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(8),
@@ -463,7 +472,7 @@ class _ExpandableFabState extends State<ExpandableFab>
               _toggleExpanded();
               Navigator.push(
                 context,
-                MaterialPageRoute(builder: (context) => const AnimalFormView()),
+                MaterialPageRoute(builder: (context) => const NewAnimalAdForm()),
               );
             },
           ),

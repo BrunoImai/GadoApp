@@ -35,7 +35,6 @@ class UsersService(
     val jwt: Jwt,
 ) {
 
-
     fun save(req: UserRequest): LoginResponse {
         val user = User(
             email = req.email!!,
@@ -123,7 +122,6 @@ class UsersService(
         return machineryAdRepository.save(machineryAd)
     }
 
-
     fun getById(id: Long) = userRepository.findByIdOrNull(id)
 
     private fun getUserIdFromToken(): Long? {
@@ -137,7 +135,6 @@ class UsersService(
 
     fun getAnimalById(adId: Long): AnimalAdResponse {
         val userId = getUserIdFromToken()
-        println("UserID: $userId")
         val animalAd = animalAdRepository.findByIdOrNull(adId)
             ?: throw IllegalStateException("AnimalAd with id: $adId, doesn't exist!")
         val user = userRepository.findByIdOrNull(userId)
@@ -169,16 +166,15 @@ class UsersService(
         return landAdDto
     }
 
-
     fun findAll(role: String?): List<User> =
         if (role == null) userRepository.findAll(Sort.by("name"))
         else userRepository.findAllByRole(role)
 
-    fun findAllAnimalAd(): List<AnimalAd> = animalAdRepository.findAll()
+    fun findAllAnimalAd(status: String): List<AnimalAd> = animalAdRepository.findAllByStatus(status)
 
-    fun findAllLandAd(): List<LandAd> = landAdRepository.findAll()
+    fun findAllLandAd(status: String): List<LandAd> = landAdRepository.findAllByStatus(status)
 
-    fun findAllMachineryAd(): List<MachineryAd> = machineryAdRepository.findAll()
+    fun findAllMachineryAd(status: String): List<MachineryAd> = machineryAdRepository.findAllByStatus(status)
 
     fun login(credentials: LoginRequest): LoginResponse? {
         val user = userRepository.findByEmail(credentials.email!!) ?: return null
@@ -201,6 +197,54 @@ class UsersService(
         return true
     }
 
+    fun deleteLandAd(id: Long): Boolean {
+        val ad = landAdRepository.findByIdOrNull(id) ?: return false
+        landAdRepository.delete(ad)
+        return true
+    }
+
+    fun deleteAnimalAd(id: Long): Boolean {
+        val ad = animalAdRepository.findByIdOrNull(id) ?: return false
+        animalAdRepository.delete(ad)
+        return true
+    }
+
+    fun deleteMachineryAd(id: Long): Boolean {
+        val ad = machineryAdRepository.findByIdOrNull(id) ?: return false
+        machineryAdRepository.delete(ad)
+        return true
+    }
+
+    fun deleteSelfLandAd(id: Long): Boolean {
+        val userId = getUserIdFromToken()
+        val ad = landAdRepository.findByIdOrNull(id) ?: return false
+        val user = userRepository.findByIdOrNull(userId)
+            ?: throw IllegalStateException("User with id: $userId, doesn't exist!")
+        if (ad.owner != user) throw IllegalStateException("User with id: $userId, is not the owner of this Ad!")
+        landAdRepository.delete(ad)
+        return true
+    }
+
+    fun deleteSelfAnimalAd(id: Long): Boolean {
+        val userId = getUserIdFromToken()
+        val ad = animalAdRepository.findByIdOrNull(id) ?: return false
+        val user = userRepository.findByIdOrNull(userId)
+            ?: throw IllegalStateException("User with id: $userId, doesn't exist!")
+        if (ad.owner != user) throw IllegalStateException("User with id: $userId, is not the owner of this Ad!")
+        animalAdRepository.delete(ad)
+        return true
+    }
+
+    fun deleteSelfMachineryAd(id: Long): Boolean {
+        val userId = getUserIdFromToken()
+        val ad = machineryAdRepository.findByIdOrNull(id) ?: return false
+        val user = userRepository.findByIdOrNull(userId)
+            ?: throw IllegalStateException("User with id: $userId, doesn't exist!")
+        if (ad.owner != user) throw IllegalStateException("User with id: $userId, is not the owner of this Ad!")
+        machineryAdRepository.delete(ad)
+        return true
+    }
+
     fun getAllAdsCreatedByUser(ownerId: Long): UserAdsResponse {
         val owner = userRepository.findByIdOrNull(ownerId)
             ?: throw IllegalStateException("User with id: $ownerId, dont exist!")
@@ -210,6 +254,27 @@ class UsersService(
             owner.landAds.map { it.toResponse() },
             owner.machineryAds.map { it.toResponse() }
         )
+    }
+
+    fun validateAnimalAd(adId: Long): Boolean {
+        val animalAd = animalAdRepository.findByIdOrNull(adId)?:
+        throw IllegalStateException("Ad with id: $adId, doesn't exist!")
+        animalAd.status = "Aprovado"
+        return true
+    }
+
+    fun validateMachineryAd(adId: Long): Boolean {
+        val machineryAd = machineryAdRepository.findByIdOrNull(adId)?:
+        throw IllegalStateException("Ad with id: $adId, doesn't exist!")
+        machineryAd.status = "Aprovado"
+        return true
+    }
+
+    fun validateLandAd(adId: Long): Boolean {
+        val landAd = landAdRepository.findByIdOrNull(adId)?:
+        throw IllegalStateException("Ad with id: $adId, doesn't exist!")
+        landAd.status = "Aprovado"
+        return true
     }
 
     fun addLandAdFavorite(userId: Long, landAdId: Long): Boolean {
@@ -223,8 +288,6 @@ class UsersService(
         }
         return false
     }
-
-
 
     fun addAnimalAdFavorite(userId: Long, animalAdId: Long): Boolean {
         val user = userRepository.findByIdOrNull(userId)
@@ -295,5 +358,31 @@ class UsersService(
             user.favoriteLandAds.map { it.toResponse() },
             user.favoriteMachineAds.map { it.toResponse() }
         )
+    }
+
+    fun updateAnimalAd(req: AnimalAdRequest, ownerId: Long, animalAdId : Long): AnimalAd {
+        val owner = userRepository.findByIdOrNull(ownerId)
+            ?: throw IllegalStateException("User with id: $ownerId, dont exist!")
+
+        val oldAd = animalAdRepository.findByIdOrNull(animalAdId)
+            ?: throw IllegalStateException("Ad with id: $animalAdId, dont exist!")
+
+        animalAdRepository.delete(oldAd)
+
+        val animalAd = AnimalAd(
+            name = req.name,
+            weight = req.weight,
+            localization = req.localization,
+            quantity = req.quantity,
+            price = req.price,
+            priceType = req.priceType,
+            description = req.description,
+            owner = owner,
+            images = req.images,
+        )
+
+        owner.animalAds.add(animalAd)
+
+        return animalAdRepository.save(animalAd)
     }
 }

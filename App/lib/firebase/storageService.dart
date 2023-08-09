@@ -23,11 +23,11 @@ class Storage{
     return await ref.getDownloadURL();
   }
 
-  Future<void> uploadFiles(List<String> filePaths, List<String> fileNames) async {
+  Future<void> uploadFiles(List<ImageFile> images) async {
     try {
-      for (int i = 0; i < filePaths.length; i++) {
-        File file = File(filePaths[i]);
-        String fileName = fileNames[i] as String; // Explicit type casting
+      for (int i = 0; i < images.length; i++) {
+        File file = File(images[i].filePath);
+        String fileName = images[i].fileName; // Explicit type casting
         await storage.ref('animalAds/$fileName').putFile(file);
       }
     } on firebaseCore.FirebaseException catch (e) {
@@ -37,4 +37,11 @@ class Storage{
   }
 
 
+}
+
+class ImageFile<path, name> {
+  final String filePath;
+  final String fileName;
+
+  ImageFile(this.fileName, this.filePath);
 }

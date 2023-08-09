@@ -36,17 +36,32 @@ class UsersController (val service: UsersService) {
 
     @GetMapping("/ads/animal")
     fun listAnimalAds() =
-        service.findAllAnimalAd()
+        service.findAllAnimalAd("Aprovado")
             .map { it.toResponse() }
 
     @GetMapping("/ads/land")
     fun listLandAds() =
-        service.findAllLandAd()
+        service.findAllLandAd("Aprovado")
             .map { it.toResponse() }
 
     @GetMapping("/ads/machinery")
     fun listMachineryAds() =
-        service.findAllMachineryAd()
+        service.findAllMachineryAd("Aprovado")
+            .map { it.toResponse() }
+
+    @GetMapping("/adm/ads/animal")
+    fun listAnalysisAnimalAds() =
+        service.findAllAnimalAd("Em Análise")
+            .map { it.toResponse() }
+
+    @GetMapping("/adm/ads/land")
+    fun listAnalysisLandAds() =
+        service.findAllLandAd("Em Análise")
+            .map { it.toResponse() }
+
+    @GetMapping("/adm/ads/machinery")
+    fun listAnalysisMachineryAds() =
+        service.findAllMachineryAd("Em Análise")
             .map { it.toResponse() }
 
     @Transactional
@@ -72,6 +87,13 @@ class UsersController (val service: UsersService) {
         service.createMachineryAd(req, userId)
             .toResponse()
             .let { ResponseEntity.status(CREATED).body(it) }
+
+    @PutMapping("/{userId}/ads/animal/{adId}")
+    fun updateAnimalAd(@Valid @RequestBody req: AnimalAdRequest, @PathVariable("userId") userId: Long, @PathVariable("adId") adId: Long ) =
+        service.updateAnimalAd(req, userId, adId)
+            .toResponse()
+            .let { ResponseEntity.status(CREATED).body(it) }
+
     @GetMapping("/me")
     @PreAuthorize("permitAll()")
     @SecurityRequirement(name = "AuthServer")
@@ -119,6 +141,49 @@ class UsersController (val service: UsersService) {
     @SecurityRequirement(name = "AuthServer")
     fun delete(@PathVariable("id") id: Long): ResponseEntity<Void> =
         if (service.delete(id)) ResponseEntity.ok().build()
+        else ResponseEntity.notFound().build()
+
+    @DeleteMapping("/adm/animalAd/{animalAdId}")
+    @PreAuthorize("hasRole('ADMIN')")
+    @SecurityRequirement(name = "AuthServer")
+    fun deleteAnimalAd(@PathVariable("animalAdId") id: Long): ResponseEntity<Void> =
+        if (service.deleteAnimalAd(id)) ResponseEntity.ok().build()
+        else ResponseEntity.notFound().build()
+
+    @DeleteMapping("/adm/landAd/{landAdId}")
+    @PreAuthorize("hasRole('ADMIN')")
+    @SecurityRequirement(name = "AuthServer")
+    fun deleteLandAd(@PathVariable("landAdId") id: Long): ResponseEntity<Void> =
+        if (service.deleteLandAd(id)) ResponseEntity.ok().build()
+        else ResponseEntity.notFound().build()
+
+    @DeleteMapping("/adm/machineryAd/{machineryAdId}")
+    @PreAuthorize("hasRole('ADMIN')")
+    @SecurityRequirement(name = "AuthServer")
+    fun deleteMachineryAd(@PathVariable("machineryAdId") id: Long): ResponseEntity<Void> =
+        if (service.deleteLandAd(id)) ResponseEntity.ok().build()
+        else ResponseEntity.notFound().build()
+
+    @PutMapping("/adm/animalAd/{animalAdId}")
+    @PreAuthorize("hasRole('ADMIN')")
+    @SecurityRequirement(name = "AuthServer")
+    fun validateAnimalAd(@PathVariable("animalAdId") id: Long): ResponseEntity<Void> =
+        if (service.validateAnimalAd(id)) ResponseEntity.ok().build()
+        else ResponseEntity.notFound().build()
+
+    @DeleteMapping("/animalAd/{animalAdId}")
+    fun deleteSelfAnimalAd(@PathVariable("animalAdId") id: Long): ResponseEntity<Void> =
+        if (service.deleteSelfAnimalAd(id)) ResponseEntity.ok().build()
+        else ResponseEntity.notFound().build()
+
+    @DeleteMapping("/landAd/{landAdId}")
+    fun deleteSelfLandAd(@PathVariable("landAdId") id: Long): ResponseEntity<Void> =
+        if (service.deleteSelfLandAd(id)) ResponseEntity.ok().build()
+        else ResponseEntity.notFound().build()
+
+    @DeleteMapping("/machineryAd/{machineryAdId}")
+    fun deleteSelfMachineryAd(@PathVariable("machineryAdId") id: Long): ResponseEntity<Void> =
+        if (service.deleteSelfMachineryAd(id)) ResponseEntity.ok().build()
         else ResponseEntity.notFound().build()
 
     @PostMapping("/{userId}/favorites/landAd/{landAdId}")

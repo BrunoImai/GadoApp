@@ -45,7 +45,7 @@ class RegisterView extends StatelessWidget {
           final userName = user['name'];
           final userEmail = user['email'];
 
-          UserManager.instance.loggedUser = LoggedUser(token, userId, userName, userEmail);
+          UserManager.instance.loggedUser = LoggedUser(token, userId, userName, userEmail, false);
           onSuccess.call();
           print('Registration successful!');
         } else {

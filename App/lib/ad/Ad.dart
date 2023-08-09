@@ -6,6 +6,8 @@ class Ad {
   final String? batch;
   bool? isFavorite;
   final List<String> images;
+  int? ownerId;
+  String? status;
   Ad({
     this.id,
     required this.name,
@@ -14,6 +16,8 @@ class Ad {
     this.batch = "0000",
     this.isFavorite = false,
     required this.images,
+    this.ownerId,
+    this.status
   });
 
   Map<String, dynamic> toJson() {

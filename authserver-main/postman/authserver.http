@@ -101,3 +101,7 @@ GET localhost:8080/api/users/2/ads
 ### Retorna todos os anuncios favoritados pelo usuario 2
 GET localhost:8080/api/users/2/favorites
 
+### AAA
+PUT localhost:8080/api/users/adm/animalAd/2
+Content-Type: application/json
+Authorization: Bearer {{token}}

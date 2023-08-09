@@ -20,5 +20,7 @@ class AnimalAdResponse (
     val priceType: String? = "Unid",
     val description: String? = null,
     var isFavorite: Boolean = false,
-    val images: List<String>? = listOf<String>()
+    val images: List<String>? = listOf<String>(),
+    var status: String? = "Em Análise",
+    val ownerId: Long
 )

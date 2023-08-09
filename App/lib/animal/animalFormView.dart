@@ -10,36 +10,14 @@ import 'package:intl/intl.dart';
 import 'package:http/http.dart' as http;
 
 import '../userHome/homePage.dart';
+import 'Animal.dart';
 
-
-
-class AnimalFormView extends StatefulWidget {
-  const AnimalFormView({Key? key}) : super(key: key);
-
-
-  @override
-  State<AnimalFormView> createState() => _AnimalFormViewState();
-}
-
-class _AnimalFormViewState extends State<AnimalFormView> {
-
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      body: GestureDetector(
-        onTap: () => FocusManager.instance.primaryFocus?.unfocus(),
-        child: const SafeArea(
-          child: Scaffold(
-            body: NewAnimalAdForm(),
-          ),
-        ),
-      ),
-    );
-  }
-}
 
 class NewAnimalAdForm extends StatefulWidget {
-  const NewAnimalAdForm({super.key});
+
+  final AnimalAd? updatedData; // Updated attribute
+
+  const NewAnimalAdForm({super.key, this.updatedData});
 
   @override
   NewAnimalAdFormState createState() {
@@ -53,8 +31,10 @@ class NewAnimalAdFormState extends State<NewAnimalAdForm> {
 
   final _buyFormKey = GlobalKey<FormState>();
 
-  List<String> imagePaths = [];
-  List<String> imageNames = [];
+  Map<String, String> myTuple = {'key1': 'value1'};
+
+  List<ImageFile> loadedImages = [];
+
   List<Widget> imagePillButtons = [];
 
   final Storage storage = Storage();
@@ -66,6 +46,31 @@ class NewAnimalAdFormState extends State<NewAnimalAdForm> {
   final TextEditingController _qttController = TextEditingController();
   final TextEditingController _descriptionController = TextEditingController();
 
+  @override
+  void initState() {
+    super.initState();
+    if (widget.updatedData != null) {
+      _nameController.text = widget.updatedData!.name;
+      _locationController.text = widget.updatedData!.localization;
+      _priceController.text = widget.updatedData!.price.toString();
+      _weightController.text = widget.updatedData!.weight ?? '';
+      _qttController.text = widget.updatedData!.quantity?.toString() ?? '';
+      _descriptionController.text = widget.updatedData!.description ?? '';
+      priceTypeValue = widget.updatedData!.priceType ?? "Unid";
+      for (var element in widget.updatedData!.images) {
+        ImageFile image = ImageFile(element, "");
+        loadedImages.add(image);
+        imagePillButtons.add(
+          ImagePillButton(
+            imageName: image.fileName,
+            onPressed: () => removeImage(image),
+          ),
+        );
+      }
+    }
+
+  }
+
   String priceTypeValue = "Unid";
 
   void handleDropdownValueChanged(String? value) {
@@ -76,24 +81,35 @@ class NewAnimalAdFormState extends State<NewAnimalAdForm> {
 
   void addImage(String imagePath, String imageName) {
     setState(() {
-      imagePaths.add(imagePath);
-      imageNames.add(imageName);
+      ImageFile image = ImageFile(imageName, imagePath);
+      loadedImages.add(image);
       imagePillButtons.add(
         ImagePillButton(
           imageName: imageName,
-          onPressed: () => removeImage(imageName),
+          onPressed: () => removeImage(image),
         ),
       );
     });
   }
 
-  void removeImage(String imageName) {
+  void removeImage(ImageFile image) {
     setState(() {
-      int index = imageNames.indexOf(imageName);
-      imagePaths.removeAt(index);
-      imageNames.removeAt(index);
+      int index = loadedImages.indexOf(image);
+      loadedImages.remove(image);
       imagePillButtons.removeAt(index);
     });
+  }
+
+  bool isAUpdate() {
+    return widget.updatedData != null;
+  }
+
+  List<String> getAllImageNames() {
+    List<String> imageNames = [];
+    for (var element in loadedImages) {
+      imageNames.add(element.fileName);
+    }
+    return imageNames;
   }
 
 
@@ -105,26 +121,41 @@ class NewAnimalAdFormState extends State<NewAnimalAdForm> {
     final int qtt =  int.parse(_qttController.text);
     final String description =  _descriptionController.text;
     final String priceType =  priceTypeValue;
-    final List<String> images = imageNames;
+    final List<String> images = getAllImageNames();
 
     AnimalAd animalRequest = AnimalAd(name: name, price: price, weight: weight, localization: location, quantity: qtt,priceType: priceType,description: description, batch: null, id: null , images: images);
     String requestBody = jsonEncode(animalRequest.toJson());
     print("requestBody: $requestBody");
 
+    http.Response response;
+
     try {
-      final response = await http.post(
-        Uri.parse('http://localhost:8080/api/users/${UserManager.instance.loggedUser!.id}/ads/animal'),
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': 'Bearer ${UserManager.instance.loggedUser!.token}',
-        },
-        body: requestBody,
-      );
+      if (isAUpdate()) {
+        response = await http.put(
+          Uri.parse('http://localhost:8080/api/users/${UserManager.instance
+              .loggedUser!.id}/ads/animal/${widget.updatedData!.id}'),
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': 'Bearer ${UserManager.instance.loggedUser!.token}',
+          },
+          body: requestBody,
+        );
+    } else {
+        response = await http.post(
+          Uri.parse('http://localhost:8080/api/users/${UserManager.instance
+              .loggedUser!.id}/ads/animal'),
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': 'Bearer ${UserManager.instance.loggedUser!.token}',
+          },
+          body: requestBody,
+        );
+    }
 
       if (response.statusCode == 200 || response.statusCode == 201) {
         // Registration successful
         print('Registration successful!');
-        await storage.uploadFiles(imagePaths, imageNames).
+        await storage.uploadFiles(loadedImages).
         then((value) => print("Done"));
       } else {
         // Registration failed
@@ -137,6 +168,8 @@ class NewAnimalAdFormState extends State<NewAnimalAdForm> {
   }
 
 
+
+
   @override
   Widget build(BuildContext context) {
 
@@ -145,9 +178,9 @@ class NewAnimalAdFormState extends State<NewAnimalAdForm> {
         appBar: AppBar(
           centerTitle: true,
           backgroundColor: const Color.fromARGB(255, 0, 101, 32),
-          title: const Text(
-            "Novo Anúncio de Animal",
-            style: TextStyle(color: Colors.white),
+          title: Text(
+            (widget.updatedData == null) ? "Novo Anúncio de Animal" : "Atualizar Anúncio",
+            style: const TextStyle(color: Colors.white),
           ),
           leading: IconButton(
             icon: const Icon(Icons.arrow_back),
@@ -156,110 +189,114 @@ class NewAnimalAdFormState extends State<NewAnimalAdForm> {
             },
           ),
         ),
-        body: Form(
-          key: _buyFormKey,
-          child: ListView(
-            children: [Column(
-              children: <Widget>[
-                LogoBox,
-                OneLineInputField(
-                    "Titulo", controller: _nameController,
-                ),
-                Row(
-                  children: [
-                    Flexible(
-                      flex: 4,
-                      child: OneLineInputField(
-                        "Valor",
-                        controller: _priceController,
-                        suffixText: "R\$",
+        body: GestureDetector(
+          onTap: () => FocusManager.instance.primaryFocus?.unfocus(),
+          child: Form(
+            key: _buyFormKey,
+            child: ListView(
+              children: [Column(
+                children: <Widget>[
+                  LogoBox,
+                  OneLineInputField(
+                      "Titulo", controller: _nameController,
+                  ),
+                  Row(
+                    children: [
+                      Flexible(
+                        flex: 4,
+                        child: OneLineInputField(
+                          "Valor",
+                          controller: _priceController,
+                          suffixText: "R\$",
+                        ),
                       ),
-                    ),
-                    const Spacer(
-                      flex: 1,
-                    ),
-                    Flexible(
-                      flex: 4,
-                      child: DropdownButtonExample(
-                        list: const ["Unid", "KG"],
-                        selectedValue: priceTypeValue,
-                        onChanged: handleDropdownValueChanged,
+                      const Spacer(
+                        flex: 1,
                       ),
-                    ),
-                  ],
-                ),
-                Row(
-                  children: [
-                    Flexible(
-                      flex: 4,
-                      child: OneLineInputField(
-                        "Peso", controller: _weightController, suffixText: "KG",
+                      Flexible(
+                        flex: 4,
+                        child: DropdownButtonExample(
+                          list: const ["Unid", "KG"],
+                          selectedValue: priceTypeValue,
+                          onChanged: handleDropdownValueChanged,
+                        ),
                       ),
-                    ),
-                    const Spacer(
-                      flex: 1,
-                    )
-                    ,
-                    Flexible(
-                      flex: 4,
-                      child: OneLineInputField(
-                        "Quantidade", controller: _qttController,
+                    ],
+                  ),
+                  Row(
+                    children: [
+                      Flexible(
+                        flex: 4,
+                        child: OneLineInputField(
+                          "Peso", controller: _weightController, suffixText: "KG",
+                        ),
                       ),
-                    ),
-                  ],
-                ),
+                      const Spacer(
+                        flex: 1,
+                      )
+                      ,
+                      Flexible(
+                        flex: 4,
+                        child: OneLineInputField(
+                          "Quantidade", controller: _qttController,
+                        ),
+                      ),
+                    ],
+                  ),
 
-                OneLineInputField(
-                  "Local", controller: _locationController,
-                ),
+                  OneLineInputField(
+                    "Local", controller: _locationController,
+                  ),
 
-                FlatMenuButton(
-                  icon: const Icon(Icons.image),
-                  buttonName: "Adicionar imagem",
-                    onPress: () async {
-                      final results = await FilePicker.platform.pickFiles(
-                        allowMultiple: false,
-                        type: FileType.custom,
-                        allowedExtensions: ['png', 'jpg', 'jpeg']
-                      );
-                      if (results == null) {
-                        ScaffoldMessenger.of(context).showSnackBar(
-                          const SnackBar(content: Text('Nenhum arquivo selecionado!'))
+                  FlatMenuButton(
+                    icon: const Icon(Icons.image),
+                    buttonName: "Adicionar imagem",
+                      onPress: () async {
+                        final results = await FilePicker.platform.pickFiles(
+                          allowMultiple: false,
+                          type: FileType.custom,
+                          allowedExtensions: ['png', 'jpg', 'jpeg']
                         );
-                        return null;
+                        if (results == null) {
+                          ScaffoldMessenger.of(context).showSnackBar(
+                            const SnackBar(content: Text('Nenhum arquivo selecionado!'))
+                          );
+                          return null;
+                        }
+                        print(results.files.single.path);
+                        addImage(results.files.single.path!, results.files.single.name);
+
                       }
-                      addImage(results.files.single.path!, results.files.single.name);
+                  ),
 
+                  Wrap(
+                    children: imagePillButtons,
+                  ),
+
+                  MultiLineInputField(
+                    controller: _descriptionController, fieldLabelText: 'Descrição', visibleRows: 5,
+                  ),
+                  FlatMenuButton(
+                    icon: const Icon(Icons.send),
+                    buttonName: "Enviar",
+                    onPress: () {
+                      if (_buyFormKey.currentState!.validate()) {
+                        registerAnimalAd();
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          const SnackBar(content: Text('Pedido Enviado')),
+                        );
+                        Navigator.pop(context);
+                      }
                     }
-                ),
-
-                Wrap(
-                  children: imagePillButtons,
-                ),
-
-                MultiLineInputField(
-                  controller: _descriptionController, fieldLabelText: 'Descrição', visibleRows: 5,
-                ),
-                FlatMenuButton(
-                  icon: const Icon(Icons.send),
-                  buttonName: "Enviar",
-                  onPress: () {
-                    if (_buyFormKey.currentState!.validate()) {
-                      registerAnimalAd();
-                      ScaffoldMessenger.of(context).showSnackBar(
-                        const SnackBar(content: Text('Pedido Enviado')),
-                      );
-                      Navigator.pop(context);
-                    }
-                  }
-                )
-              ] .map((widget) => Padding(
-                padding: const EdgeInsets.all(24),
-                child: widget,
-              ))
-                  .toList(),
+                  )
+                ] .map((widget) => Padding(
+                  padding: const EdgeInsets.all(24),
+                  child: widget,
+                ))
+                    .toList(),
+              ),
+            ]
             ),
-          ]
           ),
         )
     );
@@ -271,7 +308,8 @@ class OneLineInputField extends StatelessWidget {
   final TextEditingController controller;
   final String? suffixText;
   final String? prefixText;
-  const OneLineInputField(this.fieldLabelText, {super.key, required this.controller, this.suffixText, this.prefixText});
+  final String? pastText;
+  const OneLineInputField(this.fieldLabelText, {super.key, required this.controller, this.suffixText, this.prefixText, this.pastText});
 
   @override
   Widget build(BuildContext context) {
@@ -279,7 +317,7 @@ class OneLineInputField extends StatelessWidget {
       controller: controller,
 
       decoration:  InputDecoration(
-        hintStyle: const TextStyle(color: Color.fromARGB(255, 0, 101, 32)),
+          hintStyle: const TextStyle(color: Color.fromARGB(255, 0, 101, 32)),
           border: const OutlineInputBorder(
               borderRadius: BorderRadius.all(Radius.circular(20)),
               borderSide: BorderSide(
@@ -289,14 +327,14 @@ class OneLineInputField extends StatelessWidget {
           ),
 
 
-      focusedBorder: const OutlineInputBorder(
-          borderSide: BorderSide(width: 3, color: Color.fromARGB(255, 0, 101, 32))
-        ),
-        suffix: suffixText != null ? Text(suffixText!) : const Text(""),
+          focusedBorder: const OutlineInputBorder(
+              borderSide: BorderSide(width: 3, color: Color.fromARGB(255, 0, 101, 32))
+          ),
+          suffix: suffixText != null ? Text(suffixText!) : const Text(""),
           prefix: prefixText != null ? Text(prefixText!) : const Text(""),
 
           labelText: fieldLabelText,
-        labelStyle: const TextStyle(color: Color.fromARGB(255, 0, 101, 32), fontWeight: FontWeight.bold)
+          labelStyle: const TextStyle(color: Color.fromARGB(255, 0, 101, 32), fontWeight: FontWeight.bold)
       ),
       validator: (value) {
         if (value == null || value.isEmpty) {
@@ -351,8 +389,6 @@ class PassWordInputField extends StatelessWidget {
   }
 }
 
-
-
 class MultiLineInputField extends StatelessWidget {
   final String fieldLabelText;
   final TextEditingController controller;
@@ -388,7 +424,6 @@ class MultiLineInputField extends StatelessWidget {
     );
   }
 }
-
 
 class MoneyField extends StatelessWidget {
   final String fieldLabelText;
@@ -439,6 +474,7 @@ class MoneyField extends StatelessWidget {
     );
   }
 }
+
 class DropdownButtonExample extends StatefulWidget {
   final List<String> list;
   final String? selectedValue;
@@ -505,7 +541,7 @@ class ImagePillButton extends StatelessWidget {
   Widget build(BuildContext context) {
     var imageNameUpdated = imageName.length > 20 ? "${imageName.substring(0, 19)}..." : imageName;
     return Padding(
-      padding: const EdgeInsets.symmetric(vertical: 8),
+      padding: const EdgeInsets.symmetric(vertical: 8, horizontal: 3),
       child: Container(
         decoration: BoxDecoration(
           borderRadius: BorderRadius.circular(20),

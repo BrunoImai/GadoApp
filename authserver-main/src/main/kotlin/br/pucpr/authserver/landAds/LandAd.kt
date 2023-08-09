@@ -32,7 +32,7 @@ class LandAd (
     val description: String ? = "",
 
     @Column()
-    val status: String ? = "Analysis",
+    var status: String ? = "Em Análise",
 
     @ManyToOne
     @JoinColumn(name = "owner_id")
@@ -42,5 +42,5 @@ class LandAd (
     val images: List<String>? = listOf<String>()
 
     ){
-    fun toResponse() = LandAdResponse( name, price, localization, id!!, batch!!, area, priceType, description,false ,images!!)
+    fun toResponse() = LandAdResponse( name, price, localization, id!!, batch!!, area, priceType, description,false , images!!, status, owner.id!!)
 }

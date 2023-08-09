@@ -1,17 +1,16 @@
 import 'dart:convert';
 
 import 'package:carousel_slider/carousel_slider.dart';
-import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:gado_app/animal/Animal.dart';
 import '../userHome/homePage.dart';
 
-
 import 'package:http/http.dart' as http;
 
 import '../firebase/storageService.dart';
 import '../user/UserManager.dart';
+import 'animalFormView.dart';
 
 class AnimalInfoPage extends StatefulWidget {
   const AnimalInfoPage({Key? key, required this.animalId}) : super(key: key);
@@ -22,7 +21,6 @@ class AnimalInfoPage extends StatefulWidget {
 }
 
 class _AnimalInfoPageState extends State<AnimalInfoPage> {
-
   late Future<AnimalAd> _animalAdFuture;
 
   @override
@@ -34,8 +32,9 @@ class _AnimalInfoPageState extends State<AnimalInfoPage> {
   Future<AnimalAd> _fetchAnimalAd() async {
     // Make the API call to get the animal ad data based on the animalId
     // Replace 'your_api_endpoint' with the actual API endpoint to get animal details.
-    final response = await http.get(Uri.parse(
-        'http://localhost:8080/api/users/ads/animal/${widget.animalId}'),
+    final response = await http.get(
+      Uri.parse(
+          'http://localhost:8080/api/users/ads/animal/${widget.animalId}'),
       headers: {
         'Content-Type': 'application/json',
         'Authorization': 'Bearer ${UserManager.instance.loggedUser!.token}',
@@ -45,60 +44,92 @@ class _AnimalInfoPageState extends State<AnimalInfoPage> {
       // Parse the response JSON and return the data.
       final jsonData = json.decode(response.body);
       return AnimalAd(
-        id: jsonData['id'],
-        name: jsonData['name'],
-        price: jsonData['price'].toDouble(),
-        localization: jsonData['localization'],
-        batch: jsonData['batch'],
-        weight: jsonData['weight'],
-        quantity: jsonData['quantity'],
-        priceType: jsonData['priceType'],
-        description: jsonData['description'],
-        isFavorite: jsonData['isFavorite'],
-        images: jsonData['images'].cast<String>()
-      );
+          id: jsonData['id'],
+          name: jsonData['name'],
+          price: jsonData['price'].toDouble(),
+          localization: jsonData['localization'],
+          batch: jsonData['batch'],
+          weight: jsonData['weight'],
+          quantity: jsonData['quantity'],
+          priceType: jsonData['priceType'],
+          description: jsonData['description'],
+          isFavorite: jsonData['isFavorite'],
+          images: jsonData['images'].cast<String>(),
+          ownerId: jsonData['ownerId'],
+          status: jsonData['status']
+          );
     } else {
-      // Handle API call errors, you can show an error message or throw an exception.
       throw Exception('Failed to load animal ad');
     }
   }
 
   late bool isFavorite = false;
 
-  Future<void> toggleFavorite() async {
+  Future<void> deleteAdAsAdm() async {
+    final response = await http.delete(
+      Uri.parse(
+          'http://localhost:8080/api/users/adm/animalAd/${widget.animalId}'),
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': 'Bearer ${UserManager.instance.loggedUser!.token}',
+      },
+    );
 
+    if (response.statusCode == 200 || response.statusCode == 201) {
+      setState(() {
+        Navigator.pop(context, true);
+
+      });
+    }
+  }
+  Future<void> deleteAdAsOwner() async {
+    final response = await http.delete(
+      Uri.parse(
+          'http://localhost:8080/api/users/animalAd/${widget.animalId}'),
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': 'Bearer ${UserManager.instance.loggedUser!.token}',
+      },
+    );
+
+    if (response.statusCode == 200 || response.statusCode == 201) {
+      setState(() {
+        Navigator.pop(context, true);
+
+      });
+    }
+  }
+
+  Future<void> toggleFavorite() async {
     final userId = UserManager.instance.loggedUser!.id;
     final favoriteId = widget.animalId;
 
-    if (kDebugMode) {
-      print("Print funfa");
-    }
-
     if (!isFavorite) {
       // Add the land ad to user's favorites
-      final response = await http.post(Uri.parse('http://localhost:8080/api/users/$userId/favorites/animalAd/$favoriteId'),
+      final response = await http.post(
+        Uri.parse(
+            'http://localhost:8080/api/users/$userId/favorites/animalAd/$favoriteId'),
         headers: {
           'Content-Type': 'application/json',
           'Authorization': 'Bearer ${UserManager.instance.loggedUser!.token}',
         },
       );
 
-      print(response.statusCode);
-
       if (response.statusCode == 200 || response.statusCode == 201) {
         setState(() {
           isFavorite = !isFavorite;
-          print("Entrei");
         });
       }
     } else {
-
       // Remove the land ad from user's favorites
-      final response = await http.delete(Uri.parse('http://localhost:8080/api/users/$userId/favorites/animalAd/$favoriteId'),
+      final response = await http.delete(
+        Uri.parse(
+            'http://localhost:8080/api/users/$userId/favorites/animalAd/$favoriteId'),
         headers: {
           'Content-Type': 'application/json',
           'Authorization': 'Bearer ${UserManager.instance.loggedUser!.token}',
-        },);
+        },
+      );
       if (response.statusCode == 200 || response.statusCode == 201) {
         setState(() {
           isFavorite = !isFavorite;
@@ -109,7 +140,6 @@ class _AnimalInfoPageState extends State<AnimalInfoPage> {
 
   @override
   Widget build(BuildContext context) {
-
     return FutureBuilder<AnimalAd>(
         future: _animalAdFuture,
         builder: (context, snapshot) {
@@ -170,46 +200,103 @@ class _AnimalInfoPageState extends State<AnimalInfoPage> {
                         price: animalAd.price.toString(),
                         priceType: animalAd.priceType!,
                       ),
-                       Padding(
+                      Padding(
                         padding: const EdgeInsets.all(12.0),
-                        child: Text( animalAd.description!,
+                        child: Text(animalAd.description!,
                             style: const TextStyle(
                                 fontWeight: FontWeight.w300,
                                 color: Colors.black)),
                       ),
-                      Padding(
-                        padding: const EdgeInsets.all(12.0),
-                        child: FlatMenuButton(
-                            icon: const Icon(Icons.email),
-                            buttonName: "Enviar proposta",
-                            onPress: () {}),
-                      ),
-                      Padding(
-                        padding: const EdgeInsets.only(
-                            left: 12, right: 12, bottom: 12),
-                        child: FlatMenuButton(
-                            icon: const Icon(FontAwesomeIcons.whatsapp),
-                            buttonName: "Chamar WhatsApp",
-                            onPress: () {}),
-                      ),
-                      Padding(
-                        padding: const EdgeInsets.only(
-                            left: 12, right: 12, bottom: 12),
-                        child: FlatMenuButton(
-                            icon: const Icon(Icons.paste_rounded),
-                            buttonName: "Solicitar Financiamento",
-                            onPress: () {}),
-                      ),
+                      if (UserManager.instance.loggedUser!.isAdm)
+
+                         Padding(
+                           padding: const EdgeInsets.all(12.0),
+                           child: FlatMenuButton(
+                            buttonName: "Excluir anúncio",
+                            icon: const Icon(Icons.delete),
+                            color: Colors.red,
+                               onPress: () {
+                              deleteAdAsAdm();
+                               }
+                        ),
+                         )
+                        else if (UserManager.instance.loggedUser!.id == animalAd.ownerId)
+                            Column(
+                              children: [
+                                Padding(
+                                  padding: const EdgeInsets.all(12.0),
+                                  child: FlatMenuButton(
+                                      buttonName: "Excluir anúncio",
+                                      icon: const Icon(Icons.delete),
+                                      color: Colors.red,
+                                      onPress: () {
+                                        deleteAdAsOwner();
+                                      }
+                                  ),
+                                ),
+                                Padding(
+                                  padding: const EdgeInsets.all(12.0),
+                                  child: FlatMenuButton(
+                                      icon: const Icon(Icons.refresh),
+                                      buttonName: "Atualizar Anúncio",
+                                      onPress: () {
+                                        print("entrei");
+                                        Navigator.push(
+                                          context,
+                                          MaterialPageRoute(
+                                            builder: (context) => NewAnimalAdForm(updatedData: animalAd),
+                                          ),
+                                        );
+                                      }),
+                                ),
+                              ],
+                            )
+                      else
+                        Column(
+                          children: [
+                            Padding(
+                              padding: const EdgeInsets.all(12.0),
+                              child: FlatMenuButton(
+                                  icon: const Icon(Icons.email),
+                                  buttonName: "Enviar proposta",
+                                  onPress: () {
+                                    print("Owner id: ${animalAd.ownerId} \n"
+                                        "self id: ${UserManager.instance.loggedUser!.id}");
+                                  }),
+                            ),
+                            Padding(
+                              padding: const EdgeInsets.only(
+                                  left: 12, right: 12, bottom: 12),
+                              child: FlatMenuButton(
+                                  icon: const Icon(FontAwesomeIcons.whatsapp),
+                                  buttonName: "Chamar WhatsApp",
+                                  onPress: () {}),
+                            ),
+                            Padding(
+                              padding: const EdgeInsets.only(
+                                  left: 12, right: 12, bottom: 12),
+                              child: FlatMenuButton(
+                                  icon: const Icon(Icons.paste_rounded),
+                                  buttonName: "Solicitar Financiamento",
+                                  onPress: () {}),
+                            ),
+                          ],
+                        ),
+                      Text("${animalAd.status}",
+                          style: const TextStyle(
+                              color: Color.fromARGB(255, 0, 101, 32),
+                              fontWeight: FontWeight.bold,
+                              fontSize: 18))
                     ],
                   ),
                 ]),
               ),
             );
           }
-        }
-    );
+        });
   }
 }
+
 class AnimalDetails extends StatelessWidget {
   const AnimalDetails({
     super.key,
@@ -263,24 +350,17 @@ class AnimalDetails extends StatelessWidget {
           Text("Qtde: $qtt",
               style: const TextStyle(
                   fontWeight: FontWeight.w300, color: Colors.black)),
-          if (weight != null)
-            Text("Peso Aprox.: $weight KG",
-                style: const TextStyle(
-                    fontWeight: FontWeight.w300, color: Colors.black)),
+          Text("Peso Aprox.: $weight KG",
+              style: const TextStyle(
+                  fontWeight: FontWeight.w300, color: Colors.black)),
           Row(
             mainAxisAlignment: MainAxisAlignment.end,
             children: [
-              price != null
-                  ? Text("R\$ $price $priceType",
-                      style: const TextStyle(
-                          color: Color.fromARGB(255, 0, 101, 32),
-                          fontWeight: FontWeight.bold,
-                          fontSize: 18))
-                  : const Text("Consultar valor",
-                      style: TextStyle(
-                          color: Colors.deepOrangeAccent,
-                          fontWeight: FontWeight.bold,
-                          fontSize: 18))
+              Text("R\$ $price $priceType",
+                  style: const TextStyle(
+                      color: Color.fromARGB(255, 0, 101, 32),
+                      fontWeight: FontWeight.bold,
+                      fontSize: 18))
             ],
           ),
         ]

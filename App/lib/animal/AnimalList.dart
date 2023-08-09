@@ -2,11 +2,11 @@ import 'dart:convert';
 import 'dart:async';
 
 import 'package:flutter/material.dart';
-import 'package:gado_app/animal/animalInfoPage.dart';
 import 'package:http/http.dart' as http;
 
 import '../firebase/storageService.dart';
 import 'Animal.dart';
+import 'AnimalInfoPage.dart';
 
 class AnimalListPage extends StatefulWidget {
   const AnimalListPage({Key? key}) : super(key: key);
@@ -30,7 +30,7 @@ class _AnimalListPageState extends State<AnimalListPage> {
 
   Future<List<AnimalAd>> getAllAnimalAds() async {
     final response =
-    await http.get(Uri.parse('http://localhost:8080/api/users/ads/animal'));
+        await http.get(Uri.parse('http://localhost:8080/api/users/ads/animal'));
 
     if (response.statusCode == 200) {
       final jsonData = json.decode(response.body) as List<dynamic>;
@@ -137,10 +137,10 @@ class _AnimalListPageState extends State<AnimalListPage> {
                     ]
                         .map(
                           (widget) => Padding(
-                        padding: const EdgeInsets.all(3),
-                        child: widget,
-                      ),
-                    )
+                            padding: const EdgeInsets.all(3),
+                            child: widget,
+                          ),
+                        )
                         .toList(),
                   ),
                 ),
@@ -157,16 +157,32 @@ class _AnimalListPageState extends State<AnimalListPage> {
                             itemCount: snapshot.data!.length,
                             itemBuilder: (context, index) {
                               final data = snapshot.data![index];
-                              return productAnimal(
-                                Future.value(images[index]),
-                                data.name,
-                                data.batch,
-                                data.localization,
-                                data.price,
-                                data.id,
+                              return ProductAnimal(
+                                imageLink: Future.value(images[index]),
+                                productName: data.name,
+                                batch: data.batch!,
+                                localization: data.localization,
+                                id: data.id!,
                                 priceType: data.priceType,
                                 price: data.price,
                                 weight: data.weight,
+                                qtt: data.quantity!,
+                                onPressed: () async {
+                                  // Navigate to the AnimalInfoPage and wait for the result.
+                                  final result = await Navigator.push(
+                                    context,
+                                    MaterialPageRoute(
+                                      builder: (context) =>
+                                          AnimalInfoPage(animalId: data.id!),
+                                    ),
+                                  );
+                                  // Check if the result is true, and reload the list.
+                                  if (result == true) {
+                                    setState(() {
+                                      futureData = getAllAnimalAds();
+                                    });
+                                  }
+                                },
                               );
                             },
                           );
@@ -191,151 +207,179 @@ class _AnimalListPageState extends State<AnimalListPage> {
   }
 }
 
-Widget productAnimal(
-    Future<String> imageLink,
-    productName,
-    batch,
-    localization,
-    qtt,
-    id, {
-      price,
-      priceType,
-      weight,
-    }) {
-  return Builder(
-    builder: (context) {
-      return FutureBuilder<String>(
-        future: imageLink,
-        builder: (context, snapshot) {
-          if (snapshot.hasData) {
-            final imageUrl = snapshot.data!;
-            return Padding(
-              padding: const EdgeInsets.all(12.0),
-              child: SizedBox(
-                width: double.infinity,
-                child: TextButton(
-                  child: Column(
-                    mainAxisSize: MainAxisSize.max,
-                    children: [
-                      SizedBox(
-                        height: 300,
-                        width: double.infinity,
-                        child: ClipRRect(
-                          borderRadius: BorderRadius.circular(10),
-                          child: Image.network(
-                            imageUrl,
-                            fit: BoxFit.cover,
-                          ),
+class ProductAnimal extends StatefulWidget {
+  final Future<String> imageLink;
+  final String productName;
+  final String batch;
+  final String localization;
+  final int qtt;
+  final int id;
+  final Function? onPressed;
+  final dynamic price;
+  final dynamic priceType;
+  final dynamic weight;
+  bool? isOwner = false;
+
+   ProductAnimal({
+    Key? key,
+    required this.imageLink,
+    required this.productName,
+    required this.batch,
+    required this.localization,
+    required this.qtt,
+    required this.id,
+    this.onPressed,
+    this.price,
+    this.priceType,
+    this.weight, this.isOwner,
+  }) : super(key: key);
+
+  @override
+  State<ProductAnimal> createState() => _ProductAnimalState();
+}
+
+class _ProductAnimalState extends State<ProductAnimal> {
+  @override
+  Widget build(BuildContext context) {
+    return FutureBuilder<String>(
+      future: widget.imageLink,
+      builder: (context, snapshot) {
+        if (snapshot.connectionState == ConnectionState.waiting) {
+          return const CircularProgressIndicator();
+        } else if (snapshot.hasData) {
+          final imageUrl = snapshot.data!;
+          return Padding(
+            padding: const EdgeInsets.all(12.0),
+            child: SizedBox(
+              width: double.infinity,
+              child: TextButton(
+                child: Column(
+                  mainAxisSize: MainAxisSize.max,
+                  children: [
+                    SizedBox(
+                      height: 300,
+                      width: double.infinity,
+                      child: ClipRRect(
+                        borderRadius: BorderRadius.circular(10),
+                        child: Image.network(
+                          imageUrl,
+                          fit: BoxFit.cover,
                         ),
                       ),
-                      Row(
-                        mainAxisAlignment: MainAxisAlignment.start,
-                        children: [
-                          Text(
-                            productName,
-                            style: const TextStyle(
-                              color: Color.fromARGB(255, 0, 101, 32),
-                              fontWeight: FontWeight.bold,
-                              fontSize: 18,
-                            ),
+                    ),
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.start,
+                      children: [
+                        Text(
+                          widget.productName,
+                          style: const TextStyle(
+                            color: Color.fromARGB(255, 0, 101, 32),
+                            fontWeight: FontWeight.bold,
+                            fontSize: 18,
                           ),
-                        ],
-                      ),
-                      Row(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                        children: [
+                        ),
+                      ],
+                    ),
+                    Row(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        Text(
+                          "Lote: ${widget.batch}",
+                          style: const TextStyle(
+                            fontWeight: FontWeight.w300,
+                            color: Colors.black,
+                          ),
+                        ),
+                        Text(
+                          widget.localization,
+                          style: const TextStyle(
+                            fontWeight: FontWeight.w300,
+                            color: Colors.black,
+                          ),
+                        ),
+                      ],
+                    ),
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        Text(
+                          "Qtde: ${widget.qtt}",
+                          style: const TextStyle(
+                            fontWeight: FontWeight.w300,
+                            color: Colors.black,
+                          ),
+                        ),
+                        if (widget.weight != null)
                           Text(
-                            "Lote: $batch",
+                            "Peso Aprox.: ${widget.weight} KG",
                             style: const TextStyle(
                               fontWeight: FontWeight.w300,
                               color: Colors.black,
                             ),
                           ),
-                          Text(
-                            localization,
-                            style: const TextStyle(
-                              fontWeight: FontWeight.w300,
-                              color: Colors.black,
-                            ),
-                          ),
-                        ],
-                      ),
-                      Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                        children: [
-                          Text(
-                            "Qtde: $qtt",
-                            style: const TextStyle(
-                              fontWeight: FontWeight.w300,
-                              color: Colors.black,
-                            ),
-                          ),
-                          if (weight != null)
-                            Text(
-                              "Peso Aprox.: $weight KG",
-                              style: const TextStyle(
-                                fontWeight: FontWeight.w300,
-                                color: Colors.black,
+                      ],
+                    ),
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.end,
+                      children: [
+                        widget.price != null
+                            ? Text(
+                                "R\$ ${widget.price} ${widget.priceType}",
+                                style: const TextStyle(
+                                  color: Color.fromARGB(255, 0, 101, 32),
+                                  fontWeight: FontWeight.bold,
+                                  fontSize: 18,
+                                ),
+                              )
+                            : const Text(
+                                "Consultar valor",
+                                style: TextStyle(
+                                  color: Colors.deepOrangeAccent,
+                                  fontWeight: FontWeight.bold,
+                                  fontSize: 18,
+                                ),
                               ),
-                            ),
-                        ],
-                      ),
-                      Row(
-                        mainAxisAlignment: MainAxisAlignment.end,
-                        children: [
-                          price != null
-                              ? Text(
-                            "R\$ $price $priceType",
-                            style: const TextStyle(
-                              color: Color.fromARGB(255, 0, 101, 32),
-                              fontWeight: FontWeight.bold,
-                              fontSize: 18,
-                            ),
-                          )
-                              : const Text(
-                            "Consultar valor",
-                            style: TextStyle(
-                              color: Colors.deepOrangeAccent,
-                              fontWeight: FontWeight.bold,
-                              fontSize: 18,
-                            ),
-                          ),
-                        ],
-                      ),
-                    ]
-                        .map(
-                          (widget) => Padding(
-                        padding: const EdgeInsets.all(3),
-                        child: widget,
-                      ),
-                    )
-                        .toList(),
-                  ),
-                  onPressed: () {
+                      ],
+                    ),
+                  ]
+                      .map(
+                        (widget) => Padding(
+                          padding: const EdgeInsets.all(3),
+                          child: widget,
+                        ),
+                      )
+                      .toList(),
+                ),
+                onPressed: () async {
+                  if (widget.onPressed != null) {
+                    await widget.onPressed!();
+                  } else {
+                    // Navigate to the AnimalInfoPage and wait for the result.
                     Navigator.push(
                       context,
                       MaterialPageRoute(
-                        builder: (context) => AnimalInfoPage(animalId: id),
+                        builder: (context) =>
+                            AnimalInfoPage(animalId: widget.id),
                       ),
                     );
-                  },
-                ),
+                  }
+                },
               ),
-            );
-          } else if (snapshot.hasError) {
-            return Center(
-              child: Text('Error: ${snapshot.error}'),
-            );
-          } else {
-            return const Center(
-              child: CircularProgressIndicator(),
-            );
-          }
-        },
-      );
-    },
-  );
+            ),
+          );
+        } else if (snapshot.hasError) {
+          return Center(
+            child: Text('Error: ${snapshot.error}'),
+          );
+        } else {
+          return const Center(
+            child: CircularProgressIndicator(),
+          );
+        }
+      },
+    );
+  }
 }
 
 class PillButton extends StatelessWidget {

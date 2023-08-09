@@ -1,9 +1,6 @@
 import 'dart:convert';
-
 import 'package:flutter/material.dart';
-
 import 'package:http/http.dart' as http;
-
 import '../animal/Animal.dart';
 import '../animal/AnimalList.dart';
 import '../firebase/storageService.dart';
@@ -13,10 +10,8 @@ import '../machine/machine.dart';
 import '../machine/machineList.dart';
 import '../user/UserManager.dart';
 
-
 class UserFavListPage extends StatefulWidget {
   const UserFavListPage({super.key});
-
 
   @override
   State<UserFavListPage> createState() => _UserFavListPageState();
@@ -24,13 +19,10 @@ class UserFavListPage extends StatefulWidget {
 
 class _UserFavListPageState extends State<UserFavListPage> {
   bool searchBarInUse = false;
-
   late List<String> animalImages;
   late List<String> landImages;
   late List<String> machineryImages;
-
   final Storage storage = Storage();
-
   late Future<List<dynamic>> futureData;
 
   @override
@@ -121,14 +113,15 @@ class _UserFavListPageState extends State<UserFavListPage> {
     }
   }
 
-
   @override
   Widget build(BuildContext context) {
-
     return MaterialApp(
       debugShowCheckedModeBanner: false,
       home: ColorFiltered(
-        colorFilter: ColorFilter.mode(searchBarInUse ? Colors.black54 : const Color.fromARGB(0, 0, 101, 32), BlendMode.darken),
+        colorFilter: ColorFilter.mode(
+          searchBarInUse ? Colors.black54 : const Color.fromARGB(0, 0, 101, 32),
+          BlendMode.darken,
+        ),
         child: Scaffold(
           appBar: AppBar(
             centerTitle: true,
@@ -152,7 +145,6 @@ class _UserFavListPageState extends State<UserFavListPage> {
           ),
           body: Column(
             children: [
-              // Body code remains the same
               Expanded(
                 child: Center(
                   child: SizedBox(
@@ -160,56 +152,80 @@ class _UserFavListPageState extends State<UserFavListPage> {
                     child: FutureBuilder<List<dynamic>>(
                       future: futureData,
                       builder: (context, snapshot) {
-                        if (snapshot.hasData) {
-                          return ListView.builder(
-                            itemCount: snapshot.data!.length,
-                            itemBuilder: (context, index) {
-                              final data = snapshot.data![index];
-                              if (data is AnimalAd) {
-                                return productAnimal(
-                                  Future.value(animalImages[index]),                                  data.name,
-                                  data.batch,
-                                  data.localization,
-                                  data.quantity,
-                                  data.id,
-                                  priceType: data.priceType,
-                                  price: data.price,
-                                  weight: data.weight,
-                                );
-                              }
-                               if (data is LandAd) {
-                                return productLand(
-                                  Future.value(landImages[index]),                                       data.name,
-                                  data.batch,
-                                  data.localization,
-                                  data.area,
-                                  data.id,
-                                  priceType: data.priceType,
-                                  price: data.price,
-                                );
-                              } else if (data is MachineryAd) {
-                                return productMachine(
-                                  Future.value(machineryImages[index]),                                     data.name,
-                                  data.batch,
-                                  data.localization,
-                                  data.quantity,
-                                  data.id,
-                                  priceType: data.priceType,
-                                  price: data.price,
-                                );
-                              } else {
-                                return const SizedBox(); // Return an empty container if the data type is not recognized
-                              }
-                            },
-                          );
+                        if (snapshot.connectionState == ConnectionState.waiting) {
+                          return const CircularProgressIndicator();
                         } else if (snapshot.hasError) {
                           return Center(
                             child: Text('Error: ${snapshot.error}'),
                           );
                         } else {
-                          return const Center(
-                            child: CircularProgressIndicator(),
-                          );
+                          final data = snapshot.data;
+                          if (data == null || data.isEmpty) {
+                            return const Center(
+                              child: Column(
+                                mainAxisAlignment: MainAxisAlignment.center,
+                                children: [
+                                  Icon(
+                                    Icons.favorite_border,
+                                    size: 64,
+                                    color: Colors.grey,
+                                  ),
+                                  SizedBox(height: 16),
+                                  Text(
+                                    'Você não possuí nenhum anúncio favoritado',
+                                    style: TextStyle(
+                                      fontSize: 16,
+                                      color: Colors.grey,
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            );
+                          } else {
+                            return ListView.builder(
+                              itemCount: data.length,
+                              itemBuilder: (context, index) {
+                                final item = data[index];
+                                if (item is AnimalAd) {
+                                  return ProductAnimal(
+                                    imageLink: Future.value(animalImages[index]),
+                                    productName: item.name,
+                                    batch: item.batch!,
+                                    localization: item.localization,
+                                    id: item.id!,
+                                    priceType: item.priceType,
+                                    price: item.price,
+                                    weight: item.weight,
+                                    qtt: item.quantity!,
+                                  );
+                                } else if (item is LandAd) {
+                                  return ProductLand(
+                                    imageLink: Future.value(landImages[index]),
+                                    productName: item.name,
+                                    batch: item.batch!,
+                                    localization: item.localization,
+                                    area: item.area!,
+                                    id: item.id!,
+                                    priceType: item.priceType,
+                                    price: item.price,
+                                  );
+                                } else if (item is MachineryAd) {
+                                  return ProductMachine(
+                                    imageLink: Future.value(machineryImages[index]),
+                                    productName: item.name,
+                                    batch: item.batch!,
+                                    localization: item.localization,
+                                    qtt: item.quantity!,
+                                    id: item.id!,
+                                    priceType: item.priceType,
+                                    price: item.price,
+                                  );
+                                } else {
+                                  return const SizedBox();
+                                }
+                              },
+                            );
+                          }
                         }
                       },
                     ),
