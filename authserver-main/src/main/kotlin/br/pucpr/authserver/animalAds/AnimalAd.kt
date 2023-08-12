@@ -42,7 +42,7 @@ class AnimalAd (
     val owner: User,
 
     @ElementCollection
-    val images: List<String>? = listOf<String>()
+    var images: List<String>? = listOf<String>()
 
     )
 {

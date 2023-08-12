@@ -19,7 +19,8 @@ class AnimalAd extends Ad {
     bool? isFavorite,
     images,
     ownerId,
-    status
+    status,
+    imageUrl
   }) : super(
     id: id,
     name: name,
@@ -29,7 +30,8 @@ class AnimalAd extends Ad {
     isFavorite: isFavorite,
     images: images,
       ownerId: ownerId,
-    status: status
+    status: status,
+    imageUrl: imageUrl
   );
 
   @override

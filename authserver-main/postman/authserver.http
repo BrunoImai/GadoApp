@@ -102,6 +102,6 @@ GET localhost:8080/api/users/2/ads
 GET localhost:8080/api/users/2/favorites
 
 ### AAA
-PUT localhost:8080/api/users/adm/animalAd/2
+GET localhost:8080/api/users/adm/ads
 Content-Type: application/json
 Authorization: Bearer {{token}}

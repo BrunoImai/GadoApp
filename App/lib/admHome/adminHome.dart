@@ -96,7 +96,6 @@ class HomePageScreen extends StatelessWidget {
             );
           },
         ),
-        SearchBarWidget(),
         Expanded(
           child: ListView(
             children: [

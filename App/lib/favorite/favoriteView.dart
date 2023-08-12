@@ -19,9 +19,6 @@ class UserFavListPage extends StatefulWidget {
 
 class _UserFavListPageState extends State<UserFavListPage> {
   bool searchBarInUse = false;
-  late List<String> animalImages;
-  late List<String> landImages;
-  late List<String> machineryImages;
   final Storage storage = Storage();
   late Future<List<dynamic>> futureData;
 
@@ -41,71 +38,81 @@ class _UserFavListPageState extends State<UserFavListPage> {
       final landAdsData = jsonData['landAdList'] as List<dynamic>;
       final machineryAdsData = jsonData['machineryAdList'] as List<dynamic>;
 
-      final animalAds = animalAdsData.map((item) {
-        return AnimalAd(
-          id: item['id'],
-          name: item['name'],
-          price: item['price'].toDouble(),
-          localization: item['localization'],
-          batch: item['batch'],
-          weight: item['weight'],
-          quantity: item['quantity'],
-          priceType: item['priceType'],
-          description: item['description'],
-          images: item['images'].cast<String>(),
-        );
-      }).toList();
+      List<AnimalAd> animalAds = [];
 
-      var animalImageUrlList = [];
-
-      for (var element in animalAds) {
-        animalImageUrlList.add(await storage.getImageUrl(element.images[0]));
+      for (var item in animalAdsData) {
+        final images = item['images'].cast<String>();
+        String imageUrl;
+        if (images.isNotEmpty) {
+          imageUrl = await storage.getImageUrl(images[0]);
+        } else {
+          imageUrl = await storage.getImageUrl("imgNotFound.jpeg");
+        }
+         animalAds = animalAdsData.map((item) {
+          return AnimalAd(
+              id: item['id'],
+              name: item['name'],
+              price: item['price'].toDouble(),
+              localization: item['localization'],
+              batch: item['batch'],
+              weight: item['weight'],
+              quantity: item['quantity'],
+              priceType: item['priceType'],
+              description: item['description'],
+              images: images,
+              imageUrl: imageUrl
+          );
+        }).toList();
       }
 
-      animalImages = animalImageUrlList.cast<String>();
-
-      final landAds = landAdsData.map((item) {
-        return LandAd(
-          id: item['id'],
-          name: item['name'],
-          price: item['price'].toDouble(),
-          localization: item['localization'],
-          batch: item['batch'],
-          area: item['area'],
-          priceType: item['priceType'],
-          description: item['description'],
-          images: item['images'].cast<String>(),
-        );
-      }).toList();
-
-      var landImageUrlList = [];
-
-      for (var element in landAds) {
-        landImageUrlList.add(await storage.getImageUrl(element.images[0]));
+      List<LandAd> landAds = [];
+      for (var item in landAdsData) {
+        final images = item['images'].cast<String>();
+        String imageUrl;
+        if (images.isNotEmpty) {
+          imageUrl = await storage.getImageUrl(images[0]);
+        } else {
+          imageUrl = await storage.getImageUrl("imgNotFound.jpeg");
+        }
+        landAds = landAdsData.map((item) {
+          return LandAd(
+            id: item['id'],
+            name: item['name'],
+            price: item['price'].toDouble(),
+            localization: item['localization'],
+            batch: item['batch'],
+            area: item['area'],
+            priceType: item['priceType'],
+            description: item['description'],
+            images: images,
+            imageUrl: imageUrl
+          );
+        }).toList();
       }
 
-      landImages = landImageUrlList.cast<String>();
-
-      final machineryAds = machineryAdsData.map((item) {
-        return MachineryAd(
-          id: item['id'],
-          name: item['name'],
-          price: item['price'].toDouble(),
-          localization: item['localization'],
-          quantity: item['quantity'],
-          priceType: item['priceType'],
-          description: item['description'],
-          images: item['images'].cast<String>(),
-        );
-      }).toList();
-
-      var machineryImageUrlList = [];
-
-      for (var element in machineryAds) {
-        machineryImageUrlList.add(await storage.getImageUrl(element.images[0]));
+      List<MachineryAd> machineryAds = [];
+      for (var item in machineryAdsData) {
+        final images = item['images'].cast<String>();
+        String imageUrl;
+        if (images.isNotEmpty) {
+          imageUrl = await storage.getImageUrl(images[0]);
+        } else {
+          imageUrl = await storage.getImageUrl("imgNotFound.jpeg");
+        }
+        machineryAds = machineryAdsData.map((item) {
+          return MachineryAd(
+            id: item['id'],
+            name: item['name'],
+            price: item['price'].toDouble(),
+            localization: item['localization'],
+            quantity: item['quantity'],
+            priceType: item['priceType'],
+            description: item['description'],
+            images: images,
+            imageUrl: imageUrl
+          );
+        }).toList();
       }
-
-      machineryImages = machineryImageUrlList.cast<String>();
 
       return [...animalAds, ...landAds, ...machineryAds];
     } else {
@@ -188,7 +195,7 @@ class _UserFavListPageState extends State<UserFavListPage> {
                                 final item = data[index];
                                 if (item is AnimalAd) {
                                   return ProductAnimal(
-                                    imageLink: Future.value(animalImages[index]),
+                                    imageLink: item.imageUrl!,
                                     productName: item.name,
                                     batch: item.batch!,
                                     localization: item.localization,
@@ -200,7 +207,7 @@ class _UserFavListPageState extends State<UserFavListPage> {
                                   );
                                 } else if (item is LandAd) {
                                   return ProductLand(
-                                    imageLink: Future.value(landImages[index]),
+                                    imageLink: item.imageUrl!,
                                     productName: item.name,
                                     batch: item.batch!,
                                     localization: item.localization,
@@ -211,7 +218,7 @@ class _UserFavListPageState extends State<UserFavListPage> {
                                   );
                                 } else if (item is MachineryAd) {
                                   return ProductMachine(
-                                    imageLink: Future.value(machineryImages[index]),
+                                    imageLink: item.imageUrl!,
                                     productName: item.name,
                                     batch: item.batch!,
                                     localization: item.localization,

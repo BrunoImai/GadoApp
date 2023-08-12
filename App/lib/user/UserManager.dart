@@ -16,5 +16,4 @@ class UserManager {
   // Other properties and methods of the singleton class
   LoggedUser? loggedUser;
 
-  bool isAdm = true;
 }

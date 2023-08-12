@@ -19,44 +19,71 @@ class _AnimalListPageState extends State<AnimalListPage> {
   bool searchBarInUse = false;
   late Future<List<AnimalAd>> futureData;
 
+  TextEditingController searchController = TextEditingController();
+
+
   late List<String> images;
   final Storage storage = Storage();
+
+  late List<AnimalAd> animalAds; // Add this line
+  late List<AnimalAd> filteredAnimalAds; // Add this line
 
   @override
   void initState() {
     super.initState();
     futureData = getAllAnimalAds();
+    searchController.addListener(_onSearchChanged);
+    animalAds = []; // Initialize the list
+    filteredAnimalAds = []; // Initialize the list
+  }
+
+
+  void _onSearchChanged() {
+    // Update the UI to reflect the filtered list based on the search query
+    setState(() {
+      // Filter the data based on the search query
+      filteredAnimalAds = animalAds.where((ad) {
+        final name = ad.name.toLowerCase();
+        final query = searchController.text.toLowerCase();
+        return name.contains(query);
+      }).toList();
+    });
   }
 
   Future<List<AnimalAd>> getAllAnimalAds() async {
     final response =
-        await http.get(Uri.parse('http://localhost:8080/api/users/ads/animal'));
+    await http.get(Uri.parse('http://localhost:8080/api/users/ads/animal'));
+    print("Status code: ${response.statusCode}");
 
     if (response.statusCode == 200) {
       final jsonData = json.decode(response.body) as List<dynamic>;
 
-      // Map the JSON data to a list of AnimalAdResponse objects
-      final animalAds = jsonData.map((item) {
-        return AnimalAd(
-            id: item['id'],
-            name: item['name'],
-            price: item['price'].toDouble(),
-            localization: item['localization'],
-            batch: item['batch'],
-            weight: item['weight'],
-            quantity: item['quantity'],
-            priceType: item['priceType'],
-            description: item['description'],
-            images: item['images'].cast<String>());
-      }).toList();
-
-      var imageUrlList = [];
-
-      for (var element in animalAds) {
-        imageUrlList.add(await storage.getImageUrl(element.images[0]));
+      final List<AnimalAd> animalAds = [];
+      for (var item in jsonData) {
+        final images = item['images'].cast<String>();
+        String imageUrl;
+        if (images.isNotEmpty) {
+          imageUrl = await storage.getImageUrl(images[0]);
+        } else {
+          imageUrl = await storage.getImageUrl("imgNotFound.jpeg");
+        }
+        final animalAd = AnimalAd(
+          id: item['id'],
+          name: item['name'],
+          price: item['price'].toDouble(),
+          localization: item['localization'],
+          batch: item['batch'],
+          weight: item['weight'],
+          quantity: item['quantity'],
+          priceType: item['priceType'],
+          description: item['description'],
+          images: images,
+          imageUrl: imageUrl,
+        );
+        animalAds.add(animalAd);
       }
 
-      images = imageUrlList.cast<String>();
+      print(animalAds);
 
       return animalAds;
     } else {
@@ -66,15 +93,17 @@ class _AnimalListPageState extends State<AnimalListPage> {
     }
   }
 
+
+
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
       debugShowCheckedModeBanner: false,
-      home: ColorFiltered(
-        colorFilter: ColorFilter.mode(
-          searchBarInUse ? Colors.black54 : const Color.fromARGB(0, 0, 101, 32),
-          BlendMode.darken,
-        ),
+      home: GestureDetector(
+        onTap: () => {
+          FocusManager.instance.primaryFocus?.unfocus(),
+          searchBarInUse = false
+        },
         child: Scaffold(
           appBar: AppBar(
             centerTitle: true,
@@ -83,7 +112,8 @@ class _AnimalListPageState extends State<AnimalListPage> {
               "Anúncios de Animais",
               style: TextStyle(color: Colors.white),
             ),
-            leading: IconButton(
+            leading: searchBarInUse ? null :
+            IconButton(
               icon: const Icon(Icons.arrow_back),
               onPressed: () {
                 Navigator.pop(context);
@@ -91,15 +121,37 @@ class _AnimalListPageState extends State<AnimalListPage> {
             ),
             actions: [
               IconButton(
-                icon: const Icon(
-                  Icons.search_rounded,
-                ),
+                icon: searchBarInUse ?
+                    const Icon(
+                      Icons.close,
+                    ) :
+                  const Icon(
+                    Icons.search_rounded,
+                  ),
                 onPressed: () {
                   setState(() {
                     searchBarInUse = !searchBarInUse;
                   });
                 },
               ),
+              if (searchBarInUse)
+                Expanded(
+                  child: Padding(
+                    padding: const EdgeInsets.symmetric(horizontal: 8.0),
+                    child: TextField(
+                      controller: searchController,
+                      decoration: InputDecoration(
+                        hintText: 'Search by ad name...',
+                        border: OutlineInputBorder(
+                          borderSide: BorderSide(color: Colors.green),
+                          borderRadius: BorderRadius.circular(15.0), // Adjust the radius as needed
+                        ),
+                        filled: true,
+                        fillColor: Colors.white,
+                      ),
+                    ),
+                  ),
+                ),
             ],
           ),
           body: Column(
@@ -153,12 +205,21 @@ class _AnimalListPageState extends State<AnimalListPage> {
                       future: futureData,
                       builder: (context, snapshot) {
                         if (snapshot.hasData) {
+                          // Store the fetched data in animalAds list
+                          animalAds = snapshot.data!;
+                          // Filter the data based on the search query
+                          filteredAnimalAds = animalAds.where((ad) {
+                            final name = ad.name.toLowerCase();
+                            final query = searchController.text.toLowerCase();
+                            return name.contains(query);
+                          }).toList();
+
                           return ListView.builder(
-                            itemCount: snapshot.data!.length,
+                            itemCount: filteredAnimalAds.length,
                             itemBuilder: (context, index) {
-                              final data = snapshot.data![index];
+                              final data = filteredAnimalAds[index];
                               return ProductAnimal(
-                                imageLink: Future.value(images[index]),
+                                imageLink: data.imageUrl!,
                                 productName: data.name,
                                 batch: data.batch!,
                                 localization: data.localization,
@@ -208,7 +269,7 @@ class _AnimalListPageState extends State<AnimalListPage> {
 }
 
 class ProductAnimal extends StatefulWidget {
-  final Future<String> imageLink;
+  final String imageLink;
   final String productName;
   final String batch;
   final String localization;
@@ -241,145 +302,126 @@ class ProductAnimal extends StatefulWidget {
 class _ProductAnimalState extends State<ProductAnimal> {
   @override
   Widget build(BuildContext context) {
-    return FutureBuilder<String>(
-      future: widget.imageLink,
-      builder: (context, snapshot) {
-        if (snapshot.connectionState == ConnectionState.waiting) {
-          return const CircularProgressIndicator();
-        } else if (snapshot.hasData) {
-          final imageUrl = snapshot.data!;
-          return Padding(
-            padding: const EdgeInsets.all(12.0),
-            child: SizedBox(
-              width: double.infinity,
-              child: TextButton(
-                child: Column(
-                  mainAxisSize: MainAxisSize.max,
-                  children: [
-                    SizedBox(
-                      height: 300,
-                      width: double.infinity,
-                      child: ClipRRect(
-                        borderRadius: BorderRadius.circular(10),
-                        child: Image.network(
-                          imageUrl,
-                          fit: BoxFit.cover,
-                        ),
-                      ),
-                    ),
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.start,
-                      children: [
-                        Text(
-                          widget.productName,
-                          style: const TextStyle(
-                            color: Color.fromARGB(255, 0, 101, 32),
-                            fontWeight: FontWeight.bold,
-                            fontSize: 18,
-                          ),
-                        ),
-                      ],
-                    ),
-                    Row(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      children: [
-                        Text(
-                          "Lote: ${widget.batch}",
-                          style: const TextStyle(
-                            fontWeight: FontWeight.w300,
-                            color: Colors.black,
-                          ),
-                        ),
-                        Text(
-                          widget.localization,
-                          style: const TextStyle(
-                            fontWeight: FontWeight.w300,
-                            color: Colors.black,
-                          ),
-                        ),
-                      ],
-                    ),
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      children: [
-                        Text(
-                          "Qtde: ${widget.qtt}",
-                          style: const TextStyle(
-                            fontWeight: FontWeight.w300,
-                            color: Colors.black,
-                          ),
-                        ),
-                        if (widget.weight != null)
-                          Text(
-                            "Peso Aprox.: ${widget.weight} KG",
-                            style: const TextStyle(
-                              fontWeight: FontWeight.w300,
-                              color: Colors.black,
-                            ),
-                          ),
-                      ],
-                    ),
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.end,
-                      children: [
-                        widget.price != null
-                            ? Text(
-                                "R\$ ${widget.price} ${widget.priceType}",
-                                style: const TextStyle(
-                                  color: Color.fromARGB(255, 0, 101, 32),
-                                  fontWeight: FontWeight.bold,
-                                  fontSize: 18,
-                                ),
-                              )
-                            : const Text(
-                                "Consultar valor",
-                                style: TextStyle(
-                                  color: Colors.deepOrangeAccent,
-                                  fontWeight: FontWeight.bold,
-                                  fontSize: 18,
-                                ),
-                              ),
-                      ],
-                    ),
-                  ]
-                      .map(
-                        (widget) => Padding(
-                          padding: const EdgeInsets.all(3),
-                          child: widget,
-                        ),
-                      )
-                      .toList(),
+    return Padding(
+      padding: const EdgeInsets.all(12.0),
+      child: SizedBox(
+        width: double.infinity,
+        child: TextButton(
+          child: Column(
+            mainAxisSize: MainAxisSize.max,
+            children: [
+              SizedBox(
+                height: 300,
+                width: double.infinity,
+                child: ClipRRect(
+                  borderRadius: BorderRadius.circular(10),
+                  child: Image.network(
+                    widget.imageLink,
+                    fit: BoxFit.cover,
+                  ),
                 ),
-                onPressed: () async {
-                  if (widget.onPressed != null) {
-                    await widget.onPressed!();
-                  } else {
-                    // Navigate to the AnimalInfoPage and wait for the result.
-                    Navigator.push(
-                      context,
-                      MaterialPageRoute(
-                        builder: (context) =>
-                            AnimalInfoPage(animalId: widget.id),
-                      ),
-                    );
-                  }
-                },
               ),
-            ),
-          );
-        } else if (snapshot.hasError) {
-          return Center(
-            child: Text('Error: ${snapshot.error}'),
-          );
-        } else {
-          return const Center(
-            child: CircularProgressIndicator(),
-          );
-        }
-      },
-    );
-  }
+              Row(
+                mainAxisAlignment: MainAxisAlignment.start,
+                children: [
+                  Text(
+                    widget.productName,
+                    style: const TextStyle(
+                      color: Color.fromARGB(255, 0, 101, 32),
+                      fontWeight: FontWeight.bold,
+                      fontSize: 18,
+                    ),
+                  ),
+                ],
+              ),
+              Row(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  Text(
+                    "Lote: ${widget.batch}",
+                    style: const TextStyle(
+                      fontWeight: FontWeight.w300,
+                      color: Colors.black,
+                    ),
+                  ),
+                  Text(
+                    widget.localization,
+                    style: const TextStyle(
+                      fontWeight: FontWeight.w300,
+                      color: Colors.black,
+                    ),
+                  ),
+                ],
+              ),
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  Text(
+                    "Qtde: ${widget.qtt}",
+                    style: const TextStyle(
+                      fontWeight: FontWeight.w300,
+                      color: Colors.black,
+                    ),
+                  ),
+                  if (widget.weight != null)
+                    Text(
+                      "Peso Aprox.: ${widget.weight} KG",
+                      style: const TextStyle(
+                        fontWeight: FontWeight.w300,
+                        color: Colors.black,
+                      ),
+                    ),
+                ],
+              ),
+              Row(
+                mainAxisAlignment: MainAxisAlignment.end,
+                children: [
+                  widget.price != null
+                      ? Text(
+                    "R\$ ${widget.price} ${widget.priceType}",
+                    style: const TextStyle(
+                      color: Color.fromARGB(255, 0, 101, 32),
+                      fontWeight: FontWeight.bold,
+                      fontSize: 18,
+                    ),
+                  )
+                      : const Text(
+                    "Consultar valor",
+                    style: TextStyle(
+                      color: Colors.deepOrangeAccent,
+                      fontWeight: FontWeight.bold,
+                      fontSize: 18,
+                    ),
+                  ),
+                ],
+              ),
+            ]
+                .map(
+                  (widget) => Padding(
+                padding: const EdgeInsets.all(3),
+                child: widget,
+              ),
+            )
+                .toList(),
+          ),
+          onPressed: () async {
+            if (widget.onPressed != null) {
+              await widget.onPressed!();
+            } else {
+              // Navigate to the AnimalInfoPage and wait for the result.
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (context) =>
+                      AnimalInfoPage(animalId: widget.id),
+                ),
+              );
+            }
+          },
+        ),
+      ),
+    );  }
 }
 
 class PillButton extends StatelessWidget {
@@ -409,3 +451,5 @@ class PillButton extends StatelessWidget {
     );
   }
 }
+
+

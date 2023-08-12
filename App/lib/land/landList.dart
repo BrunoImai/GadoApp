@@ -36,28 +36,30 @@ class _LandListPageState extends State<LandListPage> {
       final jsonData = json.decode(response.body) as List<dynamic>;
 
       // Map the JSON data to a list of AnimalAdResponse objects
-      final landAds = jsonData.map((item) {
-        return LandAd(
-          id: item['id'],
-          name: item['name'],
-          price: item['price'].toDouble(),
-          localization: item['localization'],
-          batch: item['batch'],
-          area: item['area'],
-          priceType: item['priceType'],
-          description: item['description'],
-          images: item['images'].cast<String>(),
-        );
-      }).toList();
-
-      var imageUrlList = [];
-
-      for (var element in landAds) {
-        imageUrlList.add(await storage.getImageUrl(element.images[0]));
+      List<LandAd> landAds = [];
+      for (var item in jsonData) {
+        final images = item['images'].cast<String>();
+        String imageUrl;
+        if (images.isNotEmpty) {
+          imageUrl = await storage.getImageUrl(images[0]);
+        } else {
+          imageUrl = await storage.getImageUrl("imgNotFound.jpeg");
+        }
+        landAds = jsonData.map((item) {
+          return LandAd(
+              id: item['id'],
+              name: item['name'],
+              price: item['price'].toDouble(),
+              localization: item['localization'],
+              batch: item['batch'],
+              area: item['area'],
+              priceType: item['priceType'],
+              description: item['description'],
+              images: images,
+              imageUrl: imageUrl
+          );
+        }).toList();
       }
-
-      images = imageUrlList.cast<String>();
-
 
       return landAds;
     } else {
@@ -168,7 +170,7 @@ class _LandListPageState extends State<LandListPage> {
                             itemBuilder: (context, index) {
                               final data = snapshot.data![index];
                               return ProductLand(
-                                imageLink: Future.value(images[index]),
+                                imageLink: data.imageUrl!,
                                 productName: data.name,
                                 batch: data.batch!,
                                 localization: data.localization,
@@ -217,7 +219,7 @@ class _LandListPageState extends State<LandListPage> {
 }
 
 class ProductLand extends StatefulWidget {
-  final Future<String> imageLink;
+  final String imageLink;
   final String productName;
   final String batch;
   final String localization;
@@ -248,135 +250,117 @@ class ProductLand extends StatefulWidget {
 class _ProductLandState extends State<ProductLand> {
   @override
   Widget build(BuildContext context) {
-    return Builder(
-      builder: (context) {
-        return FutureBuilder<String>(
-          future: widget.imageLink,
-          builder: (context, snapshot) {
-            if (snapshot.connectionState == ConnectionState.waiting) {
-              return const CircularProgressIndicator();
-            } else if (snapshot.hasData) {
-              final imageUrl = snapshot.data!;
-              return Padding(
-                padding: const EdgeInsets.all(12.0),
-                child: SizedBox(
-                  width: double.infinity,
-                  child: TextButton(
-                    child: Column(
-                      mainAxisSize: MainAxisSize.max,
-                      children: [
-                        SizedBox(
-                          height: 300,
-                          width: double.infinity,
-                          child: ClipRRect(
-                            borderRadius: BorderRadius.circular(10),
-                            child: Image.network(
-                              imageUrl,
-                              fit: BoxFit.cover,
-                            ),
-                          ),
-                        ),
-                        Row(
-                          mainAxisAlignment: MainAxisAlignment.start,
-                          children: [
-                            Text(
-                              widget.productName,
-                              style: const TextStyle(
-                                color: Color.fromARGB(255, 0, 101, 32),
-                                fontWeight: FontWeight.bold,
-                                fontSize: 18,
-                              ),
-                            ),
-                          ],
-                        ),
-                        Row(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                          children: [
-                            Text(
-                              "Lote: ${widget.batch}",
-                              style: const TextStyle(
-                                fontWeight: FontWeight.w300,
-                                color: Colors.black,
-                              ),
-                            ),
-                            Text(
-                              widget.localization,
-                              style: const TextStyle(
-                                fontWeight: FontWeight.w300,
-                                color: Colors.black,
-                              ),
-                            ),
-                          ],
-                        ),
-                        Row(
-                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                          children: [
-                            Text(
-                              "Área: ${widget.area} ha",
-                              style: const TextStyle(
-                                fontWeight: FontWeight.w300,
-                                color: Colors.black,
-                              ),
-                            ),
-                          ],
-                        ),
-                        Row(
-                          mainAxisAlignment: MainAxisAlignment.start,
-                          children: [
-                            widget.price != null
-                                ? Text(
-                              "R\$ ${widget.price} ${widget.priceType}",
-                              style: const TextStyle(
-                                color: Color.fromARGB(255, 0, 101, 32),
-                                fontWeight: FontWeight.bold,
-                                fontSize: 18,
-                              ),
-                            )
-                                : const Text(
-                              "Consultar valor",
-                              style: TextStyle(
-                                color: Colors.deepOrangeAccent,
-                                fontWeight: FontWeight.bold,
-                                fontSize: 18,
-                              ),
-                            ),
-                          ],
-                        ),
-                      ]
-                          .map(
-                            (widget) => Padding(
-                          padding: const EdgeInsets.all(3),
-                          child: widget,
-                        ),
-                      )
-                          .toList(),
-                    ),
-                    onPressed: () async {
-                      if (widget.onPressed != null) {
-                        await widget.onPressed!();
-                      } else {
-                        // Navigate to the AnimalInfoPage and wait for the result.
-                        Navigator.push(
-                          context,
-                          MaterialPageRoute(
-                            builder: (context) =>
-                                AnimalInfoPage(animalId: widget.id),
-                          ),
-                        );
-                      }
-                    },
+    return Padding(
+      padding: const EdgeInsets.all(12.0),
+      child: SizedBox(
+        width: double.infinity,
+        child: TextButton(
+          child: Column(
+            mainAxisSize: MainAxisSize.max,
+            children: [
+              SizedBox(
+                height: 300,
+                width: double.infinity,
+                child: ClipRRect(
+                  borderRadius: BorderRadius.circular(10),
+                  child: Image.network(
+                    widget.imageLink,
+                    fit: BoxFit.cover,
                   ),
                 ),
-              );
+              ),
+              Row(
+                mainAxisAlignment: MainAxisAlignment.start,
+                children: [
+                  Text(
+                    widget.productName,
+                    style: const TextStyle(
+                      color: Color.fromARGB(255, 0, 101, 32),
+                      fontWeight: FontWeight.bold,
+                      fontSize: 18,
+                    ),
+                  ),
+                ],
+              ),
+              Row(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  Text(
+                    "Lote: ${widget.batch}",
+                    style: const TextStyle(
+                      fontWeight: FontWeight.w300,
+                      color: Colors.black,
+                    ),
+                  ),
+                  Text(
+                    widget.localization,
+                    style: const TextStyle(
+                      fontWeight: FontWeight.w300,
+                      color: Colors.black,
+                    ),
+                  ),
+                ],
+              ),
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  Text(
+                    "Área: ${widget.area} ha",
+                    style: const TextStyle(
+                      fontWeight: FontWeight.w300,
+                      color: Colors.black,
+                    ),
+                  ),
+                ],
+              ),
+              Row(
+                mainAxisAlignment: MainAxisAlignment.start,
+                children: [
+                  widget.price != null
+                      ? Text(
+                    "R\$ ${widget.price} ${widget.priceType}",
+                    style: const TextStyle(
+                      color: Color.fromARGB(255, 0, 101, 32),
+                      fontWeight: FontWeight.bold,
+                      fontSize: 18,
+                    ),
+                  )
+                      : const Text(
+                    "Consultar valor",
+                    style: TextStyle(
+                      color: Colors.deepOrangeAccent,
+                      fontWeight: FontWeight.bold,
+                      fontSize: 18,
+                    ),
+                  ),
+                ],
+              ),
+            ]
+                .map(
+                  (widget) => Padding(
+                padding: const EdgeInsets.all(3),
+                child: widget,
+              ),
+            )
+                .toList(),
+          ),
+          onPressed: () async {
+            if (widget.onPressed != null) {
+              await widget.onPressed!();
             } else {
-              return const Center(
-                child: CircularProgressIndicator(),
+              // Navigate to the AnimalInfoPage and wait for the result.
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (context) =>
+                      AnimalInfoPage(animalId: widget.id),
+                ),
               );
             }
           },
-        );
-      },
+        ),
+      ),
     );
   }
 }

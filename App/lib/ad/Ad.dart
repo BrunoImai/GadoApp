@@ -8,6 +8,7 @@ class Ad {
   final List<String> images;
   int? ownerId;
   String? status;
+  String? imageUrl;
   Ad({
     this.id,
     required this.name,
@@ -17,7 +18,8 @@ class Ad {
     this.isFavorite = false,
     required this.images,
     this.ownerId,
-    this.status
+    this.status,
+    this.imageUrl
   });
 
   Map<String, dynamic> toJson() {

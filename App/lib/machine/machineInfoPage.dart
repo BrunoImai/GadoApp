@@ -2,6 +2,7 @@ import 'dart:convert';
 
 import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
+import 'package:gado_app/machine/machineryFormView.dart';
 import '../userHome/homePage.dart';
 import 'package:gado_app/machine/machine.dart';
 import 'package:http/http.dart' as http;
@@ -26,7 +27,7 @@ class _MachineInfoPageState extends State<MachineInfoPage> {
     _machineAdFuture = _fetchAnimalAd();
   }
 
-  Future<void> deleteAd() async {
+  Future<void> deleteAdAsAdm() async {
     final response = await http.delete(
       Uri.parse(
           'http://localhost:8080/api/users/adm/machineryAd/${widget.machineId}'),
@@ -35,6 +36,24 @@ class _MachineInfoPageState extends State<MachineInfoPage> {
         'Authorization': 'Bearer ${UserManager.instance.loggedUser!.token}',
       },
     );
+
+    if (response.statusCode == 200 || response.statusCode == 201) {
+      setState(() {
+        Navigator.pop(context, true);
+      });
+    }
+  }
+
+  Future<void> validateAd() async {
+    final response = await http.put(
+      Uri.parse(
+          'http://localhost:8080/api/users/adm/machineryAd/${widget.machineId}'),
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': 'Bearer ${UserManager.instance.loggedUser!.token}',
+      },
+    );
+
     if (response.statusCode == 200 || response.statusCode == 201) {
       setState(() {
         Navigator.pop(context, true);
@@ -44,8 +63,7 @@ class _MachineInfoPageState extends State<MachineInfoPage> {
 
   Future<void> deleteAdAsOwner() async {
     final response = await http.delete(
-      Uri.parse(
-          'http://localhost:8080/api/users/machineAd/${widget.machineId}'),
+      Uri.parse('http://localhost:8080/api/users/animalAd/${widget.machineId}'),
       headers: {
         'Content-Type': 'application/json',
         'Authorization': 'Bearer ${UserManager.instance.loggedUser!.token}',
@@ -83,7 +101,8 @@ class _MachineInfoPageState extends State<MachineInfoPage> {
         batch: jsonData['batch'],
           isFavorite: jsonData['isFavorite'],
           images: jsonData['images'].cast<String>(),
-          ownerId: jsonData['ownerId']
+          ownerId: jsonData['ownerId'],
+          status: jsonData['status']
       );
     } else {
       // Handle API call errors, you can show an error message or throw an exception.
@@ -196,29 +215,73 @@ class _MachineInfoPageState extends State<MachineInfoPage> {
                                 color: Colors.black)),
                       ),
                       if (UserManager.instance.loggedUser!.isAdm)
-                        Padding(
-                          padding: const EdgeInsets.all(12.0),
-                          child: FlatMenuButton(
-                              buttonName: "Excluir anúncio",
-                              icon: const Icon(Icons.delete),
-                              color: Colors.red,
-                              onPress: () {
+                        Column(
+                          children: [
 
-                                deleteAd();
-                              }
-                          ),
+                            Padding(
+                              padding: const EdgeInsets.all(12.0),
+                              child: FlatMenuButton(
+                                  buttonName: "Validar anúncio",
+                                  icon: const Icon(Icons.check),
+                                  onPress: () {
+                                    validateAd();
+                                  }),
+                            ),
+                            Padding(
+                              padding: const EdgeInsets.all(12.0),
+                              child: FlatMenuButton(
+                                  buttonName: "Excluir anúncio",
+                                  icon: const Icon(Icons.delete),
+                                  color: Colors.red,
+                                  onPress: () {
+
+                                    deleteAdAsAdm();
+                                  }
+                              ),
+                            ),
+                          ],
                         )
                       else if (UserManager.instance.loggedUser!.id == machineryAd.ownerId)
-                        Padding(
-                          padding: const EdgeInsets.all(12.0),
-                          child: FlatMenuButton(
-                              buttonName: "Excluir anúncio",
-                              icon: const Icon(Icons.delete),
-                              color: Colors.red,
-                              onPress: () {
-                                deleteAdAsOwner();
-                              }
-                          ),
+
+                        Column(
+                          children: [
+                            Padding(
+                              padding: const EdgeInsets.all(12.0),
+                              child: FlatMenuButton(
+                                  icon: const Icon(Icons.refresh),
+                                  buttonName: "Atualizar Anúncio",
+                                  onPress: () {
+                                    Navigator.push(
+                                      context,
+                                      MaterialPageRoute(
+                                        builder: (context) => NewMachineryAdForm(
+                                            updatedData: machineryAd),
+                                      ),
+                                    );
+                                  }),
+                            ),
+                            if (machineryAd.status != "Aprovado")
+                              Padding(
+                                padding: const EdgeInsets.all(12.0),
+                                child: FlatMenuButton(
+                                    buttonName: "Validar anúncio",
+                                    icon: const Icon(Icons.check),
+                                    onPress: () {
+                                      validateAd();
+                                    }),
+                              ),
+                            Padding(
+                              padding: const EdgeInsets.all(12.0),
+                              child: FlatMenuButton(
+                                  buttonName: "Excluir anúncio",
+                                  icon: const Icon(Icons.delete),
+                                  color: Colors.red,
+                                  onPress: () {
+                                    deleteAdAsOwner();
+                                  }
+                              ),
+                            ),
+                          ],
                         )
                       else
                       Column(

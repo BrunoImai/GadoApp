@@ -29,6 +29,7 @@ class UsersController (val service: UsersService) {
                 example = "USER"
             )]
     )
+
     @GetMapping
     fun listUsers(@RequestParam("role") role: String?) =
         service.findAll(role)
@@ -64,6 +65,13 @@ class UsersController (val service: UsersService) {
         service.findAllMachineryAd("Em Análise")
             .map { it.toResponse() }
 
+    @PreAuthorize("hasRole('ADMIN')")
+    @SecurityRequirement(name = "AuthServer")
+    @GetMapping("/adm/ads")
+    fun listAnalysisAds() =
+        service.getAllAnalysisAds()
+
+
     @Transactional
     @PostMapping
     fun createUser(@Valid @RequestBody req: UserRequest) =
@@ -91,6 +99,18 @@ class UsersController (val service: UsersService) {
     @PutMapping("/{userId}/ads/animal/{adId}")
     fun updateAnimalAd(@Valid @RequestBody req: AnimalAdRequest, @PathVariable("userId") userId: Long, @PathVariable("adId") adId: Long ) =
         service.updateAnimalAd(req, userId, adId)
+            .toResponse()
+            .let { ResponseEntity.status(CREATED).body(it) }
+
+    @PutMapping("/{userId}/ads/land/{adId}")
+    fun updateLandAd(@Valid @RequestBody req: LandAdRequest, @PathVariable("userId") userId: Long, @PathVariable("adId") adId: Long ) =
+        service.updateLandAd(req, userId, adId)
+            .toResponse()
+            .let { ResponseEntity.status(CREATED).body(it) }
+
+    @PutMapping("/{userId}/ads/machinery/{adId}")
+    fun updateMachineryAd(@Valid @RequestBody req: MachineryAdRequest, @PathVariable("userId") userId: Long, @PathVariable("adId") adId: Long ) =
+        service.updateMachineryAd(req, userId, adId)
             .toResponse()
             .let { ResponseEntity.status(CREATED).body(it) }
 
@@ -161,7 +181,7 @@ class UsersController (val service: UsersService) {
     @PreAuthorize("hasRole('ADMIN')")
     @SecurityRequirement(name = "AuthServer")
     fun deleteMachineryAd(@PathVariable("machineryAdId") id: Long): ResponseEntity<Void> =
-        if (service.deleteLandAd(id)) ResponseEntity.ok().build()
+        if (service.deleteMachineryAd(id)) ResponseEntity.ok().build()
         else ResponseEntity.notFound().build()
 
     @PutMapping("/adm/animalAd/{animalAdId}")
@@ -169,6 +189,20 @@ class UsersController (val service: UsersService) {
     @SecurityRequirement(name = "AuthServer")
     fun validateAnimalAd(@PathVariable("animalAdId") id: Long): ResponseEntity<Void> =
         if (service.validateAnimalAd(id)) ResponseEntity.ok().build()
+        else ResponseEntity.notFound().build()
+
+    @PutMapping("/adm/landAd/{landAdId}")
+    @PreAuthorize("hasRole('ADMIN')")
+    @SecurityRequirement(name = "AuthServer")
+    fun validateLandAd(@PathVariable("landAdId") id: Long): ResponseEntity<Void> =
+        if (service.validateLandAd(id)) ResponseEntity.ok().build()
+        else ResponseEntity.notFound().build()
+
+    @PutMapping("/adm/machineryAd/{machineryAdId}")
+    @PreAuthorize("hasRole('ADMIN')")
+    @SecurityRequirement(name = "AuthServer")
+    fun validateMachineryAd(@PathVariable("machineryAdId") id: Long): ResponseEntity<Void> =
+        if (service.validateMachineryAd(id)) ResponseEntity.ok().build()
         else ResponseEntity.notFound().build()
 
     @DeleteMapping("/animalAd/{animalAdId}")

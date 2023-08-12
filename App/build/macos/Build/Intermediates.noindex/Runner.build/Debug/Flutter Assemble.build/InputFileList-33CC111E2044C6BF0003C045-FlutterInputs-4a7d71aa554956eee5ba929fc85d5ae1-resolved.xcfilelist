@@ -401,6 +401,7 @@
 /Users/brunoimai/.pub-cache/hosted/pub.dev/pub_semver-2.1.4/LICENSE
 /Users/brunoimai/.pub-cache/hosted/pub.dev/pubspec_parse-1.2.3/LICENSE
 /Users/brunoimai/.pub-cache/hosted/pub.dev/shared_preferences-2.2.0/LICENSE
+/Users/brunoimai/.pub-cache/hosted/pub.dev/shared_preferences-2.2.0/lib/shared_preferences.dart
 /Users/brunoimai/.pub-cache/hosted/pub.dev/shared_preferences_android-2.2.0/LICENSE
 /Users/brunoimai/.pub-cache/hosted/pub.dev/shared_preferences_android-2.2.0/lib/shared_preferences_android.dart
 /Users/brunoimai/.pub-cache/hosted/pub.dev/shared_preferences_android-2.2.0/lib/src/messages.g.dart
@@ -1481,16 +1482,17 @@
 /Users/brunoimai/Development/flutter/packages/flutter_tools/lib/src/build_system/targets/common.dart
 /Users/brunoimai/Development/flutter/packages/flutter_tools/lib/src/build_system/targets/icon_tree_shaker.dart
 /Users/brunoimai/Development/flutter/packages/flutter_tools/lib/src/build_system/targets/macos.dart
-/Users/brunoimai/gado_app/GadoApp/App/DOES_NOT_EXIST_RERUN_FOR_WILDCARD338199153
+/Users/brunoimai/gado_app/GadoApp/App/DOES_NOT_EXIST_RERUN_FOR_WILDCARD98765955
 /Users/brunoimai/gado_app/GadoApp/App/assets/cowLogo.png
 /Users/brunoimai/gado_app/GadoApp/App/lib/ad/Ad.dart
 /Users/brunoimai/gado_app/GadoApp/App/lib/animal/Animal.dart
+/Users/brunoimai/gado_app/GadoApp/App/lib/animal/AnimalInfoPage.dart
 /Users/brunoimai/gado_app/GadoApp/App/lib/animal/AnimalList.dart
 /Users/brunoimai/gado_app/GadoApp/App/lib/animal/animalFormView.dart
 /Users/brunoimai/gado_app/GadoApp/App/lib/animal/animalInfoPage.dart
 /Users/brunoimai/gado_app/GadoApp/App/lib/favorite/favoriteView.dart
 /Users/brunoimai/gado_app/GadoApp/App/lib/firebase/storageService.dart
-/Users/brunoimai/gado_app/GadoApp/App/lib/home/homePage.dart
+/Users/brunoimai/gado_app/GadoApp/App/lib/firebase_options.dart
 /Users/brunoimai/gado_app/GadoApp/App/lib/land/LandInfoPage.dart
 /Users/brunoimai/gado_app/GadoApp/App/lib/land/land.dart
 /Users/brunoimai/gado_app/GadoApp/App/lib/land/landFormView.dart
@@ -1506,4 +1508,5 @@
 /Users/brunoimai/gado_app/GadoApp/App/lib/user/UserManager.dart
 /Users/brunoimai/gado_app/GadoApp/App/lib/user/registerView.dart
 /Users/brunoimai/gado_app/GadoApp/App/lib/user/user.dart
+/Users/brunoimai/gado_app/GadoApp/App/lib/userHome/homePage.dart
 /Users/brunoimai/gado_app/GadoApp/App/pubspec.yaml

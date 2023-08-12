@@ -16,7 +16,9 @@ class LandAd extends Ad {
     String? batch,
     bool? isFavorite,
     images,
-    ownerId
+    ownerId,
+    status,
+    imageUrl
   }) : super(
     id: id,
     name: name,
@@ -25,7 +27,9 @@ class LandAd extends Ad {
     batch: batch,
     isFavorite: isFavorite,
     images: images,
-      ownerId: ownerId
+      ownerId: ownerId,
+      status: status,
+      imageUrl: imageUrl
   );
 
   @override

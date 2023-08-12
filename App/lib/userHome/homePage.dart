@@ -6,12 +6,14 @@ import 'package:gado_app/machine/machineList.dart';
 import 'package:gado_app/machine/machineryFormView.dart';
 import 'package:gado_app/publicity/publicityInfo.dart';
 import 'package:gado_app/user/InitialView.dart';
+import 'package:gado_app/user/UserManager.dart';
 
 import 'package:url_launcher/link.dart';
 
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 
+import '../admHome/admValidationView.dart';
 import '../animal/animalFormView.dart';
 import '../animal/AnimalList.dart';
 import '../user/UserAds.dart';
@@ -28,7 +30,7 @@ class _UserHomePageState extends State<UserHomePage> {
 
   final List<Widget> _screens = [
     const HomePageScreen(),
-    const UserFavListPage(),
+    UserManager.instance.loggedUser!.isAdm ? const AdmAdsListPage() : const UserFavListPage(),
     const UserAdsListPage(),
   ];
 
@@ -52,36 +54,45 @@ class _UserHomePageState extends State<UserHomePage> {
   }
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      body: PageView(
-        controller: _pageController,
-        onPageChanged: _onItemTapped,
-        children: _screens,
-      ),
-      floatingActionButton: const ExpandableFab(),
-      bottomNavigationBar: BottomNavigationBar(
-        backgroundColor: const Color.fromARGB(255, 0, 101, 32),
-        selectedItemColor: Colors.white,
-        unselectedItemColor: const Color.fromARGB(100, 215, 208, 208),
-        items: const [
-          BottomNavigationBarItem(
-            icon: Icon(Icons.shopping_cart),
-            label: "Comprar",
-          ),
-          BottomNavigationBarItem(
-            icon: Icon(Icons.favorite),
-            label: "Favoritos",
-          ),
+    return MaterialApp(
+      debugShowCheckedModeBanner: false,
+      home: Scaffold(
+        body: PageView(
+          controller: _pageController,
+          onPageChanged: _onItemTapped,
+          children: _screens,
+        ),
+        floatingActionButton: const ExpandableFab(),
+        bottomNavigationBar: BottomNavigationBar(
+          backgroundColor: const Color.fromARGB(255, 0, 101, 32),
+          selectedItemColor: Colors.white,
+          unselectedItemColor: const Color.fromARGB(100, 215, 208, 208),
+          items: [
+            const BottomNavigationBarItem(
+              icon: Icon(Icons.shopping_cart),
+              label: "Comprar",
+            ),
+            UserManager.instance.loggedUser!.isAdm ?
 
-          BottomNavigationBarItem(
-            icon: Icon(Icons.person),
-            label: "Meus Anúncios",
-          ),
-        ],
-        currentIndex: _selectedIndex,
-        onTap: _onItemTapped,
+            const BottomNavigationBarItem(
+              icon: Icon(Icons.pending),
+              label: "Anúncios Pendentes",
+            ) :
+            const BottomNavigationBarItem(
+              icon: Icon(Icons.favorite),
+              label: "Favoritos",
+            ),
+
+            const BottomNavigationBarItem(
+              icon: Icon(Icons.person),
+              label: "Meus Anúncios",
+            ),
+          ],
+          currentIndex: _selectedIndex,
+          onTap: _onItemTapped,
+        ),
+        floatingActionButtonLocation: FloatingActionButtonLocation.miniEndFloat,
       ),
-      floatingActionButtonLocation: FloatingActionButtonLocation.miniEndFloat,
     );
   }
 }
@@ -96,21 +107,24 @@ class HomePageScreen extends StatelessWidget {
     return Column(
       mainAxisAlignment: MainAxisAlignment.spaceEvenly,
       children: [
-        // FlatMenuButton(
-        //   icon: const Icon(Icons.exit_to_app),
-        //   buttonName: "Sair",
-        //   onPress: () {
-        //     Navigator.push(
-        //       context,
-        //       MaterialPageRoute(builder: (context) => const InitialView()),
-        //     );
-        //   },
-        // ),
         // SearchBarWidget(),
         Expanded(
           child: ListView(
             children: [
               const HomePageLogo(),
+              Padding(
+                padding: const EdgeInsets.only(left: 200.0),
+                child: FlatMenuButton(
+                  icon: const Icon(Icons.exit_to_app),
+                  buttonName: "Sair",
+                  onPress: () {
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(builder: (context) => const InitialView()),
+                    );
+                  },
+                ),
+              ),
               categoriesSection,
               regulationBox,
               socialMediaBox("facebookLink", "instagramLink", "youtubeLink"),
@@ -366,9 +380,9 @@ Widget LogoBox = SizedBox(
 );
 
 class SearchBarWidget extends StatelessWidget {
-  final TextEditingController _searchController = TextEditingController();
+  final TextEditingController searchController;
 
-  SearchBarWidget({Key? key}) : super(key: key);
+  SearchBarWidget({Key? key, required this.searchController}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
@@ -381,7 +395,7 @@ class SearchBarWidget extends StatelessWidget {
           borderRadius: BorderRadius.circular(10),
         ),
         child: TextField(
-          controller: _searchController,
+          controller: searchController,
           decoration: InputDecoration(
             prefixIconColor:
                 MaterialStateColor.resolveWith((Set<MaterialState> states) {
@@ -488,7 +502,7 @@ class _ExpandableFabState extends State<ExpandableFab>
               Navigator.push(
                 context,
                 MaterialPageRoute(
-                    builder: (context) => const MachineryFormView()),
+                    builder: (context) => const NewMachineryAdForm()),
               );
             },
           ),
@@ -503,7 +517,7 @@ class _ExpandableFabState extends State<ExpandableFab>
               _toggleExpanded();
               Navigator.push(
                 context,
-                MaterialPageRoute(builder: (context) => const LandFormView()),
+                MaterialPageRoute(builder: (context) => const NewLandAdForm()),
               );
             },
           ),

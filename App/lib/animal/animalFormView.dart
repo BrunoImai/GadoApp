@@ -4,6 +4,7 @@ import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:gado_app/animal/Animal.dart';
+import 'package:gado_app/user/UserAds.dart';
 import 'package:gado_app/user/UserManager.dart';
 import 'package:gado_app/firebase/storageService.dart';
 import 'package:intl/intl.dart';
@@ -30,8 +31,6 @@ class NewAnimalAdForm extends StatefulWidget {
 class NewAnimalAdFormState extends State<NewAnimalAdForm> {
 
   final _buyFormKey = GlobalKey<FormState>();
-
-  Map<String, String> myTuple = {'key1': 'value1'};
 
   List<ImageFile> loadedImages = [];
 
@@ -125,7 +124,6 @@ class NewAnimalAdFormState extends State<NewAnimalAdForm> {
 
     AnimalAd animalRequest = AnimalAd(name: name, price: price, weight: weight, localization: location, quantity: qtt,priceType: priceType,description: description, batch: null, id: null , images: images);
     String requestBody = jsonEncode(animalRequest.toJson());
-    print("requestBody: $requestBody");
 
     http.Response response;
 
@@ -153,10 +151,12 @@ class NewAnimalAdFormState extends State<NewAnimalAdForm> {
     }
 
       if (response.statusCode == 200 || response.statusCode == 201) {
-        // Registration successful
-        print('Registration successful!');
         await storage.uploadFiles(loadedImages).
-        then((value) => print("Done"));
+          then((value) => Navigator.pushReplacement(
+            context,
+            MaterialPageRoute(builder: (context) => const UserHomePage()),
+          )
+        );
       } else {
         // Registration failed
         print('Registration failed. Status code: ${response.statusCode}');
@@ -285,7 +285,7 @@ class NewAnimalAdFormState extends State<NewAnimalAdForm> {
                         ScaffoldMessenger.of(context).showSnackBar(
                           const SnackBar(content: Text('Pedido Enviado')),
                         );
-                        Navigator.pop(context);
+
                       }
                     }
                   )

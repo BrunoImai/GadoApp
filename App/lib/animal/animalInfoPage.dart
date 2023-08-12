@@ -56,14 +56,30 @@ class _AnimalInfoPageState extends State<AnimalInfoPage> {
           isFavorite: jsonData['isFavorite'],
           images: jsonData['images'].cast<String>(),
           ownerId: jsonData['ownerId'],
-          status: jsonData['status']
-          );
+          status: jsonData['status']);
     } else {
       throw Exception('Failed to load animal ad');
     }
   }
 
   late bool isFavorite = false;
+
+  Future<void> validateAd() async {
+    final response = await http.put(
+      Uri.parse(
+          'http://localhost:8080/api/users/adm/animalAd/${widget.animalId}'),
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': 'Bearer ${UserManager.instance.loggedUser!.token}',
+      },
+    );
+
+    if (response.statusCode == 200 || response.statusCode == 201) {
+      setState(() {
+        Navigator.pop(context, true);
+      });
+    }
+  }
 
   Future<void> deleteAdAsAdm() async {
     final response = await http.delete(
@@ -78,14 +94,13 @@ class _AnimalInfoPageState extends State<AnimalInfoPage> {
     if (response.statusCode == 200 || response.statusCode == 201) {
       setState(() {
         Navigator.pop(context, true);
-
       });
     }
   }
+
   Future<void> deleteAdAsOwner() async {
     final response = await http.delete(
-      Uri.parse(
-          'http://localhost:8080/api/users/animalAd/${widget.animalId}'),
+      Uri.parse('http://localhost:8080/api/users/animalAd/${widget.animalId}'),
       headers: {
         'Content-Type': 'application/json',
         'Authorization': 'Bearer ${UserManager.instance.loggedUser!.token}',
@@ -95,7 +110,6 @@ class _AnimalInfoPageState extends State<AnimalInfoPage> {
     if (response.statusCode == 200 || response.statusCode == 201) {
       setState(() {
         Navigator.pop(context, true);
-
       });
     }
   }
@@ -208,49 +222,76 @@ class _AnimalInfoPageState extends State<AnimalInfoPage> {
                                 color: Colors.black)),
                       ),
                       if (UserManager.instance.loggedUser!.isAdm)
-
-                         Padding(
-                           padding: const EdgeInsets.all(12.0),
-                           child: FlatMenuButton(
-                            buttonName: "Excluir anúncio",
-                            icon: const Icon(Icons.delete),
-                            color: Colors.red,
-                               onPress: () {
-                              deleteAdAsAdm();
-                               }
-                        ),
-                         )
-                        else if (UserManager.instance.loggedUser!.id == animalAd.ownerId)
-                            Column(
-                              children: [
-                                Padding(
-                                  padding: const EdgeInsets.all(12.0),
-                                  child: FlatMenuButton(
-                                      buttonName: "Excluir anúncio",
-                                      icon: const Icon(Icons.delete),
-                                      color: Colors.red,
-                                      onPress: () {
-                                        deleteAdAsOwner();
-                                      }
-                                  ),
-                                ),
-                                Padding(
-                                  padding: const EdgeInsets.all(12.0),
-                                  child: FlatMenuButton(
-                                      icon: const Icon(Icons.refresh),
-                                      buttonName: "Atualizar Anúncio",
-                                      onPress: () {
-                                        print("entrei");
-                                        Navigator.push(
-                                          context,
-                                          MaterialPageRoute(
-                                            builder: (context) => NewAnimalAdForm(updatedData: animalAd),
-                                          ),
-                                        );
-                                      }),
-                                ),
-                              ],
-                            )
+                        Column(
+                          children: [
+                            Padding(
+                              padding: const EdgeInsets.all(12.0),
+                              child: FlatMenuButton(
+                                  icon: const Icon(Icons.refresh),
+                                  buttonName: "Atualizar Anúncio",
+                                  onPress: () {
+                                    Navigator.push(
+                                      context,
+                                      MaterialPageRoute(
+                                        builder: (context) => NewAnimalAdForm(
+                                            updatedData: animalAd),
+                                      ),
+                                    );
+                                  }),
+                            ),
+                            if (animalAd.status != "Aprovado")
+                            Padding(
+                              padding: const EdgeInsets.all(12.0),
+                              child: FlatMenuButton(
+                                  buttonName: "Validar anúncio",
+                                  icon: const Icon(Icons.check),
+                                  onPress: () {
+                                    validateAd();
+                                  }),
+                            ),
+                            Padding(
+                              padding: const EdgeInsets.all(12.0),
+                              child: FlatMenuButton(
+                                  buttonName: "Excluir anúncio",
+                                  color: Colors.red,
+                                  icon: const Icon(Icons.delete),
+                                  onPress: () {
+                                    deleteAdAsAdm();
+                                  }),
+                            ),
+                          ],
+                        )
+                      else if (UserManager.instance.loggedUser!.id ==
+                          animalAd.ownerId)
+                        Column(
+                          children: [
+                            Padding(
+                              padding: const EdgeInsets.all(12.0),
+                              child: FlatMenuButton(
+                                  buttonName: "Excluir anúncio",
+                                  icon: const Icon(Icons.delete),
+                                  color: Colors.red,
+                                  onPress: () {
+                                    deleteAdAsOwner();
+                                  }),
+                            ),
+                            Padding(
+                              padding: const EdgeInsets.all(12.0),
+                              child: FlatMenuButton(
+                                  icon: const Icon(Icons.refresh),
+                                  buttonName: "Atualizar Anúncio",
+                                  onPress: () {
+                                    Navigator.push(
+                                      context,
+                                      MaterialPageRoute(
+                                        builder: (context) => NewAnimalAdForm(
+                                            updatedData: animalAd),
+                                      ),
+                                    );
+                                  }),
+                            ),
+                          ],
+                        )
                       else
                         Column(
                           children: [

@@ -1,5 +1,8 @@
 package br.pucpr.authserver.users
 
+import br.pucpr.authserver.advertising.AdvertisingAd
+import br.pucpr.authserver.advertising.AdvertisingRepository
+import br.pucpr.authserver.advertising.requests.AdvertisingRequest
 import br.pucpr.authserver.animalAds.AnimalAd
 import br.pucpr.authserver.animalAds.AnimalAdRepository
 import br.pucpr.authserver.animalAds.requests.AnimalAdRequest
@@ -27,6 +30,7 @@ import org.springframework.stereotype.Service
 @Service
 class UsersService(
     val userRepository: UsersRepository,
+    val advertisingRepository: AdvertisingRepository,
     val rolesRepository: RolesRepository,
     val animalAdRepository: AnimalAdRepository,
     val machineryAdRepository: MachineryAdRepository,
@@ -122,6 +126,16 @@ class UsersService(
         return machineryAdRepository.save(machineryAd)
     }
 
+    fun createAdvertising(req: AdvertisingRequest): AdvertisingAd {
+        val advertisingAd = AdvertisingAd (
+            description = req.description,
+            name = req.name,
+            images = req.images
+        )
+
+        return advertisingRepository.save(advertisingAd)
+    }
+
     fun getById(id: Long) = userRepository.findByIdOrNull(id)
 
     private fun getUserIdFromToken(): Long? {
@@ -176,6 +190,8 @@ class UsersService(
 
     fun findAllMachineryAd(status: String): List<MachineryAd> = machineryAdRepository.findAllByStatus(status)
 
+    fun findAllAdvertisingAd(): List<AdvertisingAd> = advertisingRepository.findAll()
+
     fun login(credentials: LoginRequest): LoginResponse? {
         val user = userRepository.findByEmail(credentials.email!!) ?: return null
         if (user.password != credentials.password) return null
@@ -194,6 +210,12 @@ class UsersService(
         }
 
         userRepository.delete(user)
+        return true
+    }
+
+    fun deleteAdvertisingAd(id: Long): Boolean {
+        val ad = advertisingRepository.findByIdOrNull(id) ?: return false
+        advertisingRepository.delete(ad)
         return true
     }
 
@@ -256,24 +278,73 @@ class UsersService(
         )
     }
 
+    fun getAllAnalysisAds(): UserAdsResponse {
+        return UserAdsResponse(
+            findAllAnimalAd("Em Análise").map { it.toResponse() },
+            findAllLandAd("Em Análise").map { it.toResponse() },
+            findAllMachineryAd("Em Análise").map { it.toResponse() },
+        )
+    }
+
     fun validateAnimalAd(adId: Long): Boolean {
-        val animalAd = animalAdRepository.findByIdOrNull(adId)?:
+        val oldAd = animalAdRepository.findByIdOrNull(adId)?:
         throw IllegalStateException("Ad with id: $adId, doesn't exist!")
-        animalAd.status = "Aprovado"
+
+        val animalAd = AnimalAd(
+            name = oldAd.name,
+            weight = oldAd.weight,
+            localization = oldAd.localization,
+            quantity = oldAd.quantity,
+            price = oldAd.price,
+            priceType = oldAd.priceType,
+            description = oldAd.description,
+            owner = oldAd.owner,
+            images = oldAd.images?.toList(),
+            status = "Aprovado"
+        )
+        deleteAnimalAd(adId)
+        animalAdRepository.save(animalAd)
         return true
     }
 
     fun validateMachineryAd(adId: Long): Boolean {
-        val machineryAd = machineryAdRepository.findByIdOrNull(adId)?:
+        val oldAd = machineryAdRepository.findByIdOrNull(adId)?:
         throw IllegalStateException("Ad with id: $adId, doesn't exist!")
-        machineryAd.status = "Aprovado"
+
+        val machineryAd = MachineryAd(
+            name = oldAd.name,
+            localization = oldAd.localization!!,
+            quantity = oldAd.quantity,
+            price = oldAd.price,
+            priceType = oldAd.priceType,
+            description = oldAd.description,
+            owner = oldAd.owner,
+            images = oldAd.images?.toList(),
+            status = "Aprovado",
+        )
+
+        deleteMachineryAd(adId)
+        machineryAdRepository.save(machineryAd)
         return true
     }
 
     fun validateLandAd(adId: Long): Boolean {
-        val landAd = landAdRepository.findByIdOrNull(adId)?:
+        val oldAd = landAdRepository.findByIdOrNull(adId)?:
         throw IllegalStateException("Ad with id: $adId, doesn't exist!")
-        landAd.status = "Aprovado"
+        val machineryAd = LandAd(
+            name = oldAd.name,
+            localization = oldAd.localization!!,
+            price = oldAd.price,
+            priceType = oldAd.priceType,
+            description = oldAd.description,
+            owner = oldAd.owner,
+            images = oldAd.images?.toList(),
+            status = "Aprovado",
+            area = oldAd.area
+        )
+
+        deleteLandAd(adId)
+        landAdRepository.save(machineryAd)
         return true
     }
 
@@ -384,5 +455,71 @@ class UsersService(
         owner.animalAds.add(animalAd)
 
         return animalAdRepository.save(animalAd)
+    }
+
+    fun updateLandAd(req: LandAdRequest, ownerId: Long, landAdId : Long): LandAd {
+        val owner = userRepository.findByIdOrNull(ownerId)
+            ?: throw IllegalStateException("User with id: $ownerId, dont exist!")
+
+        val oldAd = landAdRepository.findByIdOrNull(landAdId)
+            ?: throw IllegalStateException("Ad with id: $landAdId, dont exist!")
+
+        landAdRepository.delete(oldAd)
+
+        val landAd = LandAd(
+            name = req.name,
+            localization = req.localization,
+            price = req.price,
+            priceType = req.priceType,
+            description = req.description,
+            owner = owner,
+            images = req.images,
+            area = req.area,
+        )
+
+        owner.landAds.add(landAd)
+
+        return landAdRepository.save(landAd)
+    }
+
+    fun updateAdvertisingAd(req: AdvertisingRequest, advertisingAdId: Long): AdvertisingAd {
+
+        val oldAd = advertisingRepository.findByIdOrNull(advertisingAdId)
+            ?: throw IllegalStateException("Advertising with id: $advertisingAdId, dont exist!")
+
+        advertisingRepository.delete(oldAd)
+
+        val advertisingAd = AdvertisingAd(
+            name = req.name,
+            description = req.description,
+            images = req.images,
+        )
+
+        return advertisingRepository.save(advertisingAd)
+    }
+
+    fun updateMachineryAd(req: MachineryAdRequest, ownerId: Long, machineryAdId : Long): MachineryAd {
+        val owner = userRepository.findByIdOrNull(ownerId)
+            ?: throw IllegalStateException("User with id: $ownerId, dont exist!")
+
+        val oldAd = animalAdRepository.findByIdOrNull(machineryAdId)
+            ?: throw IllegalStateException("Ad with id: $machineryAdId, dont exist!")
+
+        animalAdRepository.delete(oldAd)
+
+        val machineryAd = MachineryAd(
+            name = req.name,
+            localization = req.localization,
+            quantity = req.quantity,
+            price = req.price,
+            priceType = req.priceType,
+            description = req.description,
+            owner = owner,
+            images = req.images,
+        )
+
+        owner.machineryAds.add(machineryAd)
+
+        return machineryAdRepository.save(machineryAd)
     }
 }

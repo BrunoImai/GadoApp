@@ -22,13 +22,6 @@ class UserAdsListPage extends StatefulWidget {
 class _UserAdsListPageState extends State<UserAdsListPage> {
   bool searchBarInUse = false;
   late Future<List<dynamic>> futureData;
-  late List<String> animalImages;
-  late List<String> landImages;
-  late List<String> machineryImages;
-
-  int animalImagesIndex = 0;
-  int landImagesIndex = 0;
-  int machineryImagesIndex = 0;
 
   final Storage storage = Storage();
 
@@ -45,59 +38,87 @@ class _UserAdsListPageState extends State<UserAdsListPage> {
     if (response.statusCode == 200) {
       final jsonData = json.decode(response.body) as Map<String, dynamic>;
 
-      final animalAdsData = jsonData['animalAds'] as List<dynamic>;
-      final landAdsData = jsonData['landAds'] as List<dynamic>;
-      final machineryAdsData = jsonData['machineryAds'] as List<dynamic>;
+      final animalAdsData = jsonData['animalAdList'] as List<dynamic>;
+      final landAdsData = jsonData['landAdList'] as List<dynamic>;
+      final machineryAdsData = jsonData['machineryAdList'] as List<dynamic>;
 
-      animalImages = await fetchImages(animalAdsData);
-      landImages = await fetchImages(landAdsData);
-      machineryImages = await fetchImages(machineryAdsData);
+      List<AnimalAd> animalAds = [];
 
+      for (var item in animalAdsData) {
+        final images = item['images'].cast<String>();
+        String imageUrl;
+        if (images.isNotEmpty) {
+          imageUrl = await storage.getImageUrl(images[0]);
+        } else {
+          imageUrl = await storage.getImageUrl("imgNotFound.jpeg");
+        }
+        animalAds = animalAdsData.map((item) {
+          return AnimalAd(
+              id: item['id'],
+              name: item['name'],
+              price: item['price'].toDouble(),
+              localization: item['localization'],
+              batch: item['batch'],
+              weight: item['weight'],
+              quantity: item['quantity'],
+              priceType: item['priceType'],
+              description: item['description'],
+              images: images,
+              imageUrl: imageUrl
+          );
+        }).toList();
+      }
 
-      final animalAds = animalAdsData.map((item) {
-        return AnimalAd(
-          id: item['id'],
-          name: item['name'],
-          price: item['price'].toDouble(),
-          localization: item['localization'],
-          batch: item['batch'],
-          weight: item['weight'],
-          quantity: item['quantity'],
-          priceType: item['priceType'],
-          description: item['description'],
-          images: item['images'].cast<String>(),
-        );
-      }).toList();
+      List<LandAd> landAds = [];
+      for (var item in landAdsData) {
+        final images = item['images'].cast<String>();
+        String imageUrl;
+        if (images.isNotEmpty) {
+          imageUrl = await storage.getImageUrl(images[0]);
+        } else {
+          imageUrl = await storage.getImageUrl("imgNotFound.jpeg");
+        }
+        landAds = landAdsData.map((item) {
+          return LandAd(
+              id: item['id'],
+              name: item['name'],
+              price: item['price'].toDouble(),
+              localization: item['localization'],
+              batch: item['batch'],
+              area: item['area'],
+              priceType: item['priceType'],
+              description: item['description'],
+              images: images,
+              imageUrl: imageUrl
+          );
+        }).toList();
+      }
 
-      final landAds = landAdsData.map((item) {
-        return LandAd(
-          id: item['id'],
-          name: item['name'],
-          price: item['price'].toDouble(),
-          localization: item['localization'],
-          batch: item['batch'],
-          area: item['area'],
-          priceType: item['priceType'],
-          description: item['description'],
-          images: item['images'].cast<String>(),
-        );
-      }).toList();
+      List<MachineryAd> machineryAds = [];
+      for (var item in machineryAdsData) {
+        final images = item['images'].cast<String>();
+        String imageUrl;
+        if (images.isNotEmpty) {
+          imageUrl = await storage.getImageUrl(images[0]);
+        } else {
+          imageUrl = await storage.getImageUrl("imgNotFound.jpeg");
+        }
+        machineryAds = machineryAdsData.map((item) {
+          return MachineryAd(
+              id: item['id'],
+              name: item['name'],
+              price: item['price'].toDouble(),
+              localization: item['localization'],
+              quantity: item['quantity'],
+              priceType: item['priceType'],
+              description: item['description'],
+              images: images,
+              imageUrl: imageUrl
+          );
+        }).toList();
+      }
 
-      final machineryAds = machineryAdsData.map((item) {
-        return MachineryAd(
-          id: item['id'],
-          name: item['name'],
-          price: item['price'].toDouble(),
-          localization: item['localization'],
-          batch: item['batch'],
-          quantity: item['quantity'],
-          priceType: item['priceType'],
-          description: item['description'],
-          images: item['images'].cast<String>(),
-        );
-      }).toList();
-
-      return [ ...machineryAds,...animalAds,...landAds, ];
+      return [...animalAds, ...landAds, ...machineryAds];
     } else {
       throw Exception('Failed to load ads');
     }
@@ -160,10 +181,6 @@ class _UserAdsListPageState extends State<UserAdsListPage> {
                       future: futureData,
                       builder: (context, snapshot) {
                         if (snapshot.hasData) {
-                          int animalImagesIndex = 0;
-                          int landImagesIndex = 0;
-                          int machineryImagesIndex = 0;
-
                           return ListView.separated(
                             itemCount: snapshot.data!.length,
                             separatorBuilder: (context, index) => const SizedBox(height: 8),
@@ -172,7 +189,7 @@ class _UserAdsListPageState extends State<UserAdsListPage> {
                                 final data = snapshot.data![index];
                                 if (data is AnimalAd) {
                                   var product =  ProductAnimal(
-                                    imageLink: Future.value(animalImages[animalImagesIndex]),
+                                    imageLink: data.imageUrl!,
                                     productName: data.name,
                                     batch: data.batch!,
                                     localization: data.localization,
@@ -183,12 +200,10 @@ class _UserAdsListPageState extends State<UserAdsListPage> {
                                     qtt: data.quantity!,
                                   );
 
-                                  if (animalImages.length - 1 > animalImagesIndex) animalImagesIndex++;
-                                  print("Animal Index: $animalImagesIndex");
                                   return product;
                                 } else if (data is LandAd) {
                                   var product = ProductLand(
-                                    imageLink: Future.value(landImages[landImagesIndex]),
+                                    imageLink: data.imageUrl!,
                                     productName: data.name,
                                     batch: data.batch!,
                                     localization: data.localization,
@@ -197,12 +212,10 @@ class _UserAdsListPageState extends State<UserAdsListPage> {
                                     priceType: data.priceType,
                                     price: data.price,
                                   );
-                                  if (landImages.length - 1 > landImagesIndex)landImagesIndex++;
-                                  print("Land Index: $landImagesIndex");
                                   return product;
                                 } else if (data is MachineryAd) {
                                   var product = ProductMachine(
-                                    imageLink: Future.value(machineryImages[machineryImagesIndex]),
+                                    imageLink: data.imageUrl!,
                                     productName: data.name,
                                     batch: data.batch!,
                                     localization: data.localization,
@@ -211,7 +224,6 @@ class _UserAdsListPageState extends State<UserAdsListPage> {
                                     priceType: data.priceType,
                                     price: data.price,
                                   );
-                                  if (machineryImages.length - 1 > machineryImagesIndex)machineryImagesIndex++;
                                   return product;
                                  } else {
                                   return const SizedBox(); // Return an empty container if the data type is not recognized

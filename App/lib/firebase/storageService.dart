@@ -26,17 +26,17 @@ class Storage{
   Future<void> uploadFiles(List<ImageFile> images) async {
     try {
       for (int i = 0; i < images.length; i++) {
-        File file = File(images[i].filePath);
-        String fileName = images[i].fileName; // Explicit type casting
-        await storage.ref('animalAds/$fileName').putFile(file);
+        if (images[i].filePath != "") {
+          File file = File(images[i].filePath);
+          String fileName = images[i].fileName; // Explicit type casting
+          await storage.ref('animalAds/$fileName').putFile(file);
+        }
       }
     } on firebaseCore.FirebaseException catch (e) {
       print(e);
     }
 
   }
-
-
 }
 
 class ImageFile<path, name> {
@@ -45,3 +45,4 @@ class ImageFile<path, name> {
 
   ImageFile(this.fileName, this.filePath);
 }
+

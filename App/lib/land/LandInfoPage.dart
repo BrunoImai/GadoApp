@@ -1,6 +1,7 @@
 import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
+import 'package:gado_app/land/landFormView.dart';
 import '../userHome/homePage.dart';
 import 'package:gado_app/land/land.dart';
 import 'package:gado_app/user/UserManager.dart';
@@ -51,7 +52,8 @@ class _LandInfoPageState extends State<LandInfoPage> {
         priceType: jsonData['priceType'],
         description: jsonData['description'],
           isFavorite: jsonData['isFavorite'],
-          images: jsonData['images'].cast<String>()
+          images: jsonData['images'].cast<String>(),
+          status: jsonData['status']
       );
     } else {
       // Handle API call errors, you can show an error message or throw an exception.
@@ -59,10 +61,43 @@ class _LandInfoPageState extends State<LandInfoPage> {
     }
   }
 
-  Future<void> deleteAd() async {
+  Future<void> deleteAdAsAdm() async {
     final response = await http.delete(
       Uri.parse(
-          'http://localhost:8080/api/users/landAd/${widget.landId}'),
+          'http://localhost:8080/api/users/adm/landAd/${widget.landId}'),
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': 'Bearer ${UserManager.instance.loggedUser!.token}',
+      },
+    );
+
+    if (response.statusCode == 200 || response.statusCode == 201) {
+      setState(() {
+        Navigator.pop(context, true);
+      });
+    }
+  }
+
+  Future<void> validateAd() async {
+    final response = await http.put(
+      Uri.parse(
+          'http://localhost:8080/api/users/adm/landAd/${widget.landId}'),
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': 'Bearer ${UserManager.instance.loggedUser!.token}',
+      },
+    );
+
+    if (response.statusCode == 200 || response.statusCode == 201) {
+      setState(() {
+        Navigator.pop(context, true);
+      });
+    }
+  }
+
+  Future<void> deleteAdAsOwner() async {
+    final response = await http.delete(
+      Uri.parse('http://localhost:8080/api/users/landAd/${widget.landId}'),
       headers: {
         'Content-Type': 'application/json',
         'Authorization': 'Bearer ${UserManager.instance.loggedUser!.token}',
@@ -181,49 +216,112 @@ class _LandInfoPageState extends State<LandInfoPage> {
                               color: Colors.black)),
                     ),
                     if (UserManager.instance.loggedUser!.isAdm)
-                      Padding(
-                        padding: const EdgeInsets.all(12.0),
-                        child: FlatMenuButton(
-                            buttonName: "Excluir anúncio",
-                            icon: const Icon(Icons.delete),
-                            color: Colors.red,
-                            onPress: () {
-                              deleteAd();
-                            }
-                        ),
+                      Column(
+                        children: [
+                          Padding(
+                            padding: const EdgeInsets.all(12.0),
+                            child: FlatMenuButton(
+                                buttonName: "Validar anúncio",
+                                icon: const Icon(Icons.check),
+                                onPress: () {
+                                  validateAd();
+                                }),
+                          ),
+                          Padding(
+                            padding: const EdgeInsets.all(12.0),
+                            child: FlatMenuButton(
+                                buttonName: "Excluir anúncio",
+                                icon: const Icon(Icons.delete),
+                                color: Colors.red,
+                                onPress: () {
+                                  deleteAdAsAdm();
+                                }),
+                          ),
+
+                        ],
+                      )
+                    else if (UserManager.instance.loggedUser!.id ==
+                        landAd.ownerId)
+                      Column(
+                        children: [
+                          Padding(
+                            padding: const EdgeInsets.all(12.0),
+                            child: FlatMenuButton(
+                                icon: const Icon(Icons.refresh),
+                                buttonName: "Atualizar Anúncio",
+                                onPress: () {
+                                  Navigator.push(
+                                    context,
+                                    MaterialPageRoute(
+                                      builder: (context) => NewLandAdForm(
+                                          updatedData: landAd),
+                                    ),
+                                  );
+                                }),
+                          ),
+                          if (landAd.status != "Aprovado")
+                            Padding(
+                              padding: const EdgeInsets.all(12.0),
+                              child: FlatMenuButton(
+                                  buttonName: "Validar anúncio",
+                                  icon: const Icon(Icons.check),
+                                  onPress: () {
+                                    validateAd();
+                                  }),
+                            ),
+                          Padding(
+                            padding: const EdgeInsets.all(12.0),
+                            child: FlatMenuButton(
+                                buttonName: "Excluir anúncio",
+                                icon: const Icon(Icons.delete),
+                                color: Colors.red,
+                                onPress: () {
+                                  deleteAdAsOwner();
+                                }),
+                          ),
+                        ],
                       )
                     else
-                    Column(
-                      children: [
-                        Padding(
-                          padding: const EdgeInsets.all(12.0),
-                          child: FlatMenuButton(
-                              icon: const Icon(Icons.email),
-                              buttonName: "Enviar proposta",
-                              onPress: () {}),
-                        ),
-                        Padding(
-                          padding: const EdgeInsets.only(
-                              left: 12, right: 12, bottom: 12),
-                          child: FlatMenuButton(
-                              icon: const Icon(FontAwesomeIcons.whatsapp),
-                              buttonName: "Chamar WhatsApp",
-                              onPress: () {}),
-                        ),
-                        Padding(
-                          padding: const EdgeInsets.only(
-                              left: 12, right: 12, bottom: 12),
-                          child: FlatMenuButton(
-                              icon: const Icon(Icons.paste_rounded),
-                              buttonName: "Solicitar Financiamento",
-                              onPress: () {}),
-                        ),
+                      Column(
+                        children: [
+                          Padding(
+                            padding: const EdgeInsets.all(12.0),
+                            child: FlatMenuButton(
+                                icon: const Icon(Icons.email),
+                                buttonName: "Enviar proposta",
+                                onPress: () {
+                                  print("Owner id: ${landAd.ownerId} \n"
+                                      "self id: ${UserManager.instance.loggedUser!.id}");
+                                }),
+                          ),
+                          Padding(
+                            padding: const EdgeInsets.only(
+                                left: 12, right: 12, bottom: 12),
+                            child: FlatMenuButton(
+                                icon: const Icon(FontAwesomeIcons.whatsapp),
+                                buttonName: "Chamar WhatsApp",
+                                onPress: () {}),
+                          ),
+                          Padding(
+                            padding: const EdgeInsets.only(
+                                left: 12, right: 12, bottom: 12),
+                            child: FlatMenuButton(
+                                icon: const Icon(Icons.paste_rounded),
+                                buttonName: "Solicitar Financiamento",
+                                onPress: () {}),
+                          ),
+                        ],
+                      ),
+                    Text("${landAd.status}",
+                        style: const TextStyle(
+                            color: Color.fromARGB(255, 0, 101, 32),
+                            fontWeight: FontWeight.bold,
+                            fontSize: 18))
                       ],
                     ),
 
                   ],
-                ),
-              ]),
+              ),
             ),
           );
         }
