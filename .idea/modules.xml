@@ -3,6 +3,7 @@
   <component name="ProjectModuleManager">
     <modules>
       <module fileurl="file://$PROJECT_DIR$/.idea/GadoApp.iml" filepath="$PROJECT_DIR$/.idea/GadoApp.iml" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/authserver.main.iml" filepath="$PROJECT_DIR$/.idea/modules/authserver.main.iml" />
     </modules>
   </component>
 </project>

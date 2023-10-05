@@ -140,7 +140,7 @@ class UsersService(
 
     fun getById(id: Long) = userRepository.findByIdOrNull(id)
 
-    private fun getUserIdFromToken(): Long? {
+    private fun getUserIdFromToken(): Long {
         val authentication = jwt.extract(request)
 
         return authentication?.let {

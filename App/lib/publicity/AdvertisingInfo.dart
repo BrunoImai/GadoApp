@@ -1,6 +1,5 @@
 import 'dart:convert';
 import 'package:flutter/material.dart';
-import 'package:gado_app/machine/machine.dart';
 import 'package:gado_app/publicity/Advertising.dart';
 import 'package:gado_app/publicity/AdvertisingForm.dart';
 import 'package:http/http.dart' as http;

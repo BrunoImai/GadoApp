@@ -5,8 +5,6 @@ import 'package:gado_app/land/LandInfoPage.dart';
 import 'package:gado_app/land/land.dart';
 
 import 'package:http/http.dart' as http;
-
-import '../animal/animalInfoPage.dart';
 import '../firebase/storageService.dart';
 
 class LandListPage extends StatefulWidget {

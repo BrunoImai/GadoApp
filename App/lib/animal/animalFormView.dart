@@ -4,14 +4,12 @@ import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:gado_app/animal/Animal.dart';
-import 'package:gado_app/user/UserAds.dart';
 import 'package:gado_app/user/UserManager.dart';
 import 'package:gado_app/firebase/storageService.dart';
 import 'package:intl/intl.dart';
 import 'package:http/http.dart' as http;
 
 import '../userHome/homePage.dart';
-import 'Animal.dart';
 
 
 class NewAnimalAdForm extends StatefulWidget {

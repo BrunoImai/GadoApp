@@ -1,7 +1,6 @@
 package br.pucpr.authserver.advertising
 
 import br.pucpr.authserver.advertising.response.AdvertisingAdResponse
-import br.pucpr.authserver.animalAds.responses.AnimalAdResponse
 import jakarta.persistence.*
 
 @Entity

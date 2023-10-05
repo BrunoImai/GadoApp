@@ -187,7 +187,6 @@ class _LandInfoPageState extends State<LandInfoPage> {
           // Data fetched successfully, use it to populate the AnimalDetails widget.
           final landAdAndOwner = snapshot.data!;
           final landAd = landAdAndOwner.landAd;
-          final ownerData = landAdAndOwner.ownerData;
           isFavorite = landAd.isFavorite!;
           return MaterialApp(
             debugShowCheckedModeBanner: false,

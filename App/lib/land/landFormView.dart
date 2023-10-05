@@ -6,7 +6,6 @@ import 'package:http/http.dart' as http;
 
 import '../animal/animalFormView.dart';
 import '../firebase/storageService.dart';
-import '../user/UserAds.dart';
 import '../userHome/homePage.dart';
 import '../user/UserManager.dart';
 

@@ -124,8 +124,6 @@ class RegisterView extends StatelessWidget {
               onPress: () {
                 String password = passwordController.text;
                 String confirmPassword = confirmPasswordController.text;
-                String cellphone = cellphoneController.text;
-                String email = emailController.text;
 
                 if (password != confirmPassword) {
                   showDialog(
