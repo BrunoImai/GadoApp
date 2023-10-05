@@ -1,8 +1,5 @@
 package br.pucpr.authserver.users
 
-import br.pucpr.authserver.animalAds.AnimalAd
-import br.pucpr.authserver.landAds.LandAd
-import br.pucpr.authserver.machineryAds.MachineryAd
 import org.springframework.context.ApplicationListener
 import org.springframework.context.event.ContextRefreshedEvent
 import org.springframework.stereotype.Component
@@ -26,6 +23,7 @@ class UsersBootstrap(
                 animalAds = ArrayList(),
                 landAds = ArrayList(),
                 machineryAds = ArrayList(),
+                cellphone = "4288148286"
             )
             admin.roles.add(adminRole)
             userRepository.save(admin)

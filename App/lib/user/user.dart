@@ -1,14 +1,16 @@
 
 class UserRequest {
   final String name;
-  final String email;
+  final String cellphone;
   final String password;
+  final String email;
 
-  UserRequest({required this.name, required this.email, required this.password});
+  UserRequest({required this.name, required this.cellphone, required this.password, required this.email});
 
   Map<String, dynamic> toJson() {
     return {
       'name': name,
+      'cellphone': cellphone,
       'email': email,
       'password': password,
     };
@@ -17,14 +19,14 @@ class UserRequest {
 
 
 class UserLoginRequest {
-  final String email;
+  final String cellphone;
   final String password;
 
-  UserLoginRequest({required this.email, required this.password});
+  UserLoginRequest({required this.cellphone, required this.password});
 
   Map<String, dynamic> toJson() {
     return {
-      'email': email,
+      'cellphone': cellphone,
       'password': password,
     };
   }

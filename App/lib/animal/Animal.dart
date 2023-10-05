@@ -28,8 +28,7 @@ class AnimalAd extends Ad {
     localization: localization,
     batch: batch,
     isFavorite: isFavorite,
-    images: images,
-      ownerId: ownerId,
+    images: images, ownerId: ownerId,
     status: status,
     imageUrl: imageUrl
   );

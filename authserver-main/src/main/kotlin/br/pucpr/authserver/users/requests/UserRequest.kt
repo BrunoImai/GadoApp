@@ -11,6 +11,9 @@ data class UserRequest(
     @field:Email
     val email: String?,
 
+    @field:NotBlank
+    val cellphone: String?,
+
     @field:Size(min = 8, max = 50)
     val password: String?
 )

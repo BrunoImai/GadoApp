@@ -61,6 +61,7 @@ class _AnimalListPageState extends State<AnimalListPage> {
       final List<AnimalAd> animalAds = [];
       for (var item in jsonData) {
         final images = item['images'].cast<String>();
+        print("$images list");
         String imageUrl;
         if (images.isNotEmpty) {
           imageUrl = await storage.getImageUrl(images[0]);
@@ -77,6 +78,7 @@ class _AnimalListPageState extends State<AnimalListPage> {
           quantity: item['quantity'],
           priceType: item['priceType'],
           description: item['description'],
+          ownerId: item['ownerId'],
           images: images,
           imageUrl: imageUrl,
         );
@@ -130,6 +132,7 @@ class _AnimalListPageState extends State<AnimalListPage> {
                   ),
                 onPressed: () {
                   setState(() {
+                    searchController.text = "";
                     searchBarInUse = !searchBarInUse;
                   });
                 },
@@ -143,7 +146,7 @@ class _AnimalListPageState extends State<AnimalListPage> {
                       decoration: InputDecoration(
                         hintText: 'Search by ad name...',
                         border: OutlineInputBorder(
-                          borderSide: BorderSide(color: Colors.green),
+                          borderSide: const BorderSide(color: Colors.green),
                           borderRadius: BorderRadius.circular(15.0), // Adjust the radius as needed
                         ),
                         filled: true,
@@ -228,8 +231,10 @@ class _AnimalListPageState extends State<AnimalListPage> {
                                 price: data.price,
                                 weight: data.weight,
                                 qtt: data.quantity!,
+                                ownerId: data.ownerId!,
                                 onPressed: () async {
                                   // Navigate to the AnimalInfoPage and wait for the result.
+
                                   final result = await Navigator.push(
                                     context,
                                     MaterialPageRoute(
@@ -279,6 +284,7 @@ class ProductAnimal extends StatefulWidget {
   final dynamic price;
   final dynamic priceType;
   final dynamic weight;
+  final int ownerId;
   bool? isOwner = false;
 
    ProductAnimal({
@@ -292,7 +298,9 @@ class ProductAnimal extends StatefulWidget {
     this.onPressed,
     this.price,
     this.priceType,
-    this.weight, this.isOwner,
+    this.weight,
+     this.isOwner,
+     required this.ownerId,
   }) : super(key: key);
 
   @override

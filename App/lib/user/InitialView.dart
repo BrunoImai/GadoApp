@@ -60,18 +60,11 @@ class _InitialViewState extends State<InitialView> {
     return userAcceptedEula ?? false;
   }
 
-
-  void handleSwitchChange(bool value) {
-    setState(() {
-      isAdm = value;
-    });
-  }
-
   Future<void> userLogin(VoidCallback onSuccess) async {
     String email = emailController.text;
     String password = passwordController.text;
 
-    UserLoginRequest userRequest = UserLoginRequest(email: email, password: password);
+    UserLoginRequest userRequest = UserLoginRequest(cellphone: email, password: password);
     String requestBody = jsonEncode(userRequest.toJson());
 
     try {
@@ -121,7 +114,7 @@ class _InitialViewState extends State<InitialView> {
               child: Column(
                 children: [
                   OneLineInputField(
-                    "Email",
+                    "Celular",
                     controller: emailController,
                   ),
                   const SizedBox(height: 16.0),

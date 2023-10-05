@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 
-import '../publicity/publicityInfo.dart';
+import '../publicity/AdvertisingInfo.dart';
 import '../user/InitialView.dart';
 import '../userHome/homePage.dart';
 
@@ -102,12 +102,12 @@ class HomePageScreen extends StatelessWidget {
               categoriesSection,
               regulationBox,
               socialMediaBox("facebookLink", "instagramLink", "youtubeLink"),
-              const PublicityCard(
+              const AdvertisingCard(
                 imageLink:
                 "https://imagens.mfrural.com.br/mfrural-produtos-us/245984-250772-2050402-sementes-de-capim-mpg-produtos-agropecuarios.jpg",
-                publicityDescription: 'Sementes boas a um preco barato',
-                publicityTitle: 'Sementes',
-                destination: PublicityInfoPage( machineId: 1,),
+                description: 'Sementes boas a um preco barato',
+                title: 'Sementes',
+                destination: AdvertisingInfoPage( advertisingId: 1,),
               )
             ]
                 .map((widget) => Padding(

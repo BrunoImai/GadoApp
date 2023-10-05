@@ -10,8 +10,7 @@ import '../animal/animalInfoPage.dart';
 import '../firebase/storageService.dart';
 
 class LandListPage extends StatefulWidget {
-  const LandListPage({super.key});
-
+  const LandListPage({Key? key}) : super(key: key);
 
   @override
   State<LandListPage> createState() => _LandListPageState();
@@ -20,23 +19,43 @@ class LandListPage extends StatefulWidget {
 class _LandListPageState extends State<LandListPage> {
   bool searchBarInUse = false;
   late Future<List<LandAd>> futureData;
+
+  TextEditingController searchController = TextEditingController();
+
   late List<String> images;
   final Storage storage = Storage();
+
+  late List<LandAd> landAds;
+  late List<LandAd> filteredLandAds;
 
   @override
   void initState() {
     super.initState();
     futureData = getAllLandAds();
+    searchController.addListener(_onSearchChanged);
+    landAds = [];
+    filteredLandAds = [];
+  }
+
+  void _onSearchChanged() {
+    setState(() {
+      filteredLandAds = landAds.where((ad) {
+        final name = ad.name.toLowerCase();
+        final query = searchController.text.toLowerCase();
+        return name.contains(query);
+      }).toList();
+    });
   }
 
   Future<List<LandAd>> getAllLandAds() async {
-    final response = await http.get(Uri.parse('http://localhost:8080/api/users/ads/land'));
+    final response =
+    await http.get(Uri.parse('http://localhost:8080/api/users/ads/land'));
+    print("Status code: ${response.statusCode}");
 
     if (response.statusCode == 200) {
       final jsonData = json.decode(response.body) as List<dynamic>;
 
-      // Map the JSON data to a list of AnimalAdResponse objects
-      List<LandAd> landAds = [];
+      final List<LandAd> landAds = [];
       for (var item in jsonData) {
         final images = item['images'].cast<String>();
         String imageUrl;
@@ -45,39 +64,43 @@ class _LandListPageState extends State<LandListPage> {
         } else {
           imageUrl = await storage.getImageUrl("imgNotFound.jpeg");
         }
-        landAds = jsonData.map((item) {
-          return LandAd(
-              id: item['id'],
-              name: item['name'],
-              price: item['price'].toDouble(),
-              localization: item['localization'],
-              batch: item['batch'],
-              area: item['area'],
-              priceType: item['priceType'],
-              description: item['description'],
-              images: images,
-              imageUrl: imageUrl
-          );
-        }).toList();
+        final landAd = LandAd(
+          id: item['id'],
+          name: item['name'],
+          price: item['price'].toDouble(),
+          localization: item['localization'],
+          batch: item['batch'],
+          area: item['area'],
+          priceType: item['priceType'],
+          description: item['description'],
+          ownerId: item['ownerId'],
+          images: images,
+          imageUrl: imageUrl,
+        );
+        landAds.add(landAd);
       }
+
+      print(landAds);
 
       return landAds;
     } else {
       print('Response status: ${response.statusCode}');
       print('Response body: ${response.body}');
       throw Exception('Failed to load land ads');
-      // Request failed
-      throw Exception('Failed to load animal ads');
     }
   }
 
   @override
   Widget build(BuildContext context) {
-
     return MaterialApp(
       debugShowCheckedModeBanner: false,
-      home: ColorFiltered(
-        colorFilter: ColorFilter.mode(searchBarInUse ? Colors.black54 : const Color.fromARGB(0, 0, 101, 32), BlendMode.darken),
+      home: GestureDetector(
+        onTap: () {
+          FocusManager.instance.primaryFocus?.unfocus();
+          setState(() {
+            searchBarInUse = false;
+          });
+        },
         child: Scaffold(
           appBar: AppBar(
             centerTitle: true,
@@ -86,7 +109,9 @@ class _LandListPageState extends State<LandListPage> {
               "Anúncios de Terra",
               style: TextStyle(color: Colors.white),
             ),
-            leading: IconButton(
+            leading: searchBarInUse
+                ? null
+                : IconButton(
               icon: const Icon(Icons.arrow_back),
               onPressed: () {
                 Navigator.pop(context);
@@ -94,33 +119,52 @@ class _LandListPageState extends State<LandListPage> {
             ),
             actions: [
               IconButton(
-                icon: const Icon(
+                icon: searchBarInUse
+                    ? const Icon(
+                  Icons.close,
+                )
+                    : const Icon(
                   Icons.search_rounded,
                 ),
                 onPressed: () {
                   setState(() {
+                    searchController.text = "";
                     searchBarInUse = !searchBarInUse;
                   });
                 },
               ),
+              if (searchBarInUse)
+                Expanded(
+                  child: Padding(
+                    padding: const EdgeInsets.symmetric(horizontal: 8.0),
+                    child: TextField(
+                      controller: searchController,
+                      decoration: InputDecoration(
+                        hintText: 'Search by ad name...',
+                        border: OutlineInputBorder(
+                          borderSide: const BorderSide(color: Colors.green),
+                          borderRadius: BorderRadius.circular(15.0),
+                        ),
+                        filled: true,
+                        fillColor: Colors.white,
+                      ),
+                    ),
+                  ),
+                ),
             ],
           ),
           body: Column(
             children: [
-              const Row(
-                mainAxisAlignment: MainAxisAlignment.start,
-                children: [
-                  Padding(
-                    padding: EdgeInsets.only(left: 12.0, bottom: 6, top: 6),
-                    child: Text(
-                      "O que você procura?",
-                      style: TextStyle(
-                          color: Color.fromARGB(255, 0, 101, 32),
-                          fontWeight: FontWeight.bold,
-                          fontSize: 22),
-                    ),
+              const Padding(
+                padding: EdgeInsets.only(left: 12.0, bottom: 6, top: 6),
+                child: Text(
+                  "O que você procura?",
+                  style: TextStyle(
+                    color: Color.fromARGB(255, 0, 101, 32),
+                    fontWeight: FontWeight.bold,
+                    fontSize: 22,
                   ),
-                ],
+                ),
               ),
               Padding(
                 padding: const EdgeInsets.only(left: 12.0, bottom: 4),
@@ -131,28 +175,21 @@ class _LandListPageState extends State<LandListPage> {
                     scrollDirection: Axis.horizontal,
                     children: [
                       PillButton(
-                          text: 'Tudo',
-                          onPressed: () {
-                            // Handle button press
-                            print('Button pressed!');
-                          }),
+                        text: 'Tudo',
+                        onPressed: () {},
+                      ),
                       PillButton(
-                          text: 'Arrendamento',
-                          onPressed: () {
-                            // Handle button press
-                            print('Button pressed!');
-                          }),
-                      PillButton(
-                          text: 'Venda',
-                          onPressed: () {
-                            // Handle button press
-                            print('Button pressed!');
-                          }),
+                        text: 'Venda',
+                        onPressed: () {},
+                      ),
+                      // Add more PillButton widgets as needed
                     ]
-                        .map((widget) => Padding(
-                      padding: const EdgeInsets.all(3),
-                      child: widget,
-                    ))
+                        .map(
+                          (widget) => Padding(
+                        padding: const EdgeInsets.all(3),
+                        child: widget,
+                      ),
+                    )
                         .toList(),
                   ),
                 ),
@@ -165,21 +202,31 @@ class _LandListPageState extends State<LandListPage> {
                       future: futureData,
                       builder: (context, snapshot) {
                         if (snapshot.hasData) {
+                          // Store the fetched data in landAds list
+                          landAds = snapshot.data!;
+                          // Filter the data based on the search query
+                          filteredLandAds = landAds.where((ad) {
+                            final name = ad.name.toLowerCase();
+                            final query = searchController.text.toLowerCase();
+                            return name.contains(query);
+                          }).toList();
+
                           return ListView.builder(
-                            itemCount: snapshot.data!.length,
+                            itemCount: filteredLandAds.length,
                             itemBuilder: (context, index) {
-                              final data = snapshot.data![index];
+                              final data = filteredLandAds[index];
                               return ProductLand(
                                 imageLink: data.imageUrl!,
                                 productName: data.name,
                                 batch: data.batch!,
                                 localization: data.localization,
-                                area: data.area!,
                                 id: data.id!,
                                 priceType: data.priceType,
                                 price: data.price,
+                                area: data.area!,
+                                ownerId: data.ownerId!,
                                 onPressed: () async {
-                                  // Navigate to the AnimalInfoPage and wait for the result.
+                                  // Navigate to the LandInfoPage and wait for the result.
                                   final result = await Navigator.push(
                                     context,
                                     MaterialPageRoute(
@@ -218,6 +265,7 @@ class _LandListPageState extends State<LandListPage> {
   }
 }
 
+
 class ProductLand extends StatefulWidget {
   final String imageLink;
   final String productName;
@@ -225,23 +273,24 @@ class ProductLand extends StatefulWidget {
   final String localization;
   final String area;
   final int id;
+  final int ownerId;
   final Function? onPressed;
   final dynamic price;
   final dynamic priceType;
 
-
-  const ProductLand({
-    Key? key,
-    required this.imageLink,
-    required this.productName,
-    required this.batch,
-    required this.localization,
-    required this.area,
-    required this.id,
-    this.price,
-    this.priceType,
-    this.onPressed
-  }) : super(key: key);
+  const ProductLand(
+      {Key? key,
+      required this.imageLink,
+      required this.productName,
+      required this.batch,
+      required this.localization,
+      required this.area,
+      required this.id,
+      this.price,
+      this.priceType,
+      this.onPressed,
+        required this.ownerId})
+      : super(key: key);
 
   @override
   State<ProductLand> createState() => _ProductLandState();
@@ -319,30 +368,30 @@ class _ProductLandState extends State<ProductLand> {
                 children: [
                   widget.price != null
                       ? Text(
-                    "R\$ ${widget.price} ${widget.priceType}",
-                    style: const TextStyle(
-                      color: Color.fromARGB(255, 0, 101, 32),
-                      fontWeight: FontWeight.bold,
-                      fontSize: 18,
-                    ),
-                  )
+                          "R\$ ${widget.price} ${widget.priceType}",
+                          style: const TextStyle(
+                            color: Color.fromARGB(255, 0, 101, 32),
+                            fontWeight: FontWeight.bold,
+                            fontSize: 18,
+                          ),
+                        )
                       : const Text(
-                    "Consultar valor",
-                    style: TextStyle(
-                      color: Colors.deepOrangeAccent,
-                      fontWeight: FontWeight.bold,
-                      fontSize: 18,
-                    ),
-                  ),
+                          "Consultar valor",
+                          style: TextStyle(
+                            color: Colors.deepOrangeAccent,
+                            fontWeight: FontWeight.bold,
+                            fontSize: 18,
+                          ),
+                        ),
                 ],
               ),
             ]
                 .map(
                   (widget) => Padding(
-                padding: const EdgeInsets.all(3),
-                child: widget,
-              ),
-            )
+                    padding: const EdgeInsets.all(3),
+                    child: widget,
+                  ),
+                )
                 .toList(),
           ),
           onPressed: () async {
@@ -353,8 +402,7 @@ class _ProductLandState extends State<ProductLand> {
               Navigator.push(
                 context,
                 MaterialPageRoute(
-                  builder: (context) =>
-                      AnimalInfoPage(animalId: widget.id),
+                  builder: (context) => LandInfoPage(landId: widget.id),
                 ),
               );
             }
@@ -364,7 +412,6 @@ class _ProductLandState extends State<ProductLand> {
     );
   }
 }
-
 
 class PillButton extends StatelessWidget {
   final String text;

@@ -217,16 +217,32 @@ class _MachineInfoPageState extends State<MachineInfoPage> {
                       if (UserManager.instance.loggedUser!.isAdm)
                         Column(
                           children: [
-
                             Padding(
                               padding: const EdgeInsets.all(12.0),
                               child: FlatMenuButton(
-                                  buttonName: "Validar anúncio",
-                                  icon: const Icon(Icons.check),
+                                  icon: const Icon(Icons.refresh),
+                                  buttonName: "Atualizar Anúncio",
                                   onPress: () {
-                                    validateAd();
+                                    Navigator.push(
+                                      context,
+                                      MaterialPageRoute(
+                                        builder: (context) => NewMachineryAdForm(
+                                            updatedData: machineryAd),
+                                      ),
+                                    );
                                   }),
                             ),
+
+                            if (machineryAd.status != "Aprovado")
+                              Padding(
+                                padding: const EdgeInsets.all(12.0),
+                                child: FlatMenuButton(
+                                    buttonName: "Validar anúncio",
+                                    icon: const Icon(Icons.check),
+                                    onPress: () {
+                                      validateAd();
+                                    }),
+                              ),
                             Padding(
                               padding: const EdgeInsets.all(12.0),
                               child: FlatMenuButton(
@@ -250,26 +266,25 @@ class _MachineInfoPageState extends State<MachineInfoPage> {
                               child: FlatMenuButton(
                                   icon: const Icon(Icons.refresh),
                                   buttonName: "Atualizar Anúncio",
-                                  onPress: () {
-                                    Navigator.push(
-                                      context,
-                                      MaterialPageRoute(
-                                        builder: (context) => NewMachineryAdForm(
-                                            updatedData: machineryAd),
-                                      ),
-                                    );
-                                  }),
+                                onPress: () async {
+                                  // Navigate to the AnimalInfoPage and wait for the result.
+                                  final result = await Navigator.push(
+                                    context,
+                                    MaterialPageRoute(
+                                      builder: (context) =>
+                                          NewMachineryAdForm(updatedData: machineryAd),
+                                    ),
+                                  );
+                                  // Check if the result is true, and reload the list.
+                                  if (result == true) {
+                                    setState(() {
+                                      _machineAdFuture = _fetchAnimalAd();
+                                    });
+                                  }
+                                },
+                                  ),
                             ),
-                            if (machineryAd.status != "Aprovado")
-                              Padding(
-                                padding: const EdgeInsets.all(12.0),
-                                child: FlatMenuButton(
-                                    buttonName: "Validar anúncio",
-                                    icon: const Icon(Icons.check),
-                                    onPress: () {
-                                      validateAd();
-                                    }),
-                              ),
+
                             Padding(
                               padding: const EdgeInsets.all(12.0),
                               child: FlatMenuButton(

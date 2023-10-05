@@ -8,7 +8,7 @@ import 'package:http/http.dart' as http;
 import '../firebase/storageService.dart';
 
 class MachineryListPage extends StatefulWidget {
-  const MachineryListPage({super.key});
+  const MachineryListPage({Key? key}) : super(key: key);
 
   @override
   State<MachineryListPage> createState() => _MachineryListPageState();
@@ -16,14 +16,30 @@ class MachineryListPage extends StatefulWidget {
 
 class _MachineryListPageState extends State<MachineryListPage> {
   bool searchBarInUse = false;
+  TextEditingController searchController = TextEditingController();
   late Future<List<MachineryAd>> futureData;
   late List<String> images;
   final Storage storage = Storage();
+  late List<MachineryAd> machineryAds;
+  late List<MachineryAd> filteredMachineryAds;
 
   @override
   void initState() {
     super.initState();
     futureData = getAllMachineryAds();
+    searchController.addListener(_onSearchChanged);
+    machineryAds = [];
+    filteredMachineryAds = [];
+  }
+
+  void _onSearchChanged() {
+    setState(() {
+      filteredMachineryAds = machineryAds.where((ad) {
+        final name = ad.name.toLowerCase();
+        final query = searchController.text.toLowerCase();
+        return name.contains(query);
+      }).toList();
+    });
   }
 
   Future<List<MachineryAd>> getAllMachineryAds() async {
@@ -36,42 +52,31 @@ class _MachineryListPageState extends State<MachineryListPage> {
       List<MachineryAd> machineryAds = [];
       for (var item in jsonData) {
         final images = item['images'].cast<String>();
+
         String imageUrl;
         if (images.isNotEmpty) {
           imageUrl = await storage.getImageUrl(images[0]);
         } else {
           imageUrl = await storage.getImageUrl("imgNotFound.jpeg");
         }
-        machineryAds = jsonData.map((item) {
-          return MachineryAd(
-              id: item['id'],
-              name: item['name'],
-              price: item['price'].toDouble(),
-              localization: item['localization'],
-              quantity: item['quantity'],
-              priceType: item['priceType'],
-              description: item['description'],
-              images: images,
-              imageUrl: imageUrl
-          );
-        }).toList();
+        final machineryAd = MachineryAd(
+          id: item['id'],
+          name: item['name'],
+          price: item['price'].toDouble(),
+          localization: item['localization'],
+          quantity: item['quantity'],
+          priceType: item['priceType'],
+          description: item['description'],
+          ownerId: item['ownerId'],
+          images: images,
+          imageUrl: imageUrl,
+        );
+        machineryAds.add(machineryAd);
       }
-
-      var imageUrlList = [];
-
-      for (var element in machineryAds) {
-        imageUrlList.add(await storage.getImageUrl(element.images[0]));
-      }
-
-      images = imageUrlList.cast<String>();
 
       return machineryAds;
     } else {
-      print('Response status: ${response.statusCode}');
-      print('Response body: ${response.body}');
       throw Exception('Failed to load machinery ads');
-      // Request failed
-      throw Exception('Failed to load animal ads');
     }
   }
 
@@ -79,12 +84,13 @@ class _MachineryListPageState extends State<MachineryListPage> {
   Widget build(BuildContext context) {
     return MaterialApp(
       debugShowCheckedModeBanner: false,
-      home: ColorFiltered(
-        colorFilter: ColorFilter.mode(
-            searchBarInUse
-                ? Colors.black54
-                : const Color.fromARGB(0, 0, 101, 32),
-            BlendMode.darken),
+      home: GestureDetector(
+        onTap: () {
+          FocusManager.instance.primaryFocus?.unfocus();
+          setState(() {
+            searchBarInUse = false;
+          });
+        },
         child: Scaffold(
           appBar: AppBar(
             centerTitle: true,
@@ -93,41 +99,63 @@ class _MachineryListPageState extends State<MachineryListPage> {
               "Anúncios de Máquinas",
               style: TextStyle(color: Colors.white),
             ),
-            leading: IconButton(
-              icon: const Icon(Icons.arrow_back),
-              onPressed: () {
-                Navigator.pop(context);
-              },
-            ),
+            leading: searchBarInUse
+                ? null
+                : IconButton(
+                    icon: const Icon(Icons.arrow_back),
+                    onPressed: () {
+                      Navigator.pop(context);
+                    },
+                  ),
             actions: [
               IconButton(
-                icon: const Icon(
-                  Icons.search_rounded,
-                ),
+                icon: searchBarInUse
+                    ? const Icon(
+                        Icons.close,
+                      )
+                    : const Icon(
+                        Icons.search_rounded,
+                      ),
                 onPressed: () {
                   setState(() {
+                    searchController.text = "";
                     searchBarInUse = !searchBarInUse;
                   });
                 },
               ),
+              if (searchBarInUse)
+                Expanded(
+                  child: Padding(
+                    padding: const EdgeInsets.symmetric(horizontal: 8.0),
+                    child: TextField(
+                      controller: searchController,
+                      onChanged: (_) => _onSearchChanged(),
+                      decoration: InputDecoration(
+                        hintText: 'Search by ad name...',
+                        border: OutlineInputBorder(
+                          borderSide: const BorderSide(color: Colors.green),
+                          borderRadius: BorderRadius.circular(15.0),
+                        ),
+                        filled: true,
+                        fillColor: Colors.white,
+                      ),
+                    ),
+                  ),
+                ),
             ],
           ),
           body: Column(
             children: [
-              const Row(
-                mainAxisAlignment: MainAxisAlignment.start,
-                children: [
-                  Padding(
-                    padding: EdgeInsets.only(left: 12.0, bottom: 6, top: 6),
-                    child: Text(
-                      "O que você procura?",
-                      style: TextStyle(
-                          color: Color.fromARGB(255, 0, 101, 32),
-                          fontWeight: FontWeight.bold,
-                          fontSize: 22),
-                    ),
+              const Padding(
+                padding: EdgeInsets.only(left: 12.0, bottom: 6, top: 6),
+                child: Text(
+                  "O que você procura?",
+                  style: TextStyle(
+                    color: Color.fromARGB(255, 0, 101, 32),
+                    fontWeight: FontWeight.bold,
+                    fontSize: 22,
                   ),
-                ],
+                ),
               ),
               Padding(
                 padding: const EdgeInsets.only(left: 12.0, bottom: 4),
@@ -138,46 +166,36 @@ class _MachineryListPageState extends State<MachineryListPage> {
                     scrollDirection: Axis.horizontal,
                     children: [
                       PillButton(
-                          text: 'Tudo',
-                          onPressed: () {
-                            // Handle button press
-                            print('Button pressed!');
-                          }),
+                        text: 'Tudo',
+                        onPressed: () {},
+                      ),
                       PillButton(
-                          text: 'Cabines',
-                          onPressed: () {
-                            // Handle button press
-                            print('Button pressed!');
-                          }),
+                        text: 'Cabines',
+                        onPressed: () {},
+                      ),
                       PillButton(
-                          text: 'Colheitadeiras',
-                          onPressed: () {
-                            // Handle button press
-                            print('Button pressed!');
-                          }),
+                        text: 'Colheitadeiras',
+                        onPressed: () {},
+                      ),
                       PillButton(
-                          text: 'Escavadeiras',
-                          onPressed: () {
-                            // Handle button press
-                            print('Button pressed!');
-                          }),
+                        text: 'Escavadeiras',
+                        onPressed: () {},
+                      ),
                       PillButton(
-                          text: 'Grades',
-                          onPressed: () {
-                            // Handle button press
-                            print('Button pressed!');
-                          }),
+                        text: 'Grades',
+                        onPressed: () {},
+                      ),
                       PillButton(
-                          text: 'Plantadeiras',
-                          onPressed: () {
-                            // Handle button press
-                            print('Button pressed!');
-                          }),
+                        text: 'Plantadeiras',
+                        onPressed: () {},
+                      ),
                     ]
-                        .map((widget) => Padding(
-                              padding: const EdgeInsets.all(3),
-                              child: widget,
-                            ))
+                        .map(
+                          (widget) => Padding(
+                            padding: const EdgeInsets.all(3),
+                            child: widget,
+                          ),
+                        )
                         .toList(),
                   ),
                 ),
@@ -190,10 +208,19 @@ class _MachineryListPageState extends State<MachineryListPage> {
                       future: futureData,
                       builder: (context, snapshot) {
                         if (snapshot.hasData) {
+                          // Store the fetched data in machineryAds list
+                          machineryAds = snapshot.data!;
+                          // Filter the data based on the search query
+                          filteredMachineryAds = machineryAds.where((ad) {
+                            final name = ad.name.toLowerCase();
+                            final query = searchController.text.toLowerCase();
+                            return name.contains(query);
+                          }).toList();
+
                           return ListView.builder(
-                            itemCount: snapshot.data!.length,
+                            itemCount: filteredMachineryAds.length,
                             itemBuilder: (context, index) {
-                              final data = snapshot.data![index];
+                              final data = filteredMachineryAds[index];
                               return ProductMachine(
                                 imageLink: data.imageUrl!,
                                 productName: data.name,
@@ -203,8 +230,9 @@ class _MachineryListPageState extends State<MachineryListPage> {
                                 priceType: data.priceType,
                                 price: data.price,
                                 qtt: data.quantity!,
+                                ownerId: data.ownerId!,
                                 onPressed: () async {
-                                  // Navigate to the AnimalInfoPage and wait for the result.
+                                  // Navigate to the MachineInfoPage and wait for the result.
                                   final result = await Navigator.push(
                                     context,
                                     MaterialPageRoute(
@@ -250,9 +278,11 @@ class ProductMachine extends StatefulWidget {
   final String localization;
   final int qtt;
   final int id;
+  final int ownerId;
   final Function? onPressed;
   final dynamic price;
   final dynamic priceType;
+
 
   const ProductMachine({
     Key? key,
@@ -265,6 +295,7 @@ class ProductMachine extends StatefulWidget {
     this.price,
     this.priceType,
     this.onPressed,
+    required this.ownerId
   }) : super(key: key);
 
   @override
@@ -343,30 +374,30 @@ class _ProductMachineState extends State<ProductMachine> {
                 children: [
                   widget.price != null
                       ? Text(
-                    "R\$ ${widget.price} ${widget.priceType}",
-                    style: const TextStyle(
-                      color: Color.fromARGB(255, 0, 101, 32),
-                      fontWeight: FontWeight.bold,
-                      fontSize: 18,
-                    ),
-                  )
+                          "R\$ ${widget.price} ${widget.priceType}",
+                          style: const TextStyle(
+                            color: Color.fromARGB(255, 0, 101, 32),
+                            fontWeight: FontWeight.bold,
+                            fontSize: 18,
+                          ),
+                        )
                       : const Text(
-                    "Consultar valor",
-                    style: TextStyle(
-                      color: Colors.deepOrangeAccent,
-                      fontWeight: FontWeight.bold,
-                      fontSize: 18,
-                    ),
-                  ),
+                          "Consultar valor",
+                          style: TextStyle(
+                            color: Colors.deepOrangeAccent,
+                            fontWeight: FontWeight.bold,
+                            fontSize: 18,
+                          ),
+                        ),
                 ],
               ),
             ]
                 .map(
                   (widget) => Padding(
-                padding: const EdgeInsets.all(3),
-                child: widget,
-              ),
-            )
+                    padding: const EdgeInsets.all(3),
+                    child: widget,
+                  ),
+                )
                 .toList(),
           ),
           onPressed: () async {
@@ -377,8 +408,7 @@ class _ProductMachineState extends State<ProductMachine> {
               Navigator.push(
                 context,
                 MaterialPageRoute(
-                  builder: (context) =>
-                      MachineInfoPage(machineId: widget.id),
+                  builder: (context) => MachineInfoPage(machineId: widget.id),
                 ),
               );
             }

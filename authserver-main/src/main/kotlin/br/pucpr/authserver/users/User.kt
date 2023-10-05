@@ -23,6 +23,9 @@ class User(
     @Column(nullable = false)
     var name: String = "",
 
+    @Column(unique = true, nullable = false)
+    var cellphone: String,
+
     @ManyToMany
     @JoinTable(
         name = "UserRole",
@@ -65,5 +68,5 @@ class User(
     val favoriteMachineAds: MutableSet<MachineryAd> = mutableSetOf(),
 
     ) {
-    fun toResponse() = UserResponse(id!!, name, email, roles.map { role -> role.name })
+    fun toResponse() = UserResponse(id!!, name, cellphone, email, roles.map { role -> role.name })
 }

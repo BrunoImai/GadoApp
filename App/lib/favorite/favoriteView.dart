@@ -59,6 +59,7 @@ class _UserFavListPageState extends State<UserFavListPage> {
               quantity: item['quantity'],
               priceType: item['priceType'],
               description: item['description'],
+              ownerId: item['ownerId'],
               images: images,
               imageUrl: imageUrl
           );
@@ -84,6 +85,7 @@ class _UserFavListPageState extends State<UserFavListPage> {
             area: item['area'],
             priceType: item['priceType'],
             description: item['description'],
+              ownerId: item['ownerId'],
             images: images,
             imageUrl: imageUrl
           );
@@ -108,6 +110,7 @@ class _UserFavListPageState extends State<UserFavListPage> {
             quantity: item['quantity'],
             priceType: item['priceType'],
             description: item['description'],
+              ownerId: item['ownerId'],
             images: images,
             imageUrl: imageUrl
           );
@@ -204,6 +207,7 @@ class _UserFavListPageState extends State<UserFavListPage> {
                                     price: item.price,
                                     weight: item.weight,
                                     qtt: item.quantity!,
+                                    ownerId: item.ownerId!,
                                   );
                                 } else if (item is LandAd) {
                                   return ProductLand(
@@ -215,6 +219,7 @@ class _UserFavListPageState extends State<UserFavListPage> {
                                     id: item.id!,
                                     priceType: item.priceType,
                                     price: item.price,
+                                    ownerId: item.ownerId!,
                                   );
                                 } else if (item is MachineryAd) {
                                   return ProductMachine(
@@ -226,6 +231,7 @@ class _UserFavListPageState extends State<UserFavListPage> {
                                     id: item.id!,
                                     priceType: item.priceType,
                                     price: item.price,
+                                    ownerId: item.ownerId!,
                                   );
                                 } else {
                                   return const SizedBox();

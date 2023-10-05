@@ -3,6 +3,7 @@ package br.pucpr.authserver.users
 import br.pucpr.authserver.advertising.AdvertisingAd
 import br.pucpr.authserver.advertising.AdvertisingRepository
 import br.pucpr.authserver.advertising.requests.AdvertisingRequest
+import br.pucpr.authserver.advertising.response.AdvertisingAdResponse
 import br.pucpr.authserver.animalAds.AnimalAd
 import br.pucpr.authserver.animalAds.AnimalAdRepository
 import br.pucpr.authserver.animalAds.requests.AnimalAdRequest
@@ -44,6 +45,7 @@ class UsersService(
             email = req.email!!,
             password = req.password!!,
             name = req.name!!,
+            cellphone = req.cellphone!!,
             animalAds = ArrayList(),
             landAds = ArrayList(),
             machineryAds = ArrayList(),
@@ -180,6 +182,14 @@ class UsersService(
         return landAdDto
     }
 
+    fun getAdvertisingById(adId: Long): AdvertisingAdResponse {
+        val advertising = advertisingRepository.findByIdOrNull(adId)
+            ?: throw IllegalStateException("advertising with id: $adId, doesn't exist!")
+        val advertisingDto = advertising.toResponse()
+
+        return advertisingDto
+    }
+
     fun findAll(role: String?): List<User> =
         if (role == null) userRepository.findAll(Sort.by("name"))
         else userRepository.findAllByRole(role)
@@ -193,7 +203,7 @@ class UsersService(
     fun findAllAdvertisingAd(): List<AdvertisingAd> = advertisingRepository.findAll()
 
     fun login(credentials: LoginRequest): LoginResponse? {
-        val user = userRepository.findByEmail(credentials.email!!) ?: return null
+        val user = userRepository.findByCellphone(credentials.cellphone!!) ?: return null
         if (user.password != credentials.password) return null
 
         return LoginResponse(
@@ -502,10 +512,10 @@ class UsersService(
         val owner = userRepository.findByIdOrNull(ownerId)
             ?: throw IllegalStateException("User with id: $ownerId, dont exist!")
 
-        val oldAd = animalAdRepository.findByIdOrNull(machineryAdId)
+        val oldAd = machineryAdRepository.findByIdOrNull(machineryAdId)
             ?: throw IllegalStateException("Ad with id: $machineryAdId, dont exist!")
 
-        animalAdRepository.delete(oldAd)
+        machineryAdRepository.delete(oldAd)
 
         val machineryAd = MachineryAd(
             name = req.name,

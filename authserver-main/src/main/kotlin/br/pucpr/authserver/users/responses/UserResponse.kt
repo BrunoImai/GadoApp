@@ -3,6 +3,7 @@ package br.pucpr.authserver.users.responses
 data class UserResponse(
     val id: Long,
     val name: String,
+    val cellphone: String,
     val email: String,
     val roles: List<String>
 )

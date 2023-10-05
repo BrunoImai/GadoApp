@@ -9,7 +9,7 @@ import 'package:http/http.dart' as http;
 
 import '../animal/animalFormView.dart';
 import '../firebase/storageService.dart';
-import '../user/UserAds.dart';
+
 import '../userHome/homePage.dart';
 import '../user/UserManager.dart';
 
@@ -42,6 +42,30 @@ class NewMachineryAdFormState extends State<NewMachineryAdForm> {
   final TextEditingController _priceController= TextEditingController();
   final TextEditingController _qttController = TextEditingController();
   final TextEditingController _descriptionController = TextEditingController();
+
+  @override
+  void initState() {
+    super.initState();
+    if (widget.updatedData != null) {
+      _nameController.text = widget.updatedData!.name;
+      _locationController.text = widget.updatedData!.localization;
+      _priceController.text = widget.updatedData!.price.toString();
+      _qttController.text = widget.updatedData!.quantity.toString();
+      _descriptionController.text = widget.updatedData!.description ?? '';
+      priceTypeValue = widget.updatedData!.priceType ?? "Unid";
+      for (var element in widget.updatedData!.images) {
+        ImageFile image = ImageFile(element, "");
+        loadedImages.add(image);
+        imagePillButtons.add(
+          ImagePillButton(
+            imageName: image.fileName,
+            onPressed: () => removeImage(image),
+          ),
+        );
+      }
+    }
+  }
+
 
   String priceTypeValue = "Unid";
 
@@ -124,12 +148,13 @@ class NewMachineryAdFormState extends State<NewMachineryAdForm> {
       }
 
       if (response.statusCode == 200 || response.statusCode == 201) {
-        await storage.uploadFiles(loadedImages).
-        then((value) => Navigator.pushReplacement(
+        await storage
+            .uploadFiles(loadedImages)
+            .then((value) => Navigator.pushReplacement(
           context,
-          MaterialPageRoute(builder: (context) => const UserHomePage()),
-        )
-        );
+          MaterialPageRoute(
+              builder: (context) => const UserHomePage()),
+        ));
       } else {
         // Registration failed
         print('Registration failed. Status code: ${response.statusCode}');
@@ -158,7 +183,7 @@ class NewMachineryAdFormState extends State<NewMachineryAdForm> {
           leading: IconButton(
             icon: const Icon(Icons.arrow_back),
             onPressed: () {
-              Navigator.pop(context);
+              Navigator.pop(context, true);
             },
           ),
         ),
@@ -234,10 +259,7 @@ class NewMachineryAdFormState extends State<NewMachineryAdForm> {
                     onPress: () {
                       if (_buyFormKey.currentState!.validate()) {
                         registerMachineryAd();
-                        ScaffoldMessenger.of(context).showSnackBar(
-                          const SnackBar(content: Text('Pedido Enviado')),
-                        );
-                        Navigator.pop(context);
+
                       }
                     },
                   ),

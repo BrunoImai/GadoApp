@@ -2,6 +2,7 @@ import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:gado_app/land/landFormView.dart';
+import '../user/user.dart';
 import '../userHome/homePage.dart';
 import 'package:gado_app/land/land.dart';
 import 'package:gado_app/user/UserManager.dart';
@@ -20,19 +21,19 @@ class LandInfoPage extends StatefulWidget {
 
 class _LandInfoPageState extends State<LandInfoPage> {
 
-  late Future<LandAd> _landAdFuture;
+  late Future<LandAdAndOwner> _landAdAndOwnerFuture;
 
   late bool isFavorite = false;
 
   @override
   void initState() {
     super.initState();
-    _landAdFuture = _fetchLandAd();
+    _landAdAndOwnerFuture = _fetchLandAd();
   }
 
-  Future<LandAd> _fetchLandAd() async {
-    // Make the API call to get the animal ad data based on the animalId
-    // Replace 'your_api_endpoint' with the actual API endpoint to get animal details.
+  Future<LandAdAndOwner> _fetchLandAd() async {
+    LandAd landAd;
+    UserRequest ownerInfo;
     final response = await http.get(Uri.parse(
         'http://localhost:8080/api/users/ads/land/${widget.landId}'),
       headers: {
@@ -42,7 +43,7 @@ class _LandInfoPageState extends State<LandInfoPage> {
     if (response.statusCode == 200) {
       // Parse the response JSON and return the data.
       final jsonData = json.decode(response.body);
-      return LandAd(
+      landAd = LandAd(
         id: jsonData['id'],
         name: jsonData['name'],
         price: jsonData['price'].toDouble(),
@@ -52,6 +53,7 @@ class _LandInfoPageState extends State<LandInfoPage> {
         priceType: jsonData['priceType'],
         description: jsonData['description'],
           isFavorite: jsonData['isFavorite'],
+          ownerId: jsonData['ownerId'],
           images: jsonData['images'].cast<String>(),
           status: jsonData['status']
       );
@@ -59,6 +61,30 @@ class _LandInfoPageState extends State<LandInfoPage> {
       // Handle API call errors, you can show an error message or throw an exception.
       throw Exception('Failed to load land ad');
     }
+
+    final ownerResponse = await http.get(
+      Uri.parse(
+          'http://localhost:8080/api/users/${landAd.ownerId}'),
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': 'Bearer ${UserManager.instance.loggedUser!.token}',
+      },
+    );
+    if (ownerResponse.statusCode == 200) {
+      // Parse the response JSON and return the data.
+      final jsonData = json.decode(ownerResponse.body);
+      ownerInfo = UserRequest(
+          name: jsonData['name'],
+          cellphone: jsonData['cellphone'],
+          email: jsonData['email'],
+          password: ""
+      );
+    } else {
+      throw Exception('Failed to load animal ad');
+    }
+
+    return LandAdAndOwner(landAd, ownerInfo);
+
   }
 
   Future<void> deleteAdAsAdm() async {
@@ -148,8 +174,8 @@ class _LandInfoPageState extends State<LandInfoPage> {
 
   @override
   Widget build(BuildContext context) {
-    return FutureBuilder<LandAd>(
-        future: _landAdFuture,
+    return FutureBuilder<LandAdAndOwner>(
+        future: _landAdAndOwnerFuture,
       builder: (context, snapshot) {
         if (snapshot.connectionState == ConnectionState.waiting) {
           // While waiting for the data, show a loading spinner.
@@ -159,7 +185,9 @@ class _LandInfoPageState extends State<LandInfoPage> {
           return Center(child: Text('Error: ${snapshot.error}'));
         } else {
           // Data fetched successfully, use it to populate the AnimalDetails widget.
-          final landAd = snapshot.data!;
+          final landAdAndOwner = snapshot.data!;
+          final landAd = landAdAndOwner.landAd;
+          final ownerData = landAdAndOwner.ownerData;
           isFavorite = landAd.isFavorite!;
           return MaterialApp(
             debugShowCheckedModeBanner: false,
@@ -207,41 +235,15 @@ class _LandInfoPageState extends State<LandInfoPage> {
                       price: landAd.price.toString(),
                       priceType: landAd.priceType!,
                     ),
-                    const Padding(
-                      padding: EdgeInsets.all(12.0),
+                     Padding(
+                      padding: const EdgeInsets.all(12.0),
                       child: Text(
-                          """  Bem-vindo à Fazenda Vista Verde, um verdadeiro paraíso rural localizado em Pinhais, com uma vasta extensão de 1200 hectares. Situada em uma região privilegiada, esta fazenda oferece uma combinação perfeita de uma localização tranquila e de fácil acesso às comodidades da cidade.""",
-                          style: TextStyle(
+                      landAd.description!,
+                          style: const TextStyle(
                               fontWeight: FontWeight.w300,
                               color: Colors.black)),
                     ),
                     if (UserManager.instance.loggedUser!.isAdm)
-                      Column(
-                        children: [
-                          Padding(
-                            padding: const EdgeInsets.all(12.0),
-                            child: FlatMenuButton(
-                                buttonName: "Validar anúncio",
-                                icon: const Icon(Icons.check),
-                                onPress: () {
-                                  validateAd();
-                                }),
-                          ),
-                          Padding(
-                            padding: const EdgeInsets.all(12.0),
-                            child: FlatMenuButton(
-                                buttonName: "Excluir anúncio",
-                                icon: const Icon(Icons.delete),
-                                color: Colors.red,
-                                onPress: () {
-                                  deleteAdAsAdm();
-                                }),
-                          ),
-
-                        ],
-                      )
-                    else if (UserManager.instance.loggedUser!.id ==
-                        landAd.ownerId)
                       Column(
                         children: [
                           Padding(
@@ -259,6 +261,7 @@ class _LandInfoPageState extends State<LandInfoPage> {
                                   );
                                 }),
                           ),
+
                           if (landAd.status != "Aprovado")
                             Padding(
                               padding: const EdgeInsets.all(12.0),
@@ -269,6 +272,48 @@ class _LandInfoPageState extends State<LandInfoPage> {
                                     validateAd();
                                   }),
                             ),
+                          Padding(
+                            padding: const EdgeInsets.all(12.0),
+                            child: FlatMenuButton(
+                                buttonName: "Excluir anúncio",
+                                icon: const Icon(Icons.delete),
+                                color: Colors.red,
+                                onPress: () {
+                                  deleteAdAsAdm();
+                                }),
+                          ),
+
+                        ],
+                      )
+                    else if (UserManager.instance.loggedUser!.id ==
+                        landAd.ownerId)
+                      Column(
+                        children: [
+
+                          Padding(
+                            padding: const EdgeInsets.all(12.0),
+                            child: FlatMenuButton(
+                                icon: const Icon(Icons.refresh),
+                                buttonName: "Atualizar Anúncio",
+                              onPress: () async {
+                                // Navigate to the AnimalInfoPage and wait for the result.
+                                final result = await Navigator.push(
+                                  context,
+                                  MaterialPageRoute(
+                                    builder: (context) =>
+                                        NewLandAdForm(updatedData: landAd),
+                                  ),
+                                );
+                                // Check if the result is true, and reload the list.
+                                if (result == true) {
+                                  setState(() {
+                                    _landAdAndOwnerFuture = _fetchLandAd();
+                                  });
+                                }
+                              },
+                                ),
+                          ),
+
                           Padding(
                             padding: const EdgeInsets.all(12.0),
                             child: FlatMenuButton(
@@ -406,4 +451,11 @@ class LandDetails extends StatelessWidget {
       ),
     );
   }
+}
+
+class LandAdAndOwner {
+  final LandAd landAd;
+  final UserRequest ownerData;
+
+  LandAdAndOwner(this.landAd, this.ownerData);
 }

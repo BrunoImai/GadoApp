@@ -20,6 +20,7 @@ object Stubs {
             name = name,
             email = "$name@email.com",
             password = randomString(),
+            cellphone = "999",
             roles = roles
                 .mapIndexed { i, it -> Role(i.toLong(), it) }
                 .toMutableSet()

@@ -1,5 +1,7 @@
 package br.pucpr.authserver.advertising
 
+import br.pucpr.authserver.advertising.response.AdvertisingAdResponse
+import br.pucpr.authserver.animalAds.responses.AnimalAdResponse
 import jakarta.persistence.*
 
 @Entity
@@ -17,4 +19,6 @@ class AdvertisingAd (
     @ElementCollection
     var images: List<String>? = listOf<String>()
 
-)
+) {
+    fun toResponse() = AdvertisingAdResponse( name, id!!, description,  images!!)
+}

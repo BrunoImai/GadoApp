@@ -36,7 +36,7 @@ POST localhost:8080/api/users/login
 Content-Type: application/json
 
 {
-  "email": "admin@authserver.com",
+  "cellphone": "4288148286",
   "password": "admin"
 }
 > {%
@@ -84,12 +84,15 @@ Authorization: Bearer {{token}}
 
 ### Retorna todos os anuncios de animais
 GET localhost:8080/api/users/ads/animal
+Content-Type: application/json
+Authorization: Bearer {{token}}
 
 ### Retorna todos os anuncios de terras
 GET localhost:8080/api/users/ads/land
 
 ### Retorna todos os anuncios de terras
 GET localhost:8080/api/users/ads/land/2
+
 
 
 ### Retorna todos os anuncios de máquinas
@@ -101,7 +104,7 @@ GET localhost:8080/api/users/2/ads
 ### Retorna todos os anuncios favoritados pelo usuario 2
 GET localhost:8080/api/users/2/favorites
 
-### AAA
+### Retorna todas as publicidades
 GET localhost:8080/api/users/adm/ads
 Content-Type: application/json
 Authorization: Bearer {{token}}

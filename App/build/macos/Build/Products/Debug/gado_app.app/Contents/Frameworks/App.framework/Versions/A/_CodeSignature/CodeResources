@@ -10,11 +10,11 @@
 		</data>
 		<key>Resources/flutter_assets/AssetManifest.bin</key>
 		<data>
-		4EBs0FccICoKuF7mVRKRAq5Y8F0=
+		dh5J0UtJT7Y+r19oROTjvgX9gc4=
 		</data>
 		<key>Resources/flutter_assets/AssetManifest.json</key>
 		<data>
-		DK1Wymaba22xirkeVW1PoUFSaeE=
+		exASTVtimzNBYlOtBaqK1Sm7lts=
 		</data>
 		<key>Resources/flutter_assets/FontManifest.json</key>
 		<data>
@@ -24,9 +24,25 @@
 		<data>
 		J8lrq+TNYOgZNABG1JDEmaba0CQ=
 		</data>
-		<key>Resources/flutter_assets/assets/cowLogo.png</key>
+		<key>Resources/flutter_assets/assets/images/AnimalIcon.png</key>
 		<data>
-		h2C+mhI13xz6y6FcyhCMvEgPjps=
+		6NiVhWL1+AAyem4vTf2C3gzzjxk=
+		</data>
+		<key>Resources/flutter_assets/assets/images/LandIcon.png</key>
+		<data>
+		2svCBSwFbfv6ShqS6LXCtuyRGTE=
+		</data>
+		<key>Resources/flutter_assets/assets/images/MachineryIcon.png</key>
+		<data>
+		LnphRQvgDvNapMbCLB6Ktg3723E=
+		</data>
+		<key>Resources/flutter_assets/assets/images/logo-cropped.png</key>
+		<data>
+		zXMiwWcfhEm5R/ZB6UoA4bzE8oQ=
+		</data>
+		<key>Resources/flutter_assets/assets/images/logo.png</key>
+		<data>
+		JpgRae7ppmUW/7wgx0sK0fOV2KQ=
 		</data>
 		<key>Resources/flutter_assets/fonts/MaterialIcons-Regular.otf</key>
 		<data>
@@ -38,7 +54,7 @@
 		</data>
 		<key>Resources/flutter_assets/kernel_blob.bin</key>
 		<data>
-		ZLejC+jf4VEtdzUFS0i24GuTJsY=
+		WcFTPZoiNF1l4AMlqhwyCObbriQ=
 		</data>
 		<key>Resources/flutter_assets/packages/cupertino_icons/assets/CupertinoIcons.ttf</key>
 		<data>
@@ -98,14 +114,14 @@
 		<dict>
 			<key>hash2</key>
 			<data>
-			4xQh+KQNRZcVuMf3B0ln82Lk0w9xPZx8Xh8fj6oly+g=
+			5mgWbGOJuhQoXwYLclmocYc7lOiHPXNYOdRbQX5KDlU=
 			</data>
 		</dict>
 		<key>Resources/flutter_assets/AssetManifest.json</key>
 		<dict>
 			<key>hash2</key>
 			<data>
-			FTWZkksaR7yM/qrei8X6T725W4QPnBlIzXIfsa8DPvk=
+			1MmtRgSQEnaJ61k/Fnqll2T1KiYY4XprWI+DpYUAS18=
 			</data>
 		</dict>
 		<key>Resources/flutter_assets/FontManifest.json</key>
@@ -122,11 +138,39 @@
 			nMBjbLcbFselM6nfcjDbsvYBGEpPOdqj88Y+oqJx2IQ=
 			</data>
 		</dict>
-		<key>Resources/flutter_assets/assets/cowLogo.png</key>
+		<key>Resources/flutter_assets/assets/images/AnimalIcon.png</key>
 		<dict>
 			<key>hash2</key>
 			<data>
-			89glSvG5WQMEOngulMx2EfSUZatwIhdZkpVotDTsraM=
+			ovaaY6TAUq+A5ibdnqugCuLmARfSkEoBas4EXM/YRHc=
+			</data>
+		</dict>
+		<key>Resources/flutter_assets/assets/images/LandIcon.png</key>
+		<dict>
+			<key>hash2</key>
+			<data>
+			Fd4Of04JeL4pVU82f1+Aq6NqMXbhyYXMsXF5ZPqN2Uw=
+			</data>
+		</dict>
+		<key>Resources/flutter_assets/assets/images/MachineryIcon.png</key>
+		<dict>
+			<key>hash2</key>
+			<data>
+			qemU8JMyU2lUa/f0QEI4t7GOKZtVsbvpuOFRrsYFuOw=
+			</data>
+		</dict>
+		<key>Resources/flutter_assets/assets/images/logo-cropped.png</key>
+		<dict>
+			<key>hash2</key>
+			<data>
+			J/bumsEco4qa6F3Mxju93Mo3bEV4uEMzft98WRSbMPc=
+			</data>
+		</dict>
+		<key>Resources/flutter_assets/assets/images/logo.png</key>
+		<dict>
+			<key>hash2</key>
+			<data>
+			F8CYO0HueIcJ4O9C6tnKQm0HDz4i/jjK7vP2HeyLK6o=
 			</data>
 		</dict>
 		<key>Resources/flutter_assets/fonts/MaterialIcons-Regular.otf</key>
@@ -147,7 +191,7 @@
 		<dict>
 			<key>hash2</key>
 			<data>
-			ylRwbKWvk7v/Fy2KO2W71vLKvtN4buWSgh0JRNuv/uw=
+			jl1H01/HHDF3cjTrFJAF1u6g/wjixabDH0IYzsxLFCs=
 			</data>
 		</dict>
 		<key>Resources/flutter_assets/packages/cupertino_icons/assets/CupertinoIcons.ttf</key>

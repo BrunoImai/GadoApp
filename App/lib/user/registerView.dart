@@ -11,22 +11,62 @@ import 'UserManager.dart';
 class RegisterView extends StatelessWidget {
   final TextEditingController nameController = TextEditingController();
   final TextEditingController emailController = TextEditingController();
+  final TextEditingController cellphoneController = TextEditingController();
   final TextEditingController passwordController = TextEditingController();
-  final TextEditingController confirmPasswordController = TextEditingController();
+  final TextEditingController confirmPasswordController =
+      TextEditingController();
 
   RegisterView({super.key});
 
   @override
   Widget build(BuildContext context) {
-
     Future<void> registerUser(VoidCallback onSuccess) async {
       String name = nameController.text;
+      String cellphone = cellphoneController.text;
       String email = emailController.text;
       String password = passwordController.text;
 
-      UserRequest userRequest = UserRequest(name: name, email: email, password: password);
-      String requestBody = jsonEncode(userRequest.toJson());
+      if (name.isEmpty ||
+          cellphone.isEmpty ||
+          email.isEmpty ||
+          password.isEmpty) {
+        showDialog(
+          context: context,
+          builder: (BuildContext context) {
+            return const AlertPopUp(
+                errorDescription: 'Todos os campos são obrigatórios.');
+          },
+        );
+        return;
+      }
 
+      if (!isValidEmail(email)) {
+        showDialog(
+          context: context,
+          builder: (BuildContext context) {
+            return const AlertPopUp(
+                errorDescription: 'O email inserido é inválido.');
+          },
+        );
+        return;
+      }
+
+      if (cellphone.length > 12 || cellphone.length < 7 || !cellphone.contains(RegExp(r'^[0-9]*$'))) {
+        showDialog(
+          context: context,
+          builder: (BuildContext context) {
+            return const AlertPopUp(
+                errorDescription:
+                    'O número de telefone deve ser válido. Lembre-se de inserir o DDD.');
+          },
+        );
+        return; // Exit the function early if the condition is not met
+      }
+
+      UserRequest userRequest =
+          UserRequest(name: name, cellphone: cellphone, password: password, email: email);
+      String requestBody = jsonEncode(userRequest.toJson());
+      print("Alo");
       try {
         final response = await http.post(
           Uri.parse('http://localhost:8080/api/users'),
@@ -45,19 +85,18 @@ class RegisterView extends StatelessWidget {
           final userName = user['name'];
           final userEmail = user['email'];
 
-          UserManager.instance.loggedUser = LoggedUser(token, userId, userName, userEmail, false);
+          UserManager.instance.loggedUser =
+              LoggedUser(token, userId, userName, userEmail, false);
           onSuccess.call();
           print('Registration successful!');
         } else {
-          // Registration failed
           print('Registration failed. Status code: ${response.statusCode}');
         }
       } catch (e) {
-        // Handle any error that occurred during the HTTP request
         print('Error occurred: $e');
       }
     }
-    
+
     return Scaffold(
       appBar: AppBar(
         title: const Text('Cadastro'),
@@ -70,11 +109,14 @@ class RegisterView extends StatelessWidget {
           children: [
             OneLineInputField("Nome", controller: nameController),
             const SizedBox(height: 32.0),
+            OneLineInputField("Telefone", controller: cellphoneController),
+            const SizedBox(height: 32.0),
             OneLineInputField("Email", controller: emailController),
             const SizedBox(height: 32.0),
             PassWordInputField("Senha", controller: passwordController),
             const SizedBox(height: 32.0),
-            PassWordInputField("Confirme sua senha", controller: confirmPasswordController),
+            PassWordInputField("Confirme sua senha",
+                controller: confirmPasswordController),
             const SizedBox(height: 48.0),
             FlatMenuButton(
               icon: const Icon(Icons.send),
@@ -82,20 +124,23 @@ class RegisterView extends StatelessWidget {
               onPress: () {
                 String password = passwordController.text;
                 String confirmPassword = confirmPasswordController.text;
+                String cellphone = cellphoneController.text;
+                String email = emailController.text;
 
                 if (password != confirmPassword) {
                   showDialog(
                     context: context,
                     builder: (BuildContext context) {
-                      return const AlertPopUp(errorDescription: 'As senhas não coincidem ');
+                      return const AlertPopUp(
+                          errorDescription: 'As senhas não coincidem ');
                     },
                   );
                 } else {
                   registerUser(() {
                     Navigator.push(
                         context,
-                        MaterialPageRoute(builder: (context) => const UserHomePage())
-                    );
+                        MaterialPageRoute(
+                            builder: (context) => const UserHomePage()));
                     ScaffoldMessenger.of(context).showSnackBar(
                       const SnackBar(content: Text('Login Realizado')),
                     );
@@ -110,7 +155,7 @@ class RegisterView extends StatelessWidget {
   }
 }
 
-class AlertPopUp extends StatelessWidget{
+class AlertPopUp extends StatelessWidget {
   const AlertPopUp({super.key, required this.errorDescription});
 
   final String errorDescription;
@@ -118,18 +163,33 @@ class AlertPopUp extends StatelessWidget{
   @override
   Widget build(BuildContext context) {
     return AlertDialog(
-      title: const Text('Erro'),
+      title: const Text(
+        'Erro',
+        style: TextStyle(
+            color: Color.fromARGB(255, 0, 101, 32),
+            fontWeight: FontWeight.bold),
+      ),
       content: Text(errorDescription),
       actions: [
         TextButton(
           onPressed: () {
             Navigator.of(context).pop();
           },
-          child: const Text('OK'),
+          child: const Text(
+            'OK',
+            style: TextStyle(
+                color: Color.fromARGB(255, 0, 101, 32),
+                fontWeight: FontWeight.bold),
+          ),
         ),
       ],
     );
   }
-
 }
 
+bool isValidEmail(String email) {
+  // You can use a regular expression to validate the email format
+  final emailRegExp =
+      RegExp(r'^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$');
+  return emailRegExp.hasMatch(email);
+}

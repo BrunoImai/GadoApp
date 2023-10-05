@@ -1,5 +1,6 @@
 package br.pucpr.authserver.users
 
+import br.pucpr.authserver.advertising.requests.AdvertisingRequest
 import br.pucpr.authserver.animalAds.requests.AnimalAdRequest
 import br.pucpr.authserver.landAds.requests.LandAdRequest
 import br.pucpr.authserver.machineryAds.requests.MachineryAdRequest
@@ -65,6 +66,10 @@ class UsersController (val service: UsersService) {
         service.findAllMachineryAd("Em Análise")
             .map { it.toResponse() }
 
+    @GetMapping("/adm/advertising")
+    fun listAdvertisingAds() =
+        service.findAllAdvertisingAd().map { it.toResponse() }
+
     @PreAuthorize("hasRole('ADMIN')")
     @SecurityRequirement(name = "AuthServer")
     @GetMapping("/adm/ads")
@@ -81,6 +86,12 @@ class UsersController (val service: UsersService) {
     @PostMapping("/{userId}/ads/animal")
     fun createAnimalAd(@Valid @RequestBody req: AnimalAdRequest, @PathVariable("userId") userId: Long) =
         service.createAnimalAd(req, userId)
+            .toResponse()
+            .let { ResponseEntity.status(CREATED).body(it) }
+
+    @PostMapping("/adm/advertising")
+    fun createAdvertising(@Valid @RequestBody req: AdvertisingRequest) =
+        service.createAdvertising(req)
             .toResponse()
             .let { ResponseEntity.status(CREATED).body(it) }
 
@@ -125,7 +136,10 @@ class UsersController (val service: UsersService) {
             ?.let { ResponseEntity.ok(it.toResponse()) }
             ?: ResponseEntity.notFound().build()
 
-
+    @GetMapping("/adm/advertising/{adId}")
+    fun getAdvertising(@PathVariable("adId") adId: Long) =
+        service.getAdvertisingById(adId)
+            .let { ResponseEntity.ok(it) }
     @GetMapping("/ads/animal/{adId}")
     fun getAnimal(@PathVariable("adId") adId: Long) =
         service.getAnimalById(adId)
@@ -155,6 +169,14 @@ class UsersController (val service: UsersService) {
         service.login(credentials)
             ?.let { ResponseEntity.ok(it) }
             ?: ResponseEntity.status(HttpStatus.UNAUTHORIZED).build()
+
+    @DeleteMapping("/adm/advertising/{id}")
+    @PreAuthorize("hasRole('ADMIN')")
+    @SecurityRequirement(name = "AuthServer")
+    fun deleteAdvertising(@PathVariable("id") id: Long): ResponseEntity<Void> =
+        if (service.deleteAdvertisingAd(id)) ResponseEntity.ok().build()
+        else ResponseEntity.notFound().build()
+
 
     @DeleteMapping("/{id}")
     @PreAuthorize("hasRole('ADMIN')")
@@ -204,6 +226,14 @@ class UsersController (val service: UsersService) {
     fun validateMachineryAd(@PathVariable("machineryAdId") id: Long): ResponseEntity<Void> =
         if (service.validateMachineryAd(id)) ResponseEntity.ok().build()
         else ResponseEntity.notFound().build()
+
+    @PutMapping("/adm/advertising/{adId}")
+    @PreAuthorize("hasRole('ADMIN')")
+    @SecurityRequirement(name = "AuthServer")
+    fun updateAdvertising(@Valid @RequestBody req: AdvertisingRequest, @PathVariable("adId") adId: Long ) =
+        service.updateAdvertisingAd(req, adId)
+            .toResponse()
+            .let { ResponseEntity.status(CREATED).body(it) }
 
     @DeleteMapping("/animalAd/{animalAdId}")
     fun deleteSelfAnimalAd(@PathVariable("animalAdId") id: Long): ResponseEntity<Void> =

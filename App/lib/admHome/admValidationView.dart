@@ -2,6 +2,8 @@
 import 'dart:convert';
 
 import 'package:flutter/material.dart';
+import 'package:gado_app/animal/AnimalInfoPage.dart';
+import 'package:gado_app/land/LandInfoPage.dart';
 import 'package:http/http.dart' as http;
 
 import '../animal/Animal.dart';
@@ -10,6 +12,7 @@ import '../firebase/storageService.dart';
 import '../land/land.dart';
 import '../land/landList.dart';
 import '../machine/machine.dart';
+import '../machine/machineInfoPage.dart';
 import '../machine/machineList.dart';
 import '../user/UserManager.dart';
 
@@ -46,38 +49,37 @@ class _AdmAdsListPageState extends State<AdmAdsListPage> {
       print("Entrou");
       final jsonData = json.decode(response.body) as Map<String, dynamic>;
 
-      final animalAdsData = jsonData['animalAdList'] as List<dynamic>;
-      final landAdsData = jsonData['landAdList'] as List<dynamic>;
-      final machineryAdsData = jsonData['machineryAdList'] as List<dynamic>;
+      final animalAdsData = jsonData['animalAds'] as List<dynamic>;
+      final landAdsData = jsonData['landAds'] as List<dynamic>;
+      final machineryAdsData = jsonData['machineryAds'] as List<dynamic>;
 
       List<AnimalAd> animalAds = [];
 
       for (var item in animalAdsData) {
         final images = item['images'].cast<String>();
-        print(images);
+        print(animalAdsData);
         String imageUrl;
         if (images.isNotEmpty) {
           imageUrl = await storage.getImageUrl(images[0]);
         } else {
           imageUrl = await storage.getImageUrl("imgNotFound.jpeg");
         }
-        animalAds = animalAdsData.map((item) {
-          return AnimalAd(
-              id: item['id'],
-              name: item['name'],
-              price: item['price'].toDouble(),
-              localization: item['localization'],
-              batch: item['batch'],
-              weight: item['weight'],
-              quantity: item['quantity'],
-              priceType: item['priceType'],
-              description: item['description'],
-              images: images,
-              imageUrl: imageUrl
-          );
-        }).toList();
+        final animalAd = AnimalAd(
+            id: item['id'],
+            name: item['name'],
+            price: item['price'].toDouble(),
+            localization: item['localization'],
+            batch: item['batch'],
+            weight: item['weight'],
+            quantity: item['quantity'],
+            priceType: item['priceType'],
+            description: item['description'],
+            ownerId: item['ownerId'],
+            images: images,
+            imageUrl: imageUrl
+        );
+        animalAds.add(animalAd);
       }
-      print(animalAds);
 
       List<LandAd> landAds = [];
       for (var item in landAdsData) {
@@ -88,22 +90,21 @@ class _AdmAdsListPageState extends State<AdmAdsListPage> {
         } else {
           imageUrl = await storage.getImageUrl("imgNotFound.jpeg");
         }
-        landAds = landAdsData.map((item) {
-          return LandAd(
-              id: item['id'],
-              name: item['name'],
-              price: item['price'].toDouble(),
-              localization: item['localization'],
-              batch: item['batch'],
-              area: item['area'],
-              priceType: item['priceType'],
-              description: item['description'],
-              images: images,
-              imageUrl: imageUrl
-          );
-        }).toList();
+        final landAd = LandAd(
+            id: item['id'],
+            name: item['name'],
+            price: item['price'].toDouble(),
+            localization: item['localization'],
+            batch: item['batch'],
+            area: item['area'],
+            priceType: item['priceType'],
+            description: item['description'],
+            ownerId: item['ownerId'],
+            images: images,
+            imageUrl: imageUrl
+        );
+        landAds.add(landAd);
       }
-      print(landAds);
 
       List<MachineryAd> machineryAds = [];
       for (var item in machineryAdsData) {
@@ -114,21 +115,21 @@ class _AdmAdsListPageState extends State<AdmAdsListPage> {
         } else {
           imageUrl = await storage.getImageUrl("imgNotFound.jpeg");
         }
-        machineryAds = machineryAdsData.map((item) {
-          return MachineryAd(
-              id: item['id'],
-              name: item['name'],
-              price: item['price'].toDouble(),
-              localization: item['localization'],
-              quantity: item['quantity'],
-              priceType: item['priceType'],
-              description: item['description'],
-              images: images,
-              imageUrl: imageUrl
-          );
-        }).toList();
+        final machineryAd = MachineryAd(
+            id: item['id'],
+            name: item['name'],
+            price: item['price'].toDouble(),
+            localization: item['localization'],
+            quantity: item['quantity'],
+            priceType: item['priceType'],
+            description: item['description'],
+            batch: item['batch'],
+            ownerId: item['ownerId'],
+            images: images,
+            imageUrl: imageUrl
+        );
+        machineryAds.add(machineryAd);
       }
-      print(machineryAds);
 
       return [...animalAds, ...landAds, ...machineryAds];
     } else {
@@ -166,7 +167,7 @@ class _AdmAdsListPageState extends State<AdmAdsListPage> {
             centerTitle: true,
             backgroundColor: const Color.fromARGB(255, 0, 101, 32),
             title: const Text(
-              "Meus Anúncios",
+              "Anúncios Pendentes",
               style: TextStyle(color: Colors.white),
             ),
             actions: [
@@ -211,6 +212,23 @@ class _AdmAdsListPageState extends State<AdmAdsListPage> {
                                     price: data.price,
                                     weight: data.weight,
                                     qtt: data.quantity!,
+                                    ownerId: data.ownerId!,
+                                    onPressed: () async {
+                                      // Navigate to the MachineInfoPage and wait for the result.
+                                      final result = await Navigator.push(
+                                        context,
+                                        MaterialPageRoute(
+                                          builder: (context) =>
+                                              AnimalInfoPage(animalId: data.id!),
+                                        ),
+                                      );
+                                      // Check if the result is true, and reload the list.
+                                      if (result == true) {
+                                        setState(() {
+                                          futureData = fetchAllAds();
+                                        });
+                                      }
+                                    },
                                   );
 
                                   return product;
@@ -224,6 +242,23 @@ class _AdmAdsListPageState extends State<AdmAdsListPage> {
                                     id: data.id!,
                                     priceType: data.priceType,
                                     price: data.price,
+                                    ownerId: data.ownerId!,
+                                    onPressed: () async {
+                                      // Navigate to the MachineInfoPage and wait for the result.
+                                      final result = await Navigator.push(
+                                        context,
+                                        MaterialPageRoute(
+                                          builder: (context) =>
+                                              LandInfoPage(landId: data.id!),
+                                        ),
+                                      );
+                                      // Check if the result is true, and reload the list.
+                                      if (result == true) {
+                                        setState(() {
+                                          futureData = fetchAllAds();
+                                        });
+                                      }
+                                    },
                                   );
                                   return product;
                                 } else if (data is MachineryAd) {
@@ -236,6 +271,23 @@ class _AdmAdsListPageState extends State<AdmAdsListPage> {
                                     id: data.id!,
                                     priceType: data.priceType,
                                     price: data.price,
+                                    ownerId: data.ownerId!,
+                                    onPressed: () async {
+                                      // Navigate to the MachineInfoPage and wait for the result.
+                                      final result = await Navigator.push(
+                                        context,
+                                        MaterialPageRoute(
+                                          builder: (context) =>
+                                              MachineInfoPage(machineId: data.id!),
+                                        ),
+                                      );
+                                      // Check if the result is true, and reload the list.
+                                      if (result == true) {
+                                        setState(() {
+                                          futureData = fetchAllAds();
+                                        });
+                                      }
+                                    },
                                   );
                                   return product;
                                 } else {

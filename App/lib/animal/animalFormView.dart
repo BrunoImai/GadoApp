@@ -67,7 +67,6 @@ class NewAnimalAdFormState extends State<NewAnimalAdForm> {
         );
       }
     }
-
   }
 
   String priceTypeValue = "Unid";
@@ -151,12 +150,17 @@ class NewAnimalAdFormState extends State<NewAnimalAdForm> {
     }
 
       if (response.statusCode == 200 || response.statusCode == 201) {
-        await storage.uploadFiles(loadedImages).
-          then((value) => Navigator.pushReplacement(
-            context,
-            MaterialPageRoute(builder: (context) => const UserHomePage()),
-          )
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('Anúncio Criado')),
         );
+        await storage.uploadFiles(loadedImages);
+
+// Navigate to UserHomePage using the named route
+        Navigator.pushReplacement(
+          context,
+          MaterialPageRoute(builder: (context) => const UserHomePage()),
+        );
+
       } else {
         // Registration failed
         print('Registration failed. Status code: ${response.statusCode}');
@@ -174,131 +178,134 @@ class NewAnimalAdFormState extends State<NewAnimalAdForm> {
   Widget build(BuildContext context) {
 
     // Build a Form widget using the _formKey created above.
-    return Scaffold(
-        appBar: AppBar(
-          centerTitle: true,
-          backgroundColor: const Color.fromARGB(255, 0, 101, 32),
-          title: Text(
-            (widget.updatedData == null) ? "Novo Anúncio de Animal" : "Atualizar Anúncio",
-            style: const TextStyle(color: Colors.white),
-          ),
-          leading: IconButton(
-            icon: const Icon(Icons.arrow_back),
-            onPressed: () {
-              Navigator.pop(context);
-            },
-          ),
-        ),
-        body: GestureDetector(
-          onTap: () => FocusManager.instance.primaryFocus?.unfocus(),
-          child: Form(
-            key: _buyFormKey,
-            child: ListView(
-              children: [Column(
-                children: <Widget>[
-                  LogoBox,
-                  OneLineInputField(
-                      "Titulo", controller: _nameController,
-                  ),
-                  Row(
-                    children: [
-                      Flexible(
-                        flex: 4,
-                        child: OneLineInputField(
-                          "Valor",
-                          controller: _priceController,
-                          suffixText: "R\$",
-                        ),
-                      ),
-                      const Spacer(
-                        flex: 1,
-                      ),
-                      Flexible(
-                        flex: 4,
-                        child: DropdownButtonExample(
-                          list: const ["Unid", "KG"],
-                          selectedValue: priceTypeValue,
-                          onChanged: handleDropdownValueChanged,
-                        ),
-                      ),
-                    ],
-                  ),
-                  Row(
-                    children: [
-                      Flexible(
-                        flex: 4,
-                        child: OneLineInputField(
-                          "Peso", controller: _weightController, suffixText: "KG",
-                        ),
-                      ),
-                      const Spacer(
-                        flex: 1,
-                      )
-                      ,
-                      Flexible(
-                        flex: 4,
-                        child: OneLineInputField(
-                          "Quantidade", controller: _qttController,
-                        ),
-                      ),
-                    ],
-                  ),
-
-                  OneLineInputField(
-                    "Local", controller: _locationController,
-                  ),
-
-                  FlatMenuButton(
-                    icon: const Icon(Icons.image),
-                    buttonName: "Adicionar imagem",
-                      onPress: () async {
-                        final results = await FilePicker.platform.pickFiles(
-                          allowMultiple: false,
-                          type: FileType.custom,
-                          allowedExtensions: ['png', 'jpg', 'jpeg']
-                        );
-                        if (results == null) {
-                          ScaffoldMessenger.of(context).showSnackBar(
-                            const SnackBar(content: Text('Nenhum arquivo selecionado!'))
-                          );
-                          return null;
-                        }
-                        print(results.files.single.path);
-                        addImage(results.files.single.path!, results.files.single.name);
-
-                      }
-                  ),
-
-                  Wrap(
-                    children: imagePillButtons,
-                  ),
-
-                  MultiLineInputField(
-                    controller: _descriptionController, fieldLabelText: 'Descrição', visibleRows: 5,
-                  ),
-                  FlatMenuButton(
-                    icon: const Icon(Icons.send),
-                    buttonName: "Enviar",
-                    onPress: () {
-                      if (_buyFormKey.currentState!.validate()) {
-                        registerAnimalAd();
-                        ScaffoldMessenger.of(context).showSnackBar(
-                          const SnackBar(content: Text('Pedido Enviado')),
-                        );
-
-                      }
-                    }
-                  )
-                ] .map((widget) => Padding(
-                  padding: const EdgeInsets.all(24),
-                  child: widget,
-                ))
-                    .toList(),
-              ),
-            ]
+    return MaterialApp(
+      debugShowCheckedModeBanner: false,
+      home: Scaffold(
+          appBar: AppBar(
+            centerTitle: true,
+            backgroundColor: const Color.fromARGB(255, 0, 101, 32),
+            title: Text(
+              (widget.updatedData == null) ? "Novo Anúncio de Animal" : "Atualizar Anúncio",
+              style: const TextStyle(color: Colors.white),
+            ),
+            leading: IconButton(
+              icon: const Icon(Icons.arrow_back),
+              onPressed: () {
+                Navigator.pop(context, true);
+              },
             ),
           ),
-        )
+          body: GestureDetector(
+            onTap: () => FocusManager.instance.primaryFocus?.unfocus(),
+            child: Form(
+              key: _buyFormKey,
+              child: ListView(
+                children: [Column(
+                  children: <Widget>[
+                    LogoBox,
+                    OneLineInputField(
+                        "Titulo", controller: _nameController,
+                    ),
+                    Row(
+                      children: [
+                        Flexible(
+                          flex: 4,
+                          child: OneLineInputField(
+                            "Valor",
+                            controller: _priceController,
+                            suffixText: "R\$",
+                          ),
+                        ),
+                        const Spacer(
+                          flex: 1,
+                        ),
+                        Flexible(
+                          flex: 4,
+                          child: DropdownButtonExample(
+                            list: const ["Unid", "KG"],
+                            selectedValue: priceTypeValue,
+                            onChanged: handleDropdownValueChanged,
+                          ),
+                        ),
+                      ],
+                    ),
+                    Row(
+                      children: [
+                        Flexible(
+                          flex: 4,
+                          child: OneLineInputField(
+                            "Peso", controller: _weightController, suffixText: "KG",
+                          ),
+                        ),
+                        const Spacer(
+                          flex: 1,
+                        )
+                        ,
+                        Flexible(
+                          flex: 4,
+                          child: OneLineInputField(
+                            "Quantidade", controller: _qttController,
+                          ),
+                        ),
+                      ],
+                    ),
+
+                    OneLineInputField(
+                      "Local", controller: _locationController,
+                    ),
+
+                    FlatMenuButton(
+                      icon: const Icon(Icons.image),
+                      buttonName: "Adicionar imagem",
+                        onPress: () async {
+                          final results = await FilePicker.platform.pickFiles(
+                            allowMultiple: false,
+                            type: FileType.custom,
+                            allowedExtensions: ['png', 'jpg', 'jpeg']
+                          );
+                          if (results == null) {
+                            ScaffoldMessenger.of(context).showSnackBar(
+                              const SnackBar(content: Text('Nenhum arquivo selecionado!'))
+                            );
+                            return null;
+                          }
+                          print(results.files.single.path);
+                          addImage(results.files.single.path!, results.files.single.name);
+
+                        }
+                    ),
+
+                    Wrap(
+                      children: imagePillButtons,
+                    ),
+
+                    MultiLineInputField(
+                      controller: _descriptionController, fieldLabelText: 'Descrição', visibleRows: 5,
+                    ),
+                    FlatMenuButton(
+                      icon: const Icon(Icons.send),
+                      buttonName: "Enviar",
+                      onPress: () {
+                        if (_buyFormKey.currentState!.validate()) {
+                          registerAnimalAd();
+                          ScaffoldMessenger.of(context).showSnackBar(
+                            const SnackBar(content: Text('Pedido Enviado')),
+                          );
+
+                        }
+                      }
+                    )
+                  ] .map((widget) => Padding(
+                    padding: const EdgeInsets.all(24),
+                    child: widget,
+                  ))
+                      .toList(),
+                ),
+              ]
+              ),
+            ),
+          )
+      ),
     );
   }
 }

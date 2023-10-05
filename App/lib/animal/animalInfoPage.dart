@@ -4,6 +4,7 @@ import 'package:carousel_slider/carousel_slider.dart';
 import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:gado_app/animal/Animal.dart';
+import 'package:gado_app/user/user.dart';
 import '../userHome/homePage.dart';
 
 import 'package:http/http.dart' as http;
@@ -13,26 +14,27 @@ import '../user/UserManager.dart';
 import 'animalFormView.dart';
 
 class AnimalInfoPage extends StatefulWidget {
-  const AnimalInfoPage({Key? key, required this.animalId}) : super(key: key);
+  const AnimalInfoPage({Key? key, required this.animalId,}) : super(key: key);
   final int animalId;
+
 
   @override
   State<AnimalInfoPage> createState() => _AnimalInfoPageState();
 }
 
 class _AnimalInfoPageState extends State<AnimalInfoPage> {
-  late Future<AnimalAd> _animalAdFuture;
+  late Future<AnimalAdAndOwner> _animalAdAndOwnerFuture;
 
   @override
   void initState() {
     super.initState();
-    _animalAdFuture = _fetchAnimalAd();
+    _animalAdAndOwnerFuture = _fetchAnimalAd();
   }
 
-  Future<AnimalAd> _fetchAnimalAd() async {
-    // Make the API call to get the animal ad data based on the animalId
-    // Replace 'your_api_endpoint' with the actual API endpoint to get animal details.
-    final response = await http.get(
+  Future<AnimalAdAndOwner> _fetchAnimalAd() async {
+    AnimalAd animalAd;
+    UserRequest ownerInfo;
+    final animalAdresponse = await http.get(
       Uri.parse(
           'http://localhost:8080/api/users/ads/animal/${widget.animalId}'),
       headers: {
@@ -40,10 +42,10 @@ class _AnimalInfoPageState extends State<AnimalInfoPage> {
         'Authorization': 'Bearer ${UserManager.instance.loggedUser!.token}',
       },
     );
-    if (response.statusCode == 200) {
+    if (animalAdresponse.statusCode == 200) {
       // Parse the response JSON and return the data.
-      final jsonData = json.decode(response.body);
-      return AnimalAd(
+      final jsonData = json.decode(animalAdresponse.body);
+       animalAd = AnimalAd(
           id: jsonData['id'],
           name: jsonData['name'],
           price: jsonData['price'].toDouble(),
@@ -60,6 +62,29 @@ class _AnimalInfoPageState extends State<AnimalInfoPage> {
     } else {
       throw Exception('Failed to load animal ad');
     }
+
+    final ownerResponse = await http.get(
+      Uri.parse(
+          'http://localhost:8080/api/users/${animalAd.ownerId}'),
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': 'Bearer ${UserManager.instance.loggedUser!.token}',
+      },
+    );
+    if (ownerResponse.statusCode == 200) {
+      // Parse the response JSON and return the data.
+      final jsonData = json.decode(ownerResponse.body);
+      ownerInfo = UserRequest(
+          name: jsonData['name'],
+          cellphone: jsonData['cellphone'],
+          email: jsonData['email'],
+          password: ""
+      );
+    } else {
+      throw Exception('Failed to load animal ad');
+    }
+
+    return AnimalAdAndOwner(animalAd, ownerInfo);
   }
 
   late bool isFavorite = false;
@@ -81,6 +106,8 @@ class _AnimalInfoPageState extends State<AnimalInfoPage> {
     }
   }
 
+
+
   Future<void> deleteAdAsAdm() async {
     final response = await http.delete(
       Uri.parse(
@@ -97,6 +124,8 @@ class _AnimalInfoPageState extends State<AnimalInfoPage> {
       });
     }
   }
+
+
 
   Future<void> deleteAdAsOwner() async {
     final response = await http.delete(
@@ -135,7 +164,6 @@ class _AnimalInfoPageState extends State<AnimalInfoPage> {
         });
       }
     } else {
-      // Remove the land ad from user's favorites
       final response = await http.delete(
         Uri.parse(
             'http://localhost:8080/api/users/$userId/favorites/animalAd/$favoriteId'),
@@ -153,9 +181,9 @@ class _AnimalInfoPageState extends State<AnimalInfoPage> {
   }
 
   @override
-  Widget build(BuildContext context) {
-    return FutureBuilder<AnimalAd>(
-        future: _animalAdFuture,
+  Widget build(BuildContext bdcontext) {
+    return FutureBuilder<AnimalAdAndOwner>(
+        future: _animalAdAndOwnerFuture,
         builder: (context, snapshot) {
           if (snapshot.connectionState == ConnectionState.waiting) {
             // While waiting for the data, show a loading spinner.
@@ -165,7 +193,9 @@ class _AnimalInfoPageState extends State<AnimalInfoPage> {
             return Center(child: Text('Error: ${snapshot.error}'));
           } else {
             // Data fetched successfully, use it to populate the AnimalDetails widget.
-            final animalAd = snapshot.data!;
+            final animalAdAndOwner = snapshot.data!;
+            final animalAd = animalAdAndOwner.animalAd;
+            final ownerData = animalAdAndOwner.ownerData;
             isFavorite = animalAd.isFavorite!;
             return MaterialApp(
               debugShowCheckedModeBanner: false,
@@ -229,13 +259,11 @@ class _AnimalInfoPageState extends State<AnimalInfoPage> {
                               child: FlatMenuButton(
                                   icon: const Icon(Icons.refresh),
                                   buttonName: "Atualizar Anúncio",
-                                  onPress: () {
+                                  onPress: (){
                                     Navigator.push(
-                                      context,
+                                      bdcontext,
                                       MaterialPageRoute(
-                                        builder: (context) => NewAnimalAdForm(
-                                            updatedData: animalAd),
-                                      ),
+                                          builder: (context) => NewAnimalAdForm(updatedData: animalAd,)),
                                     );
                                   }),
                             ),
@@ -280,15 +308,23 @@ class _AnimalInfoPageState extends State<AnimalInfoPage> {
                               child: FlatMenuButton(
                                   icon: const Icon(Icons.refresh),
                                   buttonName: "Atualizar Anúncio",
-                                  onPress: () {
-                                    Navigator.push(
-                                      context,
-                                      MaterialPageRoute(
-                                        builder: (context) => NewAnimalAdForm(
-                                            updatedData: animalAd),
-                                      ),
-                                    );
-                                  }),
+                                onPress: () async {
+                                  // Navigate to the AnimalInfoPage and wait for the result.
+                                  final result = await Navigator.push(
+                                    context,
+                                    MaterialPageRoute(
+                                      builder: (context) =>
+                                          NewAnimalAdForm(updatedData: animalAd),
+                                    ),
+                                  );
+                                  // Check if the result is true, and reload the list.
+                                  if (result == true) {
+                                    setState(() {
+                                      _animalAdAndOwnerFuture = _fetchAnimalAd();
+                                    });
+                                  }
+                                },
+                                  ),
                             ),
                           ],
                         )
@@ -327,7 +363,19 @@ class _AnimalInfoPageState extends State<AnimalInfoPage> {
                           style: const TextStyle(
                               color: Color.fromARGB(255, 0, 101, 32),
                               fontWeight: FontWeight.bold,
-                              fontSize: 18))
+                              fontSize: 18)),
+
+                      const SizedBox(height: 10),
+
+
+                      Text(
+                        "Owner Information:\nName: ${ownerData.name}\nCellphone: ${ownerData.cellphone}\nEmail: ${ownerData.email}",
+                        style: const TextStyle(
+                          color: Color.fromARGB(255, 0, 101, 32),
+                          fontWeight: FontWeight.bold,
+                          fontSize: 18,
+                        ),
+                      ),
                     ],
                   ),
                 ]),
@@ -415,6 +463,64 @@ class AnimalDetails extends StatelessWidget {
   }
 }
 
+class OwnerDetails extends StatelessWidget {
+
+  const OwnerDetails({
+    super.key,
+    required this.name,
+    required this.cellphone,
+    required this.email
+  });
+
+  final String name;
+  final String cellphone;
+  final String email;
+
+  @override
+  Widget build(BuildContext context) {
+    return Padding(
+      padding: const EdgeInsets.all(12.0),
+      child: Column(
+        mainAxisSize: MainAxisSize.max,
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          const Row(
+            mainAxisAlignment: MainAxisAlignment.start,
+            children: [
+              Text("Dados do dono do anúncio",
+                  style: TextStyle(
+                      color: Color.fromARGB(255, 0, 101, 32),
+                      fontWeight: FontWeight.bold,
+                      fontSize: 22)),
+            ],
+          ),
+          Row(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              Text("Nome: $name",
+                  style: const TextStyle(
+                      fontWeight: FontWeight.w300, color: Colors.black)),
+              Text(email,
+                  style: const TextStyle(
+                      fontWeight: FontWeight.w300, color: Colors.black))
+            ],
+          ),
+          Text("Telefone: $cellphone",
+              style: const TextStyle(
+                  fontWeight: FontWeight.w300, color: Colors.black)),
+        ]
+            .map((widget) => Padding(
+          padding: const EdgeInsets.all(3),
+          child: widget,
+        ))
+            .toList(),
+      ),
+    );
+  }
+}
+
+
 class CarouselProducts extends StatefulWidget {
   final List<String> images;
   int pageIndex = 1;
@@ -500,4 +606,12 @@ class _CarouselProductsState extends State<CarouselProducts> {
       ],
     );
   }
+}
+
+
+class AnimalAdAndOwner {
+  final AnimalAd animalAd;
+  final UserRequest ownerData;
+
+  AnimalAdAndOwner(this.animalAd, this.ownerData);
 }

@@ -1,14 +1,19 @@
 import 'dart:convert';
 
 import 'package:flutter/material.dart';
+import 'package:gado_app/animal/AnimalInfoPage.dart';
+import 'package:gado_app/land/LandInfoPage.dart';
+import 'package:gado_app/userHome/homePage.dart';
 import 'package:http/http.dart' as http;
 
 import '../animal/Animal.dart';
 import '../animal/AnimalList.dart';
+import '../animal/animalFormView.dart';
 import '../firebase/storageService.dart';
 import '../land/land.dart';
 import '../land/landList.dart';
 import '../machine/machine.dart';
+import '../machine/machineInfoPage.dart';
 import '../machine/machineList.dart';
 import 'UserManager.dart';
 
@@ -38,9 +43,9 @@ class _UserAdsListPageState extends State<UserAdsListPage> {
     if (response.statusCode == 200) {
       final jsonData = json.decode(response.body) as Map<String, dynamic>;
 
-      final animalAdsData = jsonData['animalAdList'] as List<dynamic>;
-      final landAdsData = jsonData['landAdList'] as List<dynamic>;
-      final machineryAdsData = jsonData['machineryAdList'] as List<dynamic>;
+      final animalAdsData = jsonData['animalAds'] as List<dynamic>;
+      final landAdsData = jsonData['landAds'] as List<dynamic>;
+      final machineryAdsData = jsonData['machineryAds'] as List<dynamic>;
 
       List<AnimalAd> animalAds = [];
 
@@ -52,8 +57,7 @@ class _UserAdsListPageState extends State<UserAdsListPage> {
         } else {
           imageUrl = await storage.getImageUrl("imgNotFound.jpeg");
         }
-        animalAds = animalAdsData.map((item) {
-          return AnimalAd(
+        final animalAd = AnimalAd(
               id: item['id'],
               name: item['name'],
               price: item['price'].toDouble(),
@@ -63,10 +67,11 @@ class _UserAdsListPageState extends State<UserAdsListPage> {
               quantity: item['quantity'],
               priceType: item['priceType'],
               description: item['description'],
+              ownerId: item['ownerId'],
               images: images,
               imageUrl: imageUrl
           );
-        }).toList();
+        animalAds.add(animalAd);
       }
 
       List<LandAd> landAds = [];
@@ -78,8 +83,7 @@ class _UserAdsListPageState extends State<UserAdsListPage> {
         } else {
           imageUrl = await storage.getImageUrl("imgNotFound.jpeg");
         }
-        landAds = landAdsData.map((item) {
-          return LandAd(
+        final landAd = LandAd(
               id: item['id'],
               name: item['name'],
               price: item['price'].toDouble(),
@@ -88,10 +92,11 @@ class _UserAdsListPageState extends State<UserAdsListPage> {
               area: item['area'],
               priceType: item['priceType'],
               description: item['description'],
+            ownerId: item['ownerId'],
               images: images,
               imageUrl: imageUrl
           );
-        }).toList();
+        landAds.add(landAd);
       }
 
       List<MachineryAd> machineryAds = [];
@@ -103,8 +108,7 @@ class _UserAdsListPageState extends State<UserAdsListPage> {
         } else {
           imageUrl = await storage.getImageUrl("imgNotFound.jpeg");
         }
-        machineryAds = machineryAdsData.map((item) {
-          return MachineryAd(
+        final machineryAd = MachineryAd(
               id: item['id'],
               name: item['name'],
               price: item['price'].toDouble(),
@@ -112,10 +116,12 @@ class _UserAdsListPageState extends State<UserAdsListPage> {
               quantity: item['quantity'],
               priceType: item['priceType'],
               description: item['description'],
+              ownerId: item['ownerId'],
+              batch: item['batch'],
               images: images,
               imageUrl: imageUrl
           );
-        }).toList();
+        machineryAds.add(machineryAd);
       }
 
       return [...animalAds, ...landAds, ...machineryAds];
@@ -140,7 +146,7 @@ class _UserAdsListPageState extends State<UserAdsListPage> {
   }
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext bdcontext) {
     return MaterialApp(
       debugShowCheckedModeBanner: false,
       home: ColorFiltered(
@@ -154,7 +160,7 @@ class _UserAdsListPageState extends State<UserAdsListPage> {
             centerTitle: true,
             backgroundColor: const Color.fromARGB(255, 0, 101, 32),
             title: const Text(
-              "Meus Anúncios",
+               "Meus Anúncios",
               style: TextStyle(color: Colors.white),
             ),
             actions: [
@@ -172,7 +178,6 @@ class _UserAdsListPageState extends State<UserAdsListPage> {
           ),
           body: Column(
             children: [
-              // Body code remains the same
               Expanded(
                 child: Center(
                   child: SizedBox(
@@ -185,51 +190,119 @@ class _UserAdsListPageState extends State<UserAdsListPage> {
                             itemCount: snapshot.data!.length,
                             separatorBuilder: (context, index) => const SizedBox(height: 8),
                             itemBuilder: (context, index) {
-                              if (index < snapshot.data!.length) {
-                                final data = snapshot.data![index];
-                                if (data is AnimalAd) {
-                                  var product =  ProductAnimal(
-                                    imageLink: data.imageUrl!,
-                                    productName: data.name,
-                                    batch: data.batch!,
-                                    localization: data.localization,
-                                    id: data.id!,
-                                    priceType: data.priceType,
-                                    price: data.price,
-                                    weight: data.weight,
-                                    qtt: data.quantity!,
-                                  );
+                              final data = snapshot.data;
+                              if (data == null || data.isEmpty) {
+                                return const Center(
+                                  child: Column(
+                                    mainAxisAlignment: MainAxisAlignment.center,
+                                    children: [
+                                      Icon(
+                                        Icons.report_gmailerrorred,
+                                        size: 64,
+                                        color: Colors.grey,
+                                      ),
+                                      SizedBox(height: 16),
+                                      Text(
+                                        'Você não possuí nenhum anúncio cadastrado',
+                                        style: TextStyle(
+                                          fontSize: 16,
+                                          color: Colors.grey,
+                                        ),
+                                      ),
+                                    ],
+                                  ),
+                                );
+                              }else {
+                                if (index < snapshot.data!.length) {
+                                  final data = snapshot.data![index];
+                                  if (data is AnimalAd) {
+                                    var product = ProductAnimal(
+                                      imageLink: data.imageUrl!,
+                                      productName: data.name,
+                                      batch: data.batch!,
+                                      localization: data.localization,
+                                      id: data.id!,
+                                      priceType: data.priceType,
+                                      price: data.price,
+                                      weight: data.weight,
+                                      qtt: data.quantity!,
+                                      ownerId: data.ownerId!,
+                                      onPressed: () async {
+                                        // Navigate to the MachineInfoPage and wait for the result.
+                                        Navigator.push(
+                                          bdcontext,
+                                          MaterialPageRoute(
+                                              builder: (bdcontext) => AnimalInfoPage(animalId: data.id!)),
+                                        );
+                                      },
+                                    );
 
-                                  return product;
-                                } else if (data is LandAd) {
-                                  var product = ProductLand(
-                                    imageLink: data.imageUrl!,
-                                    productName: data.name,
-                                    batch: data.batch!,
-                                    localization: data.localization,
-                                    area: data.area!,
-                                    id: data.id!,
-                                    priceType: data.priceType,
-                                    price: data.price,
-                                  );
-                                  return product;
-                                } else if (data is MachineryAd) {
-                                  var product = ProductMachine(
-                                    imageLink: data.imageUrl!,
-                                    productName: data.name,
-                                    batch: data.batch!,
-                                    localization: data.localization,
-                                    qtt: data.quantity!,
-                                    id: data.id!,
-                                    priceType: data.priceType,
-                                    price: data.price,
-                                  );
-                                  return product;
-                                 } else {
-                                  return const SizedBox(); // Return an empty container if the data type is not recognized
+                                    return product;
+                                  } else if (data is LandAd) {
+                                    var product = ProductLand(
+                                      imageLink: data.imageUrl!,
+                                      productName: data.name,
+                                      batch: data.batch!,
+                                      localization: data.localization,
+                                      area: data.area!,
+                                      id: data.id!,
+                                      priceType: data.priceType,
+                                      price: data.price,
+                                      ownerId: data.ownerId!,
+                                      onPressed: () async {
+                                        // Navigate to the MachineInfoPage and wait for the result.
+                                        final result = await Navigator.push(
+                                          bdcontext,
+                                          MaterialPageRoute(
+                                            builder: (bdcontext) =>
+                                                LandInfoPage(landId: data.id!),
+                                          ),
+                                        );
+                                        // Check if the result is true, and reload the list.
+                                        if (result == true) {
+                                          setState(() {
+                                            futureData = fetchAllAds();
+                                          });
+                                        }
+                                      },
+                                    );
+                                    return product;
+                                  } else if (data is MachineryAd) {
+                                    var product = ProductMachine(
+                                      imageLink: data.imageUrl!,
+                                      productName: data.name,
+                                      batch: data.batch!,
+                                      localization: data.localization,
+                                      qtt: data.quantity!,
+                                      id: data.id!,
+                                      priceType: data.priceType,
+                                      price: data.price,
+                                      ownerId: data.ownerId!,
+                                      onPressed: () async {
+                                        // Navigate to the MachineInfoPage and wait for the result.
+                                        final result = await Navigator.push(
+                                          bdcontext,
+                                          MaterialPageRoute(
+                                            builder: (bdcontext) =>
+                                                MachineInfoPage(
+                                                    machineId: data.id!),
+                                          ),
+                                        );
+                                        // Check if the result is true, and reload the list.
+                                        if (result == true) {
+                                          setState(() {
+                                            futureData = fetchAllAds();
+                                          });
+                                        }
+                                      },
+                                    );
+                                    return product;
+                                  } else {
+                                    return const SizedBox(); // Return an empty container if the data type is not recognized
+                                  }
+                                } else {
+                                  return const SizedBox(); // Return an empty container if the index is out of range.
                                 }
-                              } else {
-                                return const SizedBox(); // Return an empty container if the index is out of range.
                               }
                             },
                           );

@@ -1,12 +1,17 @@
+import 'dart:convert';
+
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:gado_app/favorite/favoriteView.dart';
 import 'package:gado_app/land/landFormView.dart';
 import 'package:gado_app/land/landList.dart';
 import 'package:gado_app/machine/machineList.dart';
 import 'package:gado_app/machine/machineryFormView.dart';
-import 'package:gado_app/publicity/publicityInfo.dart';
+import 'package:gado_app/publicity/Advertising.dart';
+import 'package:gado_app/publicity/AdvertisingForm.dart';
+import 'package:gado_app/publicity/AdvertisingInfo.dart';
 import 'package:gado_app/user/InitialView.dart';
 import 'package:gado_app/user/UserManager.dart';
+import 'package:http/http.dart' as http;
 
 import 'package:url_launcher/link.dart';
 
@@ -16,28 +21,69 @@ import 'package:flutter/material.dart';
 import '../admHome/admValidationView.dart';
 import '../animal/animalFormView.dart';
 import '../animal/AnimalList.dart';
+import '../firebase/storageService.dart';
 import '../user/UserAds.dart';
 
 class UserHomePage extends StatefulWidget {
   const UserHomePage({Key? key}) : super(key: key);
-
+  static const String routeName = '/user_home';
   @override
   State<UserHomePage> createState() => _UserHomePageState();
 }
+
 class _UserHomePageState extends State<UserHomePage> {
   int _selectedIndex = 0;
   late PageController _pageController;
+  final Storage storage = Storage();
+  late Future<List<Advertising>> futureData;
 
-  final List<Widget> _screens = [
-    const HomePageScreen(),
-    UserManager.instance.loggedUser!.isAdm ? const AdmAdsListPage() : const UserFavListPage(),
-    const UserAdsListPage(),
-  ];
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    futureData = getAllAdvertising();
+  }
+
 
   @override
   void initState() {
     super.initState();
     _pageController = PageController(initialPage: _selectedIndex);
+    futureData = getAllAdvertising();
+    futureData.toString();// Fetch advertising data
+  }
+
+  Future<List<Advertising>> getAllAdvertising() async {
+    final response = await http.get(
+      Uri.parse('http://localhost:8080/api/users/adm/advertising'),
+    );
+
+    if (response.statusCode == 200) {
+      final jsonData = json.decode(response.body) as List<dynamic>;
+      List<Advertising> adList = [];
+      for (var item in jsonData) {
+        final images = item['images'].cast<String>();
+        String imageUrl;
+        if (images.isNotEmpty) {
+          imageUrl = await storage.getImageUrl(images[0]);
+        } else {
+          imageUrl = await storage.getImageUrl("imgNotFound.jpeg");
+        }
+        final advertising = Advertising(
+          id: item['id'],
+          description: item['description'],
+          name: item['name'],
+          images: images,
+          imageUrl: imageUrl,
+        );
+        adList.add(advertising);
+      }
+
+      return adList;
+    } else {
+      print('Response status: ${response.statusCode}');
+      print('Response body: ${response.body}');
+      throw Exception('Failed to load advertising data');
+    }
   }
 
   @override
@@ -52,16 +98,35 @@ class _UserHomePageState extends State<UserHomePage> {
       _pageController.jumpToPage(index);
     });
   }
+
   @override
   Widget build(BuildContext context) {
-    return MaterialApp(
-      debugShowCheckedModeBanner: false,
-      home: Scaffold(
+    return Scaffold(
         body: PageView(
-          controller: _pageController,
-          onPageChanged: _onItemTapped,
-          children: _screens,
-        ),
+            controller: _pageController,
+            onPageChanged: _onItemTapped,
+            children: [
+              FutureBuilder<List<Advertising>>(
+                future: futureData,
+                builder: (context, snapshot) {
+                  if (snapshot.hasData) {
+                    return HomePageScreen(advertisingList: snapshot.data!);
+                  } else if (snapshot.hasError) {
+                    return Center(
+                      child: Text('Error: ${snapshot.error}'),
+                    );
+                  } else {
+                    return const Center(
+                      child: CircularProgressIndicator(),
+                    );
+                  }
+                },
+              ),
+              UserManager.instance.loggedUser!.isAdm
+                  ? const AdmAdsListPage()
+                  : const UserFavListPage(),
+              const UserAdsListPage(),
+            ]),
         floatingActionButton: const ExpandableFab(),
         bottomNavigationBar: BottomNavigationBar(
           backgroundColor: const Color.fromARGB(255, 0, 101, 32),
@@ -72,17 +137,15 @@ class _UserHomePageState extends State<UserHomePage> {
               icon: Icon(Icons.shopping_cart),
               label: "Comprar",
             ),
-            UserManager.instance.loggedUser!.isAdm ?
-
-            const BottomNavigationBarItem(
-              icon: Icon(Icons.pending),
-              label: "Anúncios Pendentes",
-            ) :
-            const BottomNavigationBarItem(
-              icon: Icon(Icons.favorite),
-              label: "Favoritos",
-            ),
-
+            UserManager.instance.loggedUser!.isAdm
+                ? const BottomNavigationBarItem(
+                    icon: Icon(Icons.pending),
+                    label: "Anúncios Pendentes",
+                  )
+                : const BottomNavigationBarItem(
+                    icon: Icon(Icons.favorite),
+                    label: "Favoritos",
+                  ),
             const BottomNavigationBarItem(
               icon: Icon(Icons.person),
               label: "Meus Anúncios",
@@ -92,15 +155,28 @@ class _UserHomePageState extends State<UserHomePage> {
           onTap: _onItemTapped,
         ),
         floatingActionButtonLocation: FloatingActionButtonLocation.miniEndFloat,
-      ),
-    );
+      );
   }
 }
 
 class HomePageScreen extends StatelessWidget {
+  final List<Advertising> advertisingList;
+
   const HomePageScreen({
     Key? key,
+    required this.advertisingList,
   }) : super(key: key);
+
+  List<Widget> _buildAdvertisingCards() {
+    return advertisingList.map((advertising) {
+      return AdvertisingCard(
+        imageLink: advertising.imageUrl!,
+        title: advertising.name!,
+        description: advertising.description!,
+        destination: AdvertisingInfoPage(advertisingId: advertising.id!),
+      );
+    }).toList();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -112,29 +188,22 @@ class HomePageScreen extends StatelessWidget {
           child: ListView(
             children: [
               const HomePageLogo(),
-              Padding(
-                padding: const EdgeInsets.only(left: 200.0),
-                child: FlatMenuButton(
-                  icon: const Icon(Icons.exit_to_app),
-                  buttonName: "Sair",
-                  onPress: () {
-                    Navigator.push(
-                      context,
-                      MaterialPageRoute(builder: (context) => const InitialView()),
-                    );
-                  },
-                ),
+              FlatMenuButton(
+                icon: const Icon(Icons.exit_to_app),
+                buttonName: "Sair",
+                onPress: () {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (context) => const InitialView(),
+                    ),
+                  );
+                },
               ),
               categoriesSection,
               regulationBox,
               socialMediaBox("facebookLink", "instagramLink", "youtubeLink"),
-               const PublicityCard(
-                imageLink:
-                "https://imagens.mfrural.com.br/mfrural-produtos-us/245984-250772-2050402-sementes-de-capim-mpg-produtos-agropecuarios.jpg",
-                publicityDescription: 'Sementes boas a um preco barato',
-                publicityTitle: 'Sementes',
-                destination: PublicityInfoPage( machineId: 1,),
-              )
+              ..._buildAdvertisingCards(), // Display advertising cards
             ]
                 .map((widget) => Padding(
               padding: const EdgeInsets.all(24),
@@ -148,6 +217,100 @@ class HomePageScreen extends StatelessWidget {
   }
 }
 
+
+class AdvertisingCard extends StatelessWidget {
+  const AdvertisingCard(
+      {super.key,
+      required this.imageLink,
+      required this.description,
+      required this.title,
+      required this.destination});
+  final String imageLink;
+  final String title;
+  final String description;
+  final Widget destination;
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      width: MediaQuery.of(context).size.width * 0.8,
+      height: 400,
+      decoration: BoxDecoration(
+        color: const Color.fromARGB(255, 0, 101, 32),
+        borderRadius: BorderRadius.circular(10),
+      ),
+      child: ClipRRect(
+        borderRadius: BorderRadius.circular(10),
+        child: TextButton(
+          onPressed: () {
+            Navigator.push(
+              context,
+              MaterialPageRoute(builder: (context) => destination),
+            );
+          },
+          child: Stack(
+            alignment: Alignment.topCenter,
+            fit: StackFit.expand,
+            children: [
+              Align(
+                alignment: AlignmentDirectional.topCenter,
+                child: Padding(
+                  padding: const EdgeInsets.only(top: 8),
+                  child: FractionallySizedBox(
+                    heightFactor: 0.8,
+                    widthFactor: 1,
+                    child: ClipRRect(
+                      borderRadius: BorderRadius.circular(10),
+                      child: Image.network(
+                        imageLink,
+                        fit: BoxFit.cover,
+                      ),
+                    ),
+                  ),
+                ),
+              ),
+              FractionallySizedBox(
+                alignment: Alignment.bottomCenter,
+                heightFactor: 0.2,
+                child: Container(
+                  color: const Color.fromARGB(255, 0, 101, 32),
+                  child: Center(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Padding(
+                          padding: const EdgeInsets.only(top: 8.0, bottom: 8.0),
+                          child: Text(
+                            title,
+                            textAlign: TextAlign.left,
+                            style: const TextStyle(
+                              fontWeight: FontWeight.bold,
+                              color: Colors.white,
+                            ),
+                          ),
+                        ),
+                        const Divider(
+                          color: Colors.white,
+                        ),
+                        Text(
+                          description,
+                          textAlign: TextAlign.left,
+                          style: const TextStyle(
+                            color: Colors.white,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                ),
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+}
 
 Widget categoriesSection = const Column(
   children: [
@@ -163,25 +326,25 @@ Widget categoriesSection = const Column(
       children: [
         Flexible(
           child: CategoryBox(
-            imageLink:
-                "https://s2.glbimg.com/V4XsshzNU57Brn3e127b80Rbk24=/e.glbimg.com/og/ed/f/original/2016/05/30/gado.jpg",
-            categoryText: "GADO",
+            imagePath:
+              "assets/images/AnimalIcon.png",
+            categoryText: "ANIMAIS",
             destination: AnimalListPage(),
           ),
         ),
         Flexible(
           child: CategoryBox(
-            imageLink:
-                "https://humanidades.com/wp-content/uploads/2016/04/campo-1-e1558303226877.jpg",
-            categoryText: "TERRA",
+            imagePath:
+              "assets/images/LandIcon.png",
+            categoryText: "TERRAS",
             destination: LandListPage(),
           ),
         ),
         Flexible(
           child: CategoryBox(
-              imageLink:
-                  "https://blog.buscarrural.com/wp-content/uploads/elementor/thumbs/maquinas-agricolas-p1pbgi0lbgjhgun9dzsoe1x3of68qs2xhp67wstl68.jpg",
-              categoryText: "MÁQUINA",
+              imagePath:
+                "assets/images/MachineryIcon.png",
+              categoryText: "MÁQUINARIO",
               destination: MachineryListPage()),
         ),
       ],
@@ -190,13 +353,13 @@ Widget categoriesSection = const Column(
 );
 
 class CategoryBox extends StatelessWidget {
-  final String imageLink;
+  final String imagePath;
   final String categoryText;
   final Widget destination;
 
   const CategoryBox({
     super.key,
-    required this.imageLink,
+    required this.imagePath,
     required this.categoryText,
     required this.destination,
   });
@@ -228,13 +391,13 @@ class CategoryBox extends StatelessWidget {
                 child: Padding(
                   padding: const EdgeInsets.only(top: 8),
                   child: FractionallySizedBox(
-                    heightFactor: 0.8,
+                    heightFactor: 0.9,
                     widthFactor: 1,
                     child: ClipRRect(
                       borderRadius: BorderRadius.circular(10),
-                      child: Image.network(
-                        imageLink,
-                        fit: BoxFit.cover,
+                      child: Image.asset(
+                        imagePath,
+                        fit: BoxFit.fitWidth,
                       ),
                     ),
                   ),
@@ -276,9 +439,9 @@ class HomePageLogo extends StatelessWidget {
         child: SizedBox(
           width: MediaQuery.of(context).size.width * 0.8,
           height: 80,
-          child: Image.network(
-            "https://upload.wikimedia.org/wikipedia/commons/f/fd/Crowd_Cow_logo.png?20210119092057",
-            fit: BoxFit.contain,
+          child: Image.asset(
+            "assets/images/logo.png",
+            fit: BoxFit.fitWidth,
           ),
         ),
       ),
@@ -307,7 +470,11 @@ class FlatMenuButton extends StatelessWidget {
   final String buttonName;
   final Color? color;
   const FlatMenuButton(
-      {Key? key, this.onPress, required this.icon, required this.buttonName, this.color})
+      {Key? key,
+      this.onPress,
+      required this.icon,
+      required this.buttonName,
+      this.color})
       : super(key: key);
 
   @override
@@ -374,9 +541,12 @@ Widget iconButtonSocialMedia(externalLink, icon, color) {
 
 Widget LogoBox = SizedBox(
   height: 100,
-  child: Image.network(
-    "https://upload.wikimedia.org/wikipedia/commons/f/fd/Crowd_Cow_logo.png?20210119092057",
+  width: double.infinity,
+  child: Image.asset(
+    "assets/images/logo.png",
+    fit: BoxFit.fitWidth,
   ),
+
 );
 
 class SearchBarWidget extends StatelessWidget {
@@ -426,7 +596,6 @@ class SearchBarWidget extends StatelessWidget {
         ),
       ),
     );
-
   }
 }
 
@@ -486,7 +655,8 @@ class _ExpandableFabState extends State<ExpandableFab>
               _toggleExpanded();
               Navigator.push(
                 context,
-                MaterialPageRoute(builder: (context) => const NewAnimalAdForm()),
+                MaterialPageRoute(
+                    builder: (context) => const NewAnimalAdForm()),
               );
             },
           ),
@@ -523,6 +693,27 @@ class _ExpandableFabState extends State<ExpandableFab>
           ),
         ),
         const SizedBox(height: 16.0),
+        Column(
+          children: [
+            if (UserManager.instance.loggedUser!.isAdm)
+              Visibility(
+                visible: _isExpanded,
+                child: _buildOption(
+                  icon: Icons.shop_2_rounded,
+                  label: 'Publicidade',
+                  onPressed: () {
+                    _toggleExpanded();
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                          builder: (context) => const AdvertisingForm()),
+                    );
+                  },
+                ),
+              ),
+            const SizedBox(height: 16.0),
+          ],
+        ),
         SizedBox(
           height: 80,
           width: 80,
@@ -533,13 +724,14 @@ class _ExpandableFabState extends State<ExpandableFab>
             elevation: 10,
             child: Stack(
               children: [
-
                 if (!_isExpanded)
                   const Text(
-                  "Criar Anúncio",
-                  textAlign: TextAlign.center,
-                  style: TextStyle(fontWeight: FontWeight.w600, fontSize: 12),
-                ) else AnimatedIcon(
+                    "Criar Anúncio",
+                    textAlign: TextAlign.center,
+                    style: TextStyle(fontWeight: FontWeight.w600, fontSize: 12),
+                  )
+                else
+                  AnimatedIcon(
                     icon: AnimatedIcons.menu_close,
                     progress: _animationController,
                   ),
@@ -564,101 +756,11 @@ class _ExpandableFabState extends State<ExpandableFab>
         curve: const Interval(0.0, 1.0, curve: Curves.easeOut),
       )),
       child: FloatingActionButton.extended(
-        backgroundColor: const Color.fromARGB(255, 0, 101, 32),
+        backgroundColor: const Color.fromARGB(255, 32, 100, 44),
         onPressed: onPressed,
         elevation: 10,
         label: Text(label),
         icon: Icon(icon),
-      ),
-    );
-  }
-}
-
-
-class PublicityCard extends StatelessWidget {
-  const PublicityCard({super.key, required this.imageLink, required this.publicityDescription,required this.publicityTitle, required this.destination});
-  final String imageLink;
-  final String publicityTitle;
-  final String publicityDescription;
-  final Widget destination;
-
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-      width: MediaQuery.of(context).size.width * 0.8,
-      height: 400,
-      decoration: BoxDecoration(
-        color: const Color.fromARGB(255, 0, 101, 32),
-        borderRadius: BorderRadius.circular(10),
-      ),
-      child: ClipRRect(
-        borderRadius: BorderRadius.circular(10),
-        child: TextButton(
-          onPressed: () {
-            Navigator.push(
-              context,
-              MaterialPageRoute(builder: (context) => destination),
-            );
-          },
-          child: Stack(
-            alignment: Alignment.topCenter,
-            fit: StackFit.expand,
-            children: [
-              Align(
-                alignment: AlignmentDirectional.topCenter,
-                child: Padding(
-                  padding: const EdgeInsets.only(top: 8),
-                  child: FractionallySizedBox(
-                    heightFactor: 0.8,
-                    widthFactor: 1,
-                    child: ClipRRect(
-                      borderRadius: BorderRadius.circular(10),
-                      child: Image.network(
-                        imageLink,
-                        fit: BoxFit.cover,
-                      ),
-                    ),
-                  ),
-                ),
-              ),
-              FractionallySizedBox(
-                alignment: Alignment.bottomCenter,
-                heightFactor: 0.2,
-                child: Container(
-                  color: const Color.fromARGB(255, 0, 101, 32),
-                  child: Center(
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Padding(
-                          padding: const EdgeInsets.only(top: 8.0, bottom: 8.0),
-                          child: Text(
-                            publicityTitle,
-                            textAlign: TextAlign.left,
-                            style: const TextStyle(
-                              fontWeight: FontWeight.bold,
-                              color: Colors.white,
-                            ),
-                          ),
-                        ),
-                        const Divider(
-                          color: Colors.white,
-                        ),
-                        Text(
-                          publicityDescription,
-                          textAlign: TextAlign.left,
-                          style: const TextStyle(
-                            color: Colors.white,
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
-                ),
-              ),
-            ],
-          ),
-        ),
       ),
     );
   }
